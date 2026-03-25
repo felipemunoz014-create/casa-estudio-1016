@@ -1,0 +1,1049 @@
+import { useState, useRef, useEffect, useCallback } from "react";
+
+/* ═══ EMAILJS CONFIG ════════════════════════════════════════════ */
+const EJS = {
+  serviceId:  "service_aycesln",
+  templateId: "template_zkd4qaq",
+  publicKey:  "HNVJqgrwRpicOZjCJ",
+};
+
+async function sendEmail(fields) {
+  const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id:  EJS.serviceId,
+      template_id: EJS.templateId,
+      user_id:     EJS.publicKey,
+      template_params: fields,
+    }),
+  });
+  return res.ok;
+}
+
+/* ═══ RESPONSIVE HOOK ═══════════════════════════════════════════ */
+function useW() {
+  const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 375);
+  useEffect(() => { const h = () => setW(window.innerWidth); window.addEventListener("resize", h); return () => window.removeEventListener("resize", h); }, []);
+  return w;
+}
+
+/* ═══ TEXTURES ══════════════════════════════════════════════════ */
+const TX = {
+  marble_gray:  `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#9BA5A8"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#B8C2C5"/><stop offset="40%" stop-color="#8A9599"/><stop offset="100%" stop-color="#7A8588"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M0,80 Q100,60 200,100 T400,80" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/><path d="M50,0 Q80,100 60,200 T80,400" stroke="rgba(255,255,255,0.35)" stroke-width="2" fill="none"/><path d="M200,0 Q230,150 210,250 T230,400" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none"/></svg>`,
+  marble_white: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#E8E4DC"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0EDE8"/><stop offset="50%" stop-color="#E0DBD2"/><stop offset="100%" stop-color="#EAE6DE"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M0,100 Q100,80 200,120 T400,100" stroke="rgba(160,150,140,0.5)" stroke-width="1.5" fill="none"/><path d="M80,0 Q100,100 90,200 T100,400" stroke="rgba(160,150,140,0.4)" stroke-width="1.5" fill="none"/></svg>`,
+  marble_black: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#1A1A1A"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#252525"/><stop offset="50%" stop-color="#111"/><stop offset="100%" stop-color="#1E1E1E"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M0,80 Q100,60 200,100 T400,80" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" fill="none"/><path d="M100,0 Q120,150 110,300 T120,400" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/></svg>`,
+  wood_caoba:   `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect width="300" height="400" fill="#5A2D0C"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B3515"/><stop offset="50%" stop-color="#7A4020"/><stop offset="100%" stop-color="#5A2D0C"/></linearGradient></defs><rect width="300" height="400" fill="url(#g)"/>${Array.from({length:28},(_,i)=>`<line x1="0" y1="${i*15}" x2="300" y2="${i*15+3}" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/>`).join("")}</svg>`,
+  wood_roble:   `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect width="300" height="400" fill="#B8784A"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#C4855A"/><stop offset="50%" stop-color="#A86A35"/><stop offset="100%" stop-color="#B87840"/></linearGradient></defs><rect width="300" height="400" fill="url(#g)"/>${Array.from({length:28},(_,i)=>`<line x1="0" y1="${i*15}" x2="300" y2="${i*15+2}" stroke="rgba(80,40,10,0.25)" stroke-width="1.2"/>`).join("")}</svg>`,
+  panel_marble: `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect width="300" height="400" fill="#A8B8BC"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#B8C8CC"/><stop offset="100%" stop-color="#A8B8BC"/></linearGradient></defs><rect width="300" height="400" fill="url(#g)"/><path d="M0,60 Q80,45 160,65 T300,55" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" fill="none"/></svg>`,
+  ceiling_pino: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="400" height="200" fill="#C8A060"/>${Array.from({length:16},(_,i)=>`<rect x="${i*25}" y="0" width="24" height="200" fill="rgba(${i%2===0?"180,130,60":"200,155,80"},0.3)"/>`).join("")}</svg>`,
+  siding_c:     `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#4A2D10"/>${Array.from({length:10},(_,i)=>`<rect x="0" y="${i*30}" width="400" height="28" fill="rgba(${70+i*3},${40+i*2},${15+i},0.8)"/><rect x="0" y="${i*30+28}" width="400" height="2" fill="rgba(0,0,0,0.4)"/>`).join("")}</svg>`,
+  siding_r:     `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#6B4020"/>${Array.from({length:10},(_,i)=>`<rect x="0" y="${i*30}" width="400" height="28" fill="rgba(${100+i*3},${60+i*2},${25+i},0.8)"/><rect x="0" y="${i*30+28}" width="400" height="2" fill="rgba(0,0,0,0.35)"/>`).join("")}</svg>`,
+  gold:         `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D4B850"/><stop offset="50%" stop-color="#A88020"/><stop offset="100%" stop-color="#C8A840"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/></svg>`,
+  silver:       `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D0D0D0"/><stop offset="50%" stop-color="#909090"/><stop offset="100%" stop-color="#B8B8B8"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/></svg>`,
+};
+
+/* ═══ PRODUCTS ══════════════════════════════════════════════════ */
+const DEFAULT_PRODS = [
+  {id:1, name:"PVC Mármol Gris",        dims:"122×244cm",  cat:"muro",      code:"KL8235",         price:18700, unit:"c/u", tk:"marble_gray",  desc:"Elegancia mineral con venas sutiles."},
+  {id:2, name:"PVC Mármol Blanco",       dims:"122×244cm",  cat:"muro",      code:"KL8263",         price:18700, unit:"c/u", tk:"marble_white", desc:"Pureza y luminosidad. Amplía cualquier espacio."},
+  {id:3, name:"PVC Mármol Negro",        dims:"122×244cm",  cat:"muro",      code:"KL8264",         price:18700, unit:"c/u", tk:"marble_black", desc:"Sofisticación absoluta. Contraste dramático."},
+  {id:4, name:"Wall Panel Caoba 24mm",   dims:"16×290cm",   cat:"muro",      code:"PY-60023-21",    price:6500,  unit:"c/u", tk:"wood_caoba",   desc:"Calidez profunda. Textura acanalada contemporánea."},
+  {id:5, name:"Wall Panel Roble 24mm",   dims:"16×290cm",   cat:"muro",      code:"PY-80450I-9",    price:6500,  unit:"c/u", tk:"wood_roble",   desc:"Tono natural cálido. Armonía nórdica."},
+  {id:6, name:"Wall Panel Mármol 24mm",  dims:"16×290cm",   cat:"muro",      code:"PY-80401-2",     price:6500,  unit:"c/u", tk:"panel_marble", desc:"Mármol en formato panel acanalado."},
+  {id:7, name:"Placa Cielo PVC Pino",    dims:"25×580cm",   cat:"cielo",     code:"DS059",          price:12500, unit:"c/u", tk:"ceiling_pino", desc:"Calidez en el cielo con veta natural."},
+  {id:8, name:"Siding Metal Castaño",    dims:"38.3×580cm", cat:"exterior",  code:"WG-02",          price:26500, unit:"c/u", tk:"siding_c",     desc:"Alta densidad. 2.2m² por unidad."},
+  {id:9, name:"Siding Metal Cedro",      dims:"38.3×580cm", cat:"exterior",  code:"WG-08",          price:26500, unit:"c/u", tk:"siding_r",     desc:"Cedro para exteriores. Normativa térmica."},
+  {id:10,name:"Perfil PVC H Cielo",      dims:"1×4×580cm",  cat:"accesorio", code:"DS059-H",        price:14500, unit:"c/u", tk:"gold",         desc:"Unión entre placas de cielo PVC."},
+  {id:11,name:"Perfil Cornisa 3×3",      dims:"3×3×580cm",  cat:"accesorio", code:"DS059-P",        price:14500, unit:"c/u", tk:"gold",         desc:"Encuentro elegante muro-cielo."},
+  {id:12,name:"100 Clips de Montaje",    dims:"33×45mm",    cat:"accesorio", code:"CLIPS",          price:6000,  unit:"set", tk:"silver",       desc:"Fijación oculta para Wall Panel."},
+  {id:13,name:"Perfil H Aluminio",       dims:"1.8×250cm",  cat:"accesorio", code:"SILVER-H-JOINT", price:3600,  unit:"c/u", tk:"silver",       desc:"Unión de alto acabado para mármol PVC."},
+  {id:14,name:"Perfil Interior Aluminio",dims:"2×250cm",    cat:"accesorio", code:"SILVER-INSIDE",  price:3600,  unit:"c/u", tk:"silver",       desc:"Perfil interior para terminaciones."},
+];
+
+const $$ = n => `$${Number(n).toLocaleString("es-CL")}`;
+const CATS = ["todos","muro","cielo","exterior","accesorio"];
+const CAT_L = {todos:"Todos",muro:"Muros",cielo:"Cielos",exterior:"Exterior",accesorio:"Accesorios"};
+
+/* ═══ TEXTURE THUMBNAIL ════════════════════════════════════════ */
+// customImg: base64 data URL of a user-uploaded photo (overrides SVG texture)
+function Thumb({tk, customImg, w=120, h=80}) {
+  const ref = useRef();
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const ctx = el.getContext("2d");
+    ctx.clearRect(0, 0, w, h);
+    if (customImg) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, w, h);
+      img.src = customImg;
+    } else {
+      const blob = new Blob([TX[tk]||TX.marble_gray], {type:"image/svg+xml"});
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+      img.onload = () => { ctx.drawImage(img, 0, 0, w, h); URL.revokeObjectURL(url); };
+      img.src = url;
+    }
+  }, [tk, customImg, w, h]);
+  return <canvas ref={ref} width={w} height={h} style={{display:"block",width:"100%",height:"100%"}}/>;
+}
+
+/* ═══ APPLY TEXTURE ════════════════════════════════════════════ */
+async function applyTexture(photoSrc, tk, zone, customImg=null) {
+  const load=src=>new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=src;});
+  const photo=await load(photoSrc);
+  let tex;
+  if (customImg) {
+    tex = await load(customImg);
+  } else {
+    const blob=new Blob([TX[tk]||TX.marble_gray],{type:"image/svg+xml"});
+    const tu=URL.createObjectURL(blob); tex=await load(tu); URL.revokeObjectURL(tu);
+  }
+  const c=document.createElement("canvas");
+  const W=Math.min(photo.naturalWidth,1000), H=Math.round(photo.naturalHeight*W/photo.naturalWidth);
+  c.width=W; c.height=H; const ctx=c.getContext("2d"); ctx.drawImage(photo,0,0,W,H);
+  const pc=document.createElement("canvas"); pc.width=tex.width; pc.height=tex.height; pc.getContext("2d").drawImage(tex,0,0);
+  const pat=ctx.createPattern(pc,"repeat");
+  let ry=0,rh=H;
+  if(zone==="muro"){ry=0;rh=H*0.78;} if(zone==="piso"){ry=H*0.6;rh=H*0.4;} if(zone==="cielo"){ry=0;rh=H*0.2;}
+  ctx.save(); ctx.beginPath(); ctx.rect(0,ry,W,rh); ctx.clip();
+  ctx.globalCompositeOperation="multiply"; ctx.globalAlpha=0.70; ctx.fillStyle=pat; ctx.fillRect(0,ry,W,rh);
+  ctx.globalCompositeOperation="screen"; ctx.globalAlpha=0.07; ctx.fillStyle="#fff"; ctx.fillRect(0,ry,W,rh);
+  ctx.restore();
+  return c.toDataURL("image/jpeg",0.93);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EDITABLE TEXT — click to edit inline
+═══════════════════════════════════════════════════════════════ */
+function EditText({value, onChange, editing, tag="span", style={}, multiline=false, placeholder="Haz clic para editar"}) {
+  const ref = useRef();
+  const Tag = tag;
+
+  useEffect(() => {
+    if (editing && ref.current) ref.current.focus();
+  }, [editing]);
+
+  if (!editing) return <Tag style={style}>{value}</Tag>;
+
+  if (multiline) return (
+    <textarea ref={ref} value={value} onChange={e=>onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{...style, background:"rgba(255,255,200,0.9)", border:"2px solid #F5A623", borderRadius:4, padding:"4px 8px", resize:"vertical", width:"100%", fontFamily:"inherit", outline:"none", minHeight:80}}/>
+  );
+
+  return (
+    <input ref={ref} value={value} onChange={e=>onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{...style, background:"rgba(255,255,200,0.9)", border:"2px solid #F5A623", borderRadius:4, padding:"4px 8px", width:"100%", fontFamily:"inherit", outline:"none"}}/>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EDITABLE WRAPPER — highlights element in edit mode
+═══════════════════════════════════════════════════════════════ */
+function Editable({editing, label, children, style={}, onClick}) {
+  if (!editing) return <div style={style}>{children}</div>;
+  return (
+    <div onClick={onClick} style={{...style, position:"relative", outline:"2px dashed rgba(245,166,35,0.6)", outlineOffset:2, borderRadius:4, cursor:"pointer"}}
+      onMouseEnter={e=>e.currentTarget.style.outline="2px solid #F5A623"}
+      onMouseLeave={e=>e.currentTarget.style.outline="2px dashed rgba(245,166,35,0.6)"}>
+      <div style={{position:"absolute",top:-18,left:0,background:"#F5A623",color:"white",fontSize:9,fontWeight:700,padding:"2px 6px",borderRadius:"3px 3px 3px 0",whiteSpace:"nowrap",zIndex:10,letterSpacing:.5}}>
+        ✏️ {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   IMAGE UPLOAD BUTTON (editor mode)
+═══════════════════════════════════════════════════════════════ */
+function ImgUpload({onImage, children, style={}}) {
+  return (
+    <label style={{...style, cursor:"pointer", display:"block", position:"relative"}}>
+      {children}
+      <div style={{position:"absolute",inset:0,background:"rgba(245,166,35,0.15)",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"inherit"}}>
+        <div style={{background:"#F5A623",color:"white",padding:"8px 16px",borderRadius:8,fontSize:12,fontWeight:700,boxShadow:"0 2px 12px rgba(0,0,0,0.2)"}}>📷 Cambiar imagen</div>
+      </div>
+      <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{
+        const f=e.target.files[0]; if(!f) return;
+        const r=new FileReader(); r.onload=ev=>onImage(ev.target.result); r.readAsDataURL(f);
+      }}/>
+    </label>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCT EDITOR MODAL
+═══════════════════════════════════════════════════════════════ */
+function ProductEditor({product, onSave, onDelete, onClose}) {
+  const [p, setP] = useState({...product});
+  const set = (k,v) => setP(x=>({...x,[k]:v}));
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"white",borderRadius:12,width:"100%",maxWidth:480,maxHeight:"90vh",overflow:"auto",padding:24,boxShadow:"0 24px 60px rgba(0,0,0,0.3)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+          <h3 style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:600}}>Editar Producto</h3>
+          <button onClick={onClose} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#888"}}>×</button>
+        </div>
+        {[["name","Nombre","text"],["code","Código","text"],["dims","Dimensiones","text"],["price","Precio","number"],["unit","Unidad (c/u, set)","text"]].map(([k,l,t])=>(
+          <div key={k} style={{marginBottom:12}}>
+            <label style={{display:"block",fontSize:11,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:.5,marginBottom:4}}>{l}</label>
+            <input type={t} value={p[k]||""} onChange={e=>set(k,t==="number"?Number(e.target.value):e.target.value)}
+              style={{width:"100%",padding:"9px 12px",border:"1px solid #E0D8D0",borderRadius:7,fontSize:14,fontFamily:"inherit",outline:"none"}}/>
+          </div>
+        ))}
+        <div style={{marginBottom:12}}>
+          <label style={{display:"block",fontSize:11,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:.5,marginBottom:4}}>Categoría</label>
+          <select value={p.cat||"muro"} onChange={e=>set("cat",e.target.value)} style={{width:"100%",padding:"9px 12px",border:"1px solid #E0D8D0",borderRadius:7,fontSize:14,fontFamily:"inherit",outline:"none",background:"white"}}>
+            {["muro","cielo","exterior","accesorio"].map(c=><option key={c} value={c}>{CAT_L[c]}</option>)}
+          </select>
+        </div>
+        <div style={{marginBottom:12}}>
+          <label style={{display:"block",fontSize:11,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:.5,marginBottom:8}}>Imagen / Textura del producto</label>
+
+          {/* Current preview */}
+          <div style={{width:"100%",height:110,borderRadius:8,overflow:"hidden",marginBottom:10,border:"1px solid #E0D8D0",position:"relative"}}>
+            <Thumb tk={p.tk} customImg={p.customImg||null} w={440} h={110}/>
+            {p.customImg && (
+              <button onClick={()=>set("customImg",null)}
+                style={{position:"absolute",top:6,right:6,background:"rgba(196,90,90,0.9)",color:"white",border:"none",borderRadius:5,padding:"3px 8px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                × Quitar foto
+              </button>
+            )}
+          </div>
+
+          {/* Upload real photo */}
+          <label style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,width:"100%",padding:"11px",background:"#FFF8F0",border:"2px dashed #F5A623",borderRadius:8,cursor:"pointer",marginBottom:10,fontSize:13,fontWeight:700,color:"#B87A10"}}>
+            📷 {p.customImg ? "Cambiar foto del producto" : "Subir foto del revestimiento"}
+            <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{
+              const f=e.target.files[0]; if(!f) return;
+              const r=new FileReader(); r.onload=ev=>set("customImg",ev.target.result); r.readAsDataURL(f);
+            }}/>
+          </label>
+
+          {/* OR divider */}
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <div style={{flex:1,height:1,background:"#E0D8D0"}}/>
+            <span style={{fontSize:11,color:"#AAA",fontWeight:600}}>O elige una textura generada</span>
+            <div style={{flex:1,height:1,background:"#E0D8D0"}}/>
+          </div>
+
+          {/* SVG texture picker */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:5}}>
+            {Object.keys(TX).map(k=>(
+              <div key={k} onClick={()=>{set("tk",k);set("customImg",null);}}
+                style={{borderRadius:6,overflow:"hidden",cursor:"pointer",border:`2px solid ${!p.customImg&&p.tk===k?"#F5A623":"transparent"}`,height:44,opacity:p.customImg?0.4:1,transition:"opacity .15s"}}
+                title={k}>
+                <Thumb tk={k} w={80} h={44}/>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{marginBottom:16}}>
+          <label style={{display:"block",fontSize:11,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:.5,marginBottom:4}}>Descripción</label>
+          <textarea value={p.desc||""} onChange={e=>set("desc",e.target.value)} rows={3}
+            style={{width:"100%",padding:"9px 12px",border:"1px solid #E0D8D0",borderRadius:7,fontSize:13,fontFamily:"inherit",resize:"none",outline:"none"}}/>
+        </div>
+        <div style={{display:"flex",gap:10}}>
+          <button onClick={()=>onSave(p)} style={{flex:1,padding:"12px",background:"#2C2420",color:"white",border:"none",borderRadius:8,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>✓ Guardar</button>
+          <button onClick={()=>onDelete(p.id)} style={{padding:"12px 16px",background:"#FEE2E2",color:"#C45A5A",border:"none",borderRadius:8,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>🗑</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUALIZER MODAL
+═══════════════════════════════════════════════════════════════ */
+function VisualizerModal({prods, onClose}) {
+  const w=useW(); const sm=w<640;
+  const [img,setImg]=useState(null), [zone,setZone]=useState("muro"), [mat,setMat]=useState(null);
+  const [cat,setCat]=useState("todos"), [busy,setBusy]=useState(false), [res,setRes]=useState(null);
+  const [txt,setTxt]=useState(""), [drag,setDrag]=useState(false), [panel,setPanel]=useState("foto");
+  const load=useCallback(f=>{if(!f||!f.type.startsWith("image/"))return;const r=new FileReader();r.onload=e=>{setImg(e.target.result);setRes(null);setTxt("");setPanel("foto");};r.readAsDataURL(f);},[]);
+  async function run(){
+    if(!img||!mat)return; setBusy(true); setRes(null); setTxt("");
+
+const OPENAI_KEY = import.meta.env.VITE_OPENAI_KEY;
+    try {
+      const b64 = img.includes(",") ? img.split(",")[1] : img;
+
+      // 1. Primero pedimos a GPT-4o que describa el espacio
+      const descResp = await fetch("https://api.openai.com/v1/chat/completions", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":`Bearer ${OPENAI_KEY}`},
+        body: JSON.stringify({
+          model:"gpt-4o",
+          max_tokens:300,
+          messages:[{
+            role:"user",
+            content:[
+              {type:"image_url", image_url:{url:`data:image/jpeg;base64,${b64}`}},
+              {type:"text", text:`Describe this interior space in detail for an image generation prompt: dimensions, colors, lighting, furniture style, architectural features. Be specific and concise (max 100 words).`}
+            ]
+          }]
+        })
+      });
+      const descData = await descResp.json();
+      const spaceDesc = descData.choices?.[0]?.message?.content || "a modern interior room";
+
+      // 2. Generamos imagen con DALL-E 3
+      const zoneEs = zone==="muro"?"walls":zone==="piso"?"floor":"ceiling";
+      const dallePrompt = `Photorealistic interior design render. The space is: ${spaceDesc}. Apply "${mat.name}" (${mat.desc}) to the ${zoneEs}. High quality architectural visualization, professional lighting, 4K quality. Keep all furniture and elements the same, only change the ${zoneEs} surface material.`;
+
+      const imgResp = await fetch("https://api.openai.com/v1/images/generations", {
+        method:"POST",
+        headers:{"Content-Type":"application/json","Authorization":`Bearer ${OPENAI_KEY}`},
+        body: JSON.stringify({
+          model:"dall-e-3",
+          prompt: dallePrompt,
+          n:1,
+          size:"1024x1024",
+          quality:"standard"
+        })
+      });
+      const imgData = await imgResp.json();
+
+      if(imgData.data?.[0]?.url) {
+        setRes(imgData.data[0].url);
+        setTxt(`✦ Visualización generada con IA — ${mat.name} aplicado en el ${zone}. Esta es una simulación artística de cómo podría verse tu espacio con este revestimiento.`);
+      } else {
+        // Fallback a canvas si falla DALL-E
+        const fallback = await applyTexture(img, mat.tk, zone, mat.customImg||null);
+        setRes(fallback);
+        setTxt(imgData.error?.message || "No se pudo generar la imagen. Mostrando simulación de textura.");
+      }
+    } catch(e) {
+      // Fallback a canvas
+      const fallback = await applyTexture(img, mat.tk, zone, mat.customImg||null);
+      setRes(fallback);
+      setTxt("Visítanos en Arturo Prat 1016 o al +56 9 7868 2990 para asesoría personalizada.");
+    }
+    setBusy(false);
+  }
+  const filtered=cat==="todos"?prods:prods.filter(p=>p.cat===cat);
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(15,12,10,0.88)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:sm?0:20,backdropFilter:"blur(6px)"}} onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#FAF8F4",borderRadius:sm?0:16,width:"100%",maxWidth:880,height:sm?"100%":"90vh",maxHeight:sm?"100%":"90vh",overflow:"hidden",display:"flex",flexDirection:"column",boxShadow:"0 32px 80px rgba(0,0,0,0.4)"}}>
+        <div style={{padding:"14px 18px",borderBottom:"1px solid #EDE8E0",display:"flex",alignItems:"center",justifyContent:"space-between",background:"white",flexShrink:0}}>
+          <div><div style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:700}}>✦ Visualizador IA</div><div style={{fontSize:11,color:"#8A7868",marginTop:1}}>Aplica texturas reales en tu espacio</div></div>
+          <button onClick={onClose} style={{width:32,height:32,borderRadius:"50%",border:"1px solid #E0D8D0",background:"white",cursor:"pointer",fontSize:20,color:"#8A7868",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1}}>×</button>
+        </div>
+        {sm&&<div style={{display:"flex",borderBottom:"2px solid #EDE8E0",flexShrink:0}}>{[["foto","📷 Mi espacio"],["catalogo","🧱 Materiales"]].map(([id,l])=><button key={id} onClick={()=>setPanel(id)} style={{flex:1,padding:"11px 4px",fontSize:12,fontWeight:700,border:"none",cursor:"pointer",fontFamily:"inherit",background:panel===id?"#FAF8F4":"white",color:panel===id?"#5A3A1A":"#8A7868",borderBottom:`2px solid ${panel===id?"#8B6B4A":"transparent"}`,marginBottom:-2}}>{l}</button>)}</div>}
+        <div style={{display:"flex",flex:1,overflow:"hidden",flexDirection:sm?"column":"row"}}>
+          {(!sm||panel==="foto")&&<div style={{flex:1,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:12}}>
+            <div style={{display:"flex",gap:8}}>{[["muro","🧱 Muro"],["piso","🪵 Piso"],["cielo","☁️ Cielo"]].map(([z,l])=><button key={z} onClick={()=>setZone(z)} style={{flex:1,padding:"9px 4px",border:`2px solid ${zone===z?"#8B6B4A":"#E0D8D0"}`,borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",background:zone===z?"#F5EDE4":"white",color:zone===z?"#5A3010":"#8A7868",fontFamily:"inherit"}}>{l}</button>)}</div>
+            {!img?<div onDragOver={e=>{e.preventDefault();setDrag(true)}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);load(e.dataTransfer.files[0])}} style={{border:`2px dashed ${drag?"#8B6B4A":"#D8D0C4"}`,borderRadius:10,padding:"36px 16px",textAlign:"center",background:drag?"#F5EDE4":"#FDFAF6"}}>
+              <div style={{fontSize:40,marginBottom:8}}>🏠</div><p style={{fontSize:14,fontWeight:600,marginBottom:4}}>Arrastra tu foto aquí</p><p style={{fontSize:12,color:"#8A7868",marginBottom:14}}>JPG, PNG, WEBP</p>
+              <label style={{background:"#2C2420",color:"white",padding:"11px 22px",borderRadius:8,fontSize:13,fontWeight:700,cursor:"pointer",display:"inline-block"}}>📂 Seleccionar<input type="file" accept="image/*" style={{display:"none"}} onChange={e=>load(e.target.files[0])}/></label>
+            </div>:<div style={{borderRadius:10,overflow:"hidden",position:"relative",border:"1px solid #E0D8D0"}}><img src={img} style={{width:"100%",maxHeight:220,objectFit:"cover",display:"block"}}/><label style={{position:"absolute",top:8,right:8,background:"rgba(44,36,32,0.75)",color:"white",padding:"5px 10px",borderRadius:6,fontSize:11,fontWeight:600,cursor:"pointer",backdropFilter:"blur(4px)"}}>Cambiar<input type="file" accept="image/*" style={{display:"none"}} onChange={e=>load(e.target.files[0])}/></label></div>}
+            {mat&&<div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:"white",border:"1px solid #E0D8D0",borderRadius:8}}><div style={{width:40,height:40,borderRadius:6,overflow:"hidden",flexShrink:0}}><Thumb tk={mat.tk} customImg={mat.customImg||null} w={40} h={40}/></div><div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{mat.name}</div><div style={{fontSize:11,color:"#7A5B3A",fontWeight:600}}>{$$(mat.price)}</div></div></div>}
+            <button disabled={!img||!mat||busy} onClick={run} style={{padding:"13px",background:(!img||!mat||busy)?"#E0D8D0":"#2C2420",color:(!img||!mat||busy)?"#A09488":"white",border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:(!img||!mat||busy)?"not-allowed":"pointer",fontFamily:"inherit"}}>
+              {busy?"⏳ Procesando...":!img?"Sube una foto":!mat?"Elige un material":"✨ Visualizar"}
+            </button>
+            {busy&&!res&&<div style={{height:100,display:"flex",alignItems:"center",justifyContent:"center",gap:12,background:"#F5F0EA",borderRadius:10}}><div style={{width:28,height:28,border:"3px solid #E0D8D0",borderTopColor:"#8B6B4A",borderRadius:"50%",animation:"spin .7s linear infinite"}}/><div><div style={{fontSize:13,color:"#8A7868",fontWeight:600}}>Generando imagen con IA...</div><div style={{fontSize:11,color:"#A09488",marginTop:3}}>Esto puede tomar 15-30 segundos</div></div></div>}
+            {res&&<><div style={{borderRadius:10,overflow:"hidden",position:"relative",border:"1px solid #E0D8D0"}}><img src={res} style={{width:"100%",display:"block"}}/><div style={{position:"absolute",bottom:8,left:8,background:"rgba(44,36,32,0.82)",color:"white",fontSize:10,padding:"4px 10px",borderRadius:20,fontWeight:700}}>✦ {mat?.name}</div></div>{txt&&<div style={{background:"#F5EDE4",borderLeft:"3px solid #8B6B4A",padding:"12px 14px",borderRadius:"0 8px 8px 0",fontSize:13,lineHeight:1.8}}>{txt}</div>}</>}
+          </div>}
+          {(!sm||panel==="catalogo")&&<div style={{width:sm?"100%":268,borderLeft:sm?"none":"1px solid #EDE8E0",background:"white",display:"flex",flexDirection:"column",overflow:"hidden",flexShrink:0}}>
+            <div style={{padding:"10px",borderBottom:"1px solid #EDE8E0",display:"flex",gap:4,flexWrap:"wrap",flexShrink:0}}>{CATS.map(c=><button key={c} onClick={()=>setCat(c)} style={{padding:"4px 9px",border:`1px solid ${cat===c?"#8B6B4A":"#E0D8D0"}`,borderRadius:20,fontSize:10,fontWeight:700,cursor:"pointer",background:cat===c?"#8B6B4A":"white",color:cat===c?"white":"#8A7868",fontFamily:"inherit"}}>{CAT_L[c]}</button>)}</div>
+            <div style={{flex:1,overflowY:"auto",padding:8,display:"flex",flexDirection:"column",gap:6}}>{filtered.map(p=><div key={p.id} onClick={()=>{setMat(p);if(sm)setPanel("foto");}} style={{display:"flex",gap:10,alignItems:"center",padding:"8px 10px",borderRadius:8,border:`2px solid ${mat?.id===p.id?"#8B6B4A":"transparent"}`,background:mat?.id===p.id?"#FDF5EE":"white",cursor:"pointer",transition:"all .15s"}} onMouseEnter={e=>{if(mat?.id!==p.id)e.currentTarget.style.background="#FAF7F4"}} onMouseLeave={e=>{if(mat?.id!==p.id)e.currentTarget.style.background="white"}}><div style={{width:44,height:44,borderRadius:6,overflow:"hidden",flexShrink:0}}><Thumb tk={p.tk} customImg={p.customImg||null} w={44} h={44}/></div><div style={{flex:1,minWidth:0}}><div style={{fontSize:11,fontWeight:700,lineHeight:1.3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</div><div style={{fontSize:10,color:"#8A7868"}}>{p.code}</div><div style={{fontSize:11,fontWeight:800,color:"#7A5B3A"}}>{$$(p.price)}</div></div>{mat?.id===p.id&&<div style={{width:18,height:18,background:"#8B6B4A",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"white",fontWeight:800,flexShrink:0}}>✓</div>}</div>)}</div>
+          </div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN APP
+═══════════════════════════════════════════════════════════════ */
+export default function App() {
+  const w=useW(), sm=w<640, md=w<900;
+
+  // ── LOGIN / ADMIN ─────────────────────────────────────────────
+  const ADMIN_PASS = "Casaestudio1016%CMCF";
+  const [isAdmin,   setIsAdmin]   = useState(() => sessionStorage.getItem("ce1016_admin") === "yes");
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [passInput, setPassInput] = useState("");
+  const [passError, setPassError] = useState(false);
+
+  const tryLogin = () => {
+    if (passInput === ADMIN_PASS) {
+      sessionStorage.setItem("ce1016_admin","yes");
+      setIsAdmin(true); setLoginOpen(false); setPassInput(""); setPassError(false);
+    } else {
+      setPassError(true); setPassInput("");
+      setTimeout(()=>setPassError(false), 2000);
+    }
+  };
+  const logout = () => { sessionStorage.removeItem("ce1016_admin"); setIsAdmin(false); setEditMode(false); };
+
+  // ── EDITOR STATE ──────────────────────────────────────────────
+  const [editMode, setEditMode] = useState(false);
+  const [activeField, setActiveField] = useState(null);
+  const [productEditor, setProductEditor] = useState(null);
+  const [saved, setSaved] = useState(false);
+
+  // ── DEFAULT CONTENT ───────────────────────────────────────────
+  const DEFAULT_CONTENT = {
+    brandName: "Casa-Estudio", brandNum: "1016",
+    brandSub:  "Revestimientos · Santa Bárbara",
+    promoText: "⭐ Precios de Inauguración — Válidos hasta el 31 de marzo 2026",
+    heroTag: "Importadora & Comercializadora",
+    heroTitle1: "Revestimientos", heroTitle2: "de alto estándar", heroTitle3: "para tu espacio",
+    heroSubtitle: "Arquitectura, diseño e importación de materiales decorativos. Santa Bárbara — atendemos todo Chile.",
+    heroBtnPrimary: "Ver Catálogo", heroBtnSecondary: "Cotizar", heroImage: null,
+    stat1n:"14+", stat1l:"Productos", stat2n:"Alta densidad", stat2l:"Materiales",
+    stat3n:"Inauguración", stat3l:"Precios 2026", stat4n:"Santa Bárbara", stat4l:"Todo Chile",
+    aboutTag: "Quiénes somos", aboutTitle1:"Arquitectura", aboutTitle2:"& Diseño",
+    aboutBody1: "Casa-Estudio 1016 es una importadora y comercializadora de materiales decorativos de construcción, con foco en revestimientos de alto estándar.",
+    aboutBody2: "Ofrecemos asesoría en arquitectura y diseño para proyectos residenciales y comerciales, con productos que combinan durabilidad, estética y precio accesible.",
+    aboutImg1:null, aboutImg2:null, aboutImg3:null, aboutImg4:null,
+    svcTitle: "Servicios especializados",
+    svc1icon:"🏛️", svc1title:"Arquitectura & Diseño",  svc1desc:"Asesoría profesional para proyectos residenciales y comerciales.",
+    svc2icon:"📦", svc2title:"Importación Directa",      svc2desc:"Materiales de alta calidad desde el fabricante, sin intermediarios.",
+    svc3icon:"🛠️", svc3title:"Asesoría Técnica",         svc3desc:"Te guiamos en la elección correcta según el ambiente y presupuesto.",
+    svc4icon:"🚚", svc4title:"Despacho Nacional",         svc4desc:"Enviamos a cualquier región del país.",
+    ctaTitle1:"¿Cómo quedaría en", ctaTitle2:"tu espacio?",
+    ctaBody:"Sube una foto y aplica cualquier revestimiento del catálogo con IA.",
+    ctaBtn:"✦ Abrir Visualizador IA",
+    contactTitle1:"Hablemos de", contactTitle2:"tu proyecto",
+    contactBody:"Estamos en Santa Bárbara. Visítanos para una asesoría personalizada sin costo.",
+    contactAddr:"Arturo Prat 1016, Santa Bárbara", contactPhone:"+56 9 7868 2990",
+    contactPay:"VISA · Redcompra · MercadoPago", contactWaBtn:"💬 Abrir WhatsApp",
+    waNumber:"56978682990",
+    colorDark:"#1E1A16", colorWarm:"#8B6B4A", colorAccent:"#5A3A1A", colorBg:"#F8F4EF",
+  };
+
+  // ── CONTENT STATE — carga desde localStorage ─────────────────
+  const [content, setContent] = useState(() => {
+    try {
+      const saved = localStorage.getItem("ce1016_content");
+      return saved ? {...DEFAULT_CONTENT, ...JSON.parse(saved)} : DEFAULT_CONTENT;
+    } catch { return DEFAULT_CONTENT; }
+  });
+
+  // ── PRODUCTS STATE — carga desde localStorage ─────────────────
+  const [prods, setProds] = useState(() => {
+    try {
+      const saved = localStorage.getItem("ce1016_prods");
+      return saved ? JSON.parse(saved) : DEFAULT_PRODS;
+    } catch { return DEFAULT_PRODS; }
+  });
+
+  const set = (k,v) => setContent(x=>({...x,[k]:v}));
+  const isActive = f => editMode && activeField===f;
+  const editClick = f => { if(editMode) setActiveField(f); };
+
+  // ── OTHER UI STATE ────────────────────────────────────────────
+  const [vizOpen,setVizOpen]=useState(false);
+  const [menuOpen,setMenuOpen]=useState(false);
+  const [filterCat,setFilterCat]=useState("todos");
+  const [expanded,setExpanded]=useState(null);
+  const [cart,setCart]=useState([]);
+  const [cartOpen,setCartOpen]=useState(false);
+  const [sent,setSent]=useState(false);
+  const [sending,setSending]=useState(false);
+  const [form,setForm]=useState({nombre:"",tel:"",email:"",msg:""});
+
+  async function handleSubmit() {
+    if(!form.nombre||!form.tel) return;
+    setSending(true);
+    await sendEmail({ nombre:form.nombre, tel:form.tel, email:form.email, mensaje:form.msg });
+    const waMsg = encodeURIComponent(`Hola! Soy ${form.nombre}.\nTeléfono: ${form.tel}\nEmail: ${form.email}\nMensaje: ${form.msg}`);
+    window.open(`https://wa.me/${content.waNumber}?text=${waMsg}`,"_blank");
+    setSending(false); setSent(true);
+    setForm({nombre:"",tel:"",email:"",msg:""});
+  }
+
+  const addCart=p=>setCart(c=>[...c,p]);
+  const rmCart=id=>setCart(c=>c.filter(x=>x.id!==id));
+  const total=cart.reduce((s,x)=>s+x.price,0);
+  const filtered=filterCat==="todos"?prods:prods.filter(p=>p.cat===filterCat);
+  const scrollTo=id=>{document.getElementById(id)?.scrollIntoView({behavior:"smooth"});setMenuOpen(false);};
+
+  const saveProds = (updated) => { setProds(x=>x.map(p=>p.id===updated.id?updated:p)); setProductEditor(null); };
+  const deleteProds = id => { setProds(x=>x.filter(p=>p.id!==id)); setProductEditor(null); };
+  const addNewProd = () => {
+    const newP={id:Date.now(),name:"Nuevo Producto",dims:"0×0cm",cat:"muro",code:"COD-NEW",price:0,unit:"c/u",tk:"marble_gray",desc:"Descripción del producto."};
+    setProds(x=>[...x,newP]); setProductEditor(newP);
+  };
+
+  const saveAndExit = () => {
+    try {
+      localStorage.setItem("ce1016_content", JSON.stringify(content));
+      localStorage.setItem("ce1016_prods",   JSON.stringify(prods));
+    } catch(e) { console.warn("localStorage lleno, las imágenes son muy pesadas.", e); }
+    setEditMode(false); setActiveField(null); setSaved(true); setTimeout(()=>setSaved(false),2800);
+  };
+
+  const C={bg:content.colorBg, dark:content.colorDark, warm:content.colorWarm, warmDk:content.colorAccent, border:"#E8E0D4", mid:"#7A6858", text:"#2C2420"};
+
+  const EditBar = () => (
+    <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:400,background:"white",borderTop:"2px solid #F5A623",padding:sm?"10px 12px":"12px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,boxShadow:"0 -4px 24px rgba(0,0,0,0.1)",flexWrap:"wrap"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:8,height:8,borderRadius:"50%",background:"#F5A623",animation:"pulse 1.5s ease infinite"}}/>
+        <span style={{fontSize:sm?11:13,fontWeight:700,color:"#B87A10"}}>✏️ Modo Editor activo</span>
+        <span style={{fontSize:11,color:"#999",display:sm?"none":"block"}}>Haz clic en cualquier texto o imagen para editar</span>
+      </div>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+        <button onClick={addNewProd} style={{padding:"8px 14px",background:"#EEF3E8",color:"#3A6B3A",border:"1px solid #7A8B5A",borderRadius:7,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>+ Producto</button>
+        <button onClick={()=>setEditMode(false)} style={{padding:"8px 14px",background:"white",color:"#888",border:"1px solid #E0D8D0",borderRadius:7,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>Cancelar</button>
+        <button onClick={saveAndExit} style={{padding:"8px 18px",background:"#2C2420",color:"white",border:"none",borderRadius:7,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>✓ Guardar cambios</button>
+      </div>
+    </div>
+  );
+
+  const ColorPanel = () => editMode && (
+    <div style={{position:"fixed",left:sm?0:16,top:"50%",transform:"translateY(-50%)",zIndex:350,background:"white",border:"1px solid #E0D8D0",borderRadius:12,padding:"14px",boxShadow:"0 8px 32px rgba(0,0,0,0.12)",width:sm?"100%":"auto",maxWidth:sm?"100%":200}}>
+      <div style={{fontSize:11,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:.5,marginBottom:10}}>🎨 Colores</div>
+      {[["colorDark","Fondo oscuro"],["colorWarm","Color principal"],["colorAccent","Color acento"],["colorBg","Fondo página"]].map(([k,l])=>(
+        <div key={k} style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,gap:8}}>
+          <span style={{fontSize:11,color:"#666",flex:1}}>{l}</span>
+          <input type="color" value={content[k]} onChange={e=>set(k,e.target.value)} style={{width:32,height:24,border:"1px solid #E0D8D0",borderRadius:4,cursor:"pointer",padding:1}}/>
+        </div>
+      ))}
+    </div>
+  );
+
+  // ── SEO — inyecta metadatos en el <head> ─────────────────────
+  useEffect(() => {
+    // Título en la pestaña del navegador
+    document.title = "Casa-Estudio 1016 | Revestimientos Interiores y Exteriores — Región del Biobío";
+
+    const meta = (name, content, prop=false) => {
+      const sel = prop ? `meta[property="${name}"]` : `meta[name="${name}"]`;
+      let el = document.querySelector(sel);
+      if (!el) { el = document.createElement("meta"); prop ? el.setAttribute("property",name) : el.setAttribute("name",name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+
+    // ── Meta básicos ──────────────────────────────────────────
+    meta("description", "Casa-Estudio 1016 — Importadora y comercializadora de revestimientos interiores y exteriores de alto estándar. PVC mármol, Wall Panel madera, Siding metálico y más. Región del Biobío, Chile. Arturo Prat 1016, Santa Bárbara.");
+    meta("keywords", "revestimientos Santa Bárbara, revestimientos interiores Chile, wall panel madera Chile, PVC mármol precio Chile, importadora revestimientos, materiales decorativos construcción, revestimientos Biobío, casa estudio 1016, siding metálico Chile, placa cielo PVC");
+    meta("author", "Casa-Estudio 1016");
+    meta("robots", "index, follow");
+    meta("language", "es-CL");
+    meta("geo.region", "CL-BI");
+    meta("geo.placename", "Santa Bárbara, Región del Biobío, Chile");
+    meta("geo.position", "-37.6667;-72.0167");
+    meta("ICBM", "-37.6667, -72.0167");
+
+    // ── Open Graph (para compartir en WhatsApp, Facebook, etc.) ─
+    meta("og:title",       "Casa-Estudio 1016 | Revestimientos de Alto Estándar", true);
+    meta("og:description", "Importadora de revestimientos interiores y exteriores. PVC mármol, Wall Panel, Siding metálico. Santa Bárbara, Región del Biobío.", true);
+    meta("og:url",         "https://casaestudio1016.cl", true);
+    meta("og:type",        "website", true);
+    meta("og:locale",      "es_CL", true);
+    meta("og:site_name",   "Casa-Estudio 1016", true);
+
+    // ── Canonical URL ─────────────────────────────────────────
+    let canonical = document.querySelector("link[rel='canonical']");
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel","canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://casaestudio1016.cl");
+
+    // ── Schema.org — datos estructurados para Google ─────────
+    const schemaId = "ce1016-schema";
+    let schema = document.getElementById(schemaId);
+    if (!schema) { schema = document.createElement("script"); schema.id = schemaId; schema.type = "application/ld+json"; document.head.appendChild(schema); }
+    schema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://casaestudio1016.cl/#negocio",
+          "name": "Casa-Estudio 1016",
+          "alternateName": "Casa Estudio 1016",
+          "description": "Importadora y comercializadora de revestimientos interiores y exteriores de alto estándar. Servicios de arquitectura y diseño.",
+          "url": "https://casaestudio1016.cl",
+          "telephone": "+56978682990",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Arturo Prat 1016",
+            "addressLocality": "Santa Bárbara",
+            "addressRegion": "Región del Biobío",
+            "addressCountry": "CL"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": -37.6667,
+            "longitude": -72.0167
+          },
+          "areaServed": {
+            "@type": "AdministrativeArea",
+            "name": "Región del Biobío, Chile"
+          },
+          "priceRange": "$$",
+          "openingHours": "Mo-Fr 09:00-18:00",
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Catálogo de Revestimientos",
+            "itemListElement": [
+              {"@type":"Offer","itemOffered":{"@type":"Product","name":"PVC Mármol Gris","description":"Revestimiento interior muro 122×244cm"}},
+              {"@type":"Offer","itemOffered":{"@type":"Product","name":"PVC Mármol Blanco","description":"Revestimiento interior muro 122×244cm"}},
+              {"@type":"Offer","itemOffered":{"@type":"Product","name":"Wall Panel Caoba 24mm","description":"Panel madera interior muro 16×290cm"}},
+              {"@type":"Offer","itemOffered":{"@type":"Product","name":"Wall Panel Roble 24mm","description":"Panel madera interior muro 16×290cm"}},
+              {"@type":"Offer","itemOffered":{"@type":"Product","name":"Siding Metal Castaño","description":"Revestimiento exterior alta densidad 38.3×580cm"}},
+              {"@type":"Offer","itemOffered":{"@type":"Product","name":"Placa Cielo PVC Pino","description":"Revestimiento cielo interior 25×580cm"}}
+            ]
+          },
+          "sameAs": [
+            "https://wa.me/56978682990"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://casaestudio1016.cl/#sitio",
+          "url": "https://casaestudio1016.cl",
+          "name": "Casa-Estudio 1016",
+          "description": "Revestimientos interiores y exteriores de alto estándar en la Región del Biobío",
+          "inLanguage": "es-CL"
+        }
+      ]
+    });
+  }, []);
+
+  const E = (field, label, children, multiline=false, extraStyle={}) => {
+    if (!editMode) return children;
+    return (
+      <Editable editing={editMode} label={label} style={extraStyle} onClick={()=>editClick(field)}>
+        {isActive(field)
+          ? <EditText value={content[field]} onChange={v=>set(field,v)} editing={true} multiline={multiline} style={children.props?.style}/>
+          : children}
+      </Editable>
+    );
+  };
+
+  return (
+    <div style={{fontFamily:"system-ui,sans-serif",background:C.bg,color:C.text,overflowX:"hidden",paddingBottom:editMode?70:0,width:"100%"}}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        *{box-sizing:border-box;margin:0;padding:0}
+        ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:#C4B49A;border-radius:2px}
+        html{scroll-behavior:smooth}
+      `}</style>
+
+      {/* ── EDITOR COLOR PANEL ── */}
+      <ColorPanel/>
+
+      {/* ── PROMO BAR ── */}
+      <div style={{background:C.dark,color:"#C4B49A",textAlign:"center",padding:"7px 16px",fontSize:11,letterSpacing:1.5,textTransform:"uppercase",fontWeight:500}}>
+        {E("promoText","Promo",<span>{content.promoText}</span>)}
+      </div>
+
+      {/* ── NAVBAR ── */}
+      <nav style={{background:"white",borderBottom:"1px solid #E8E0D4",padding:`0 ${sm?14:28}px`,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:300,height:58}}>
+        <div style={{display:"flex",alignItems:"center",gap:9,flexShrink:0}}>
+          <div style={{width:32,height:32,background:C.dark,borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Georgia,serif",fontWeight:700,color:"white",fontSize:11}}>
+            {E("brandNum","Número",<span>{content.brandNum}</span>)}
+          </div>
+          <div>
+            <div style={{fontFamily:"Georgia,serif",fontSize:sm?14:16,fontWeight:700,color:C.text,lineHeight:1.1}}>
+              {E("brandName","Marca",<span>{content.brandName}</span>)} <span style={{color:C.warm}}>{E("brandNum","Número",<span>{content.brandNum}</span>)}</span>
+            </div>
+            {!sm&&<div style={{fontSize:9,color:C.mid,letterSpacing:1.5,textTransform:"uppercase"}}>{E("brandSub","Subtítulo",<span>{content.brandSub}</span>)}</div>}
+          </div>
+        </div>
+        {!md&&<div style={{display:"flex",gap:28}}>{["inicio","catalogo","servicios","contacto"].map(id=><button key={id} onClick={()=>scrollTo(id)} style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:500,color:C.mid,textTransform:"capitalize",letterSpacing:.5}}>{id.charAt(0).toUpperCase()+id.slice(1)}</button>)}</div>}
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          {/* Admin button — solo visible si es admin */}
+          {isAdmin ? (
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>
+              <button onClick={()=>{setEditMode(!editMode);setActiveField(null);}}
+                style={{padding:"7px 12px",background:editMode?"#FEF3C7":"#F5F0EA",color:editMode?"#B87A10":"#7A6858",border:`1px solid ${editMode?"#F5A623":"#E0D8D0"}`,borderRadius:6,fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+                {editMode?"✏️ Editando":"✏️ Editar"}
+              </button>
+              <button onClick={logout} title="Cerrar sesión admin"
+                style={{padding:"7px 10px",background:"none",border:"1px solid #E0D8D0",borderRadius:6,fontSize:13,cursor:"pointer",color:"#AAA"}}>
+                🔓
+              </button>
+            </div>
+          ) : null}
+          {!sm&&<button onClick={()=>setVizOpen(true)} style={{background:C.dark,color:"white",border:"none",borderRadius:6,padding:"8px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit",letterSpacing:.5,textTransform:"uppercase"}}>✦ Visualizador</button>}
+          <button onClick={()=>setCartOpen(true)} style={{position:"relative",background:"none",border:"1px solid #E8E0D4",borderRadius:6,padding:"7px 12px",cursor:"pointer",fontFamily:"inherit",fontSize:13,fontWeight:600,color:C.text}}>
+            🛒{cart.length>0&&<span style={{position:"absolute",top:-6,right:-6,width:17,height:17,background:C.warm,borderRadius:"50%",fontSize:9,color:"white",fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{cart.length}</span>}
+          </button>
+          {md&&<button onClick={()=>setMenuOpen(!menuOpen)} style={{background:"none",border:"1px solid #E8E0D4",borderRadius:6,padding:"7px 11px",cursor:"pointer",fontSize:16,color:C.text}}>{menuOpen?"×":"☰"}</button>}
+        </div>
+      </nav>
+
+      {menuOpen&&md&&(
+        <div style={{background:"white",borderBottom:"1px solid #E8E0D4",padding:"12px 16px",display:"flex",flexDirection:"column",gap:2,animation:"slideDown .2s ease",position:"sticky",top:58,zIndex:299}}>
+          {["inicio","catalogo","servicios","contacto"].map(id=><button key={id} onClick={()=>scrollTo(id)} style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:14,fontWeight:500,color:C.text,padding:"11px 4px",textAlign:"left",borderBottom:"1px solid #E8E0D4",textTransform:"capitalize"}}>{id.charAt(0).toUpperCase()+id.slice(1)}</button>)}
+          <button onClick={()=>{setVizOpen(true);setMenuOpen(false);}} style={{background:C.dark,color:"white",border:"none",borderRadius:8,padding:"13px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginTop:8}}>✦ Visualizador IA</button>
+        </div>
+      )}
+
+      {/* ══ HERO ══════════════════════════════════════════════════ */}
+      <section id="inicio" style={{minHeight:sm?"85vh":"92vh",background:C.dark,position:"relative",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:`0 0 ${sm?52:80}px`}}>
+        <div style={{position:"absolute",inset:0,overflow:"hidden"}}>
+          {/* Hero background image */}
+          {content.heroImage
+            ? <img src={content.heroImage} style={{width:"100%",height:"100%",objectFit:"cover",opacity:.35}}/>
+            : <div style={{position:"absolute",inset:0,display:"grid",gridTemplateColumns:`repeat(${sm?2:3},1fr)`,gridTemplateRows:`repeat(${sm?3:2},1fr)`,gap:2,opacity:.15}}>
+                {["marble_gray","wood_roble","marble_black","siding_c","wood_caoba","ceiling_pino"].map((k,i)=><div key={i} style={{backgroundImage:`url("data:image/svg+xml,${encodeURIComponent(TX[k])}")`,backgroundSize:"cover"}}/>)}
+              </div>}
+          <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,rgba(30,26,22,0.2) 0%,rgba(30,26,22,0.8) 65%,rgba(30,26,22,1) 100%)"}}/>
+        </div>
+
+        {/* Hero image upload in edit mode */}
+        {editMode && (
+          <label style={{position:"absolute",top:16,right:16,zIndex:10,background:"#F5A623",color:"white",padding:"8px 16px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+            📷 {content.heroImage?"Cambiar fondo":"Agregar imagen de fondo"}
+            <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>set("heroImage",ev.target.result);r.readAsDataURL(f);}}/>
+          </label>
+        )}
+        {editMode && content.heroImage && (
+          <button onClick={()=>set("heroImage",null)} style={{position:"absolute",top:16,right:sm?16:220,zIndex:10,background:"#FEE2E2",color:"#C45A5A",border:"none",padding:"8px 12px",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+            🗑 Quitar imagen
+          </button>
+        )}
+
+        <div style={{position:"relative",maxWidth:1100,margin:"0 auto",padding:`0 ${sm?20:32}px`,width:"100%",animation:"fadeUp .8s ease both"}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(196,180,154,0.15)",border:"1px solid rgba(196,180,154,0.3)",borderRadius:20,padding:"5px 14px",marginBottom:sm?20:28}}>
+            <div style={{width:5,height:5,borderRadius:"50%",background:"#C4B49A"}}/>
+            <span style={{fontSize:10,color:"#C4B49A",letterSpacing:2,textTransform:"uppercase",fontWeight:500}}>
+              {E("heroTag","Etiqueta hero",<span>{content.heroTag}</span>)}
+            </span>
+          </div>
+          <h1 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(32px,9vw,48px)":"clamp(40px,6vw,76px)",fontWeight:400,color:"white",lineHeight:1.1,marginBottom:sm?16:20,maxWidth:700}}>
+            {E("heroTitle1","Título línea 1",<span>{content.heroTitle1}</span>)}<br/>
+            <em style={{color:"#C4B49A",fontStyle:"italic"}}>{E("heroTitle2","Título línea 2 (itálica)",<span>{content.heroTitle2}</span>)}</em><br/>
+            {E("heroTitle3","Título línea 3",<span>{content.heroTitle3}</span>)}
+          </h1>
+          <p style={{fontSize:sm?13:15,color:"rgba(255,255,255,0.5)",maxWidth:460,lineHeight:1.8,marginBottom:sm?28:36,fontWeight:300}}>
+            {E("heroSubtitle","Subtítulo hero",<span>{content.heroSubtitle}</span>,true)}
+          </p>
+          <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+            <button onClick={()=>scrollTo("catalogo")} style={{background:"white",color:C.text,border:"none",borderRadius:8,padding:sm?"13px 22px":"15px 32px",fontSize:sm?13:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+              {E("heroBtnPrimary","Botón primario",<span>{content.heroBtnPrimary}</span>)}
+            </button>
+            <button onClick={()=>scrollTo("contacto")} style={{background:"transparent",color:"white",border:"1px solid rgba(255,255,255,0.3)",borderRadius:8,padding:sm?"13px 22px":"15px 32px",fontSize:sm?13:14,fontWeight:500,cursor:"pointer",fontFamily:"inherit"}}>
+              {E("heroBtnSecondary","Botón secundario",<span>{content.heroBtnSecondary}</span>)}
+            </button>
+          </div>
+        </div>
+
+        {!sm&&(
+          <div style={{position:"relative",maxWidth:1100,margin:"52px auto 0",padding:"0 32px",width:"100%",display:"grid",gridTemplateColumns:"repeat(4,1fr)",borderTop:"1px solid rgba(255,255,255,0.07)",paddingTop:36}}>
+            {[["stat1n","stat1l"],["stat2n","stat2l"],["stat3n","stat3l"],["stat4n","stat4l"]].map(([nk,lk],i)=>(
+              <div key={i} style={{paddingRight:24,borderRight:i<3?"1px solid rgba(255,255,255,0.07)":"none",paddingLeft:i>0?24:0}}>
+                <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:600,color:"white",marginBottom:3}}>
+                  {E(nk,`Stat ${i+1} número`,<span>{content[nk]}</span>)}
+                </div>
+                <div style={{fontSize:11,color:"rgba(255,255,255,0.38)"}}>
+                  {E(lk,`Stat ${i+1} label`,<span>{content[lk]}</span>)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ══ ABOUT ══════════════════════════════════════════════════ */}
+      <section style={{background:"white",padding:`${sm?52:72}px ${sm?20:32}px`}}>
+        <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:md?"1fr":"1fr 1fr",gap:md?40:64,alignItems:"center"}}>
+          <div>
+            <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:14}}>
+              {E("aboutTag","Etiqueta sección",<span>{content.aboutTag}</span>)}
+            </div>
+            <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,42px)",fontWeight:400,lineHeight:1.2,marginBottom:18,color:C.text}}>
+              {E("aboutTitle1","Título línea 1",<span>{content.aboutTitle1}</span>)}<br/>
+              <em style={{fontStyle:"italic"}}>{E("aboutTitle2","Título línea 2",<span>{content.aboutTitle2}</span>)}</em>
+            </h2>
+            <p style={{fontSize:14,color:C.mid,lineHeight:1.85,marginBottom:14,fontWeight:300}}>
+              {E("aboutBody1","Párrafo 1",<span>{content.aboutBody1}</span>,true)}
+            </p>
+            <p style={{fontSize:14,color:C.mid,lineHeight:1.85,fontWeight:300}}>
+              {E("aboutBody2","Párrafo 2",<span>{content.aboutBody2}</span>,true)}
+            </p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            {["aboutImg1","aboutImg2","aboutImg3","aboutImg4"].map((key,i)=>(
+              <div key={i} style={{borderRadius:10,overflow:"hidden",aspectRatio:"1",boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}}>
+                {editMode
+                  ? <ImgUpload onImage={v=>set(key,v)} style={{width:"100%",height:"100%",borderRadius:10}}>
+                      {content[key]
+                        ? <img src={content[key]} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                        : <div style={{width:"100%",height:"100%",background:"#F0EBE4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,minHeight:100}}>📷</div>}
+                    </ImgUpload>
+                  : content[key]
+                    ? <img src={content[key]} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                    : <Thumb tk={["marble_gray","wood_roble","marble_black","ceiling_pino"][i]} w={200} h={200}/>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CATALOG ══════════════════════════════════════════════ */}
+      <section id="catalogo" style={{padding:`${sm?52:80}px ${sm?16:32}px`,background:C.bg}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{display:"flex",alignItems:sm?"flex-start":"flex-end",justifyContent:"space-between",marginBottom:sm?24:36,flexWrap:"wrap",gap:16,flexDirection:sm?"column":"row"}}>
+            <div>
+              <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:10}}>Catálogo completo</div>
+              <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,42px)",fontWeight:400,lineHeight:1.2,color:C.text}}>Nuestros <em style={{fontStyle:"italic"}}>Revestimientos</em></h2>
+            </div>
+            <button onClick={()=>setVizOpen(true)} style={{display:"flex",alignItems:"center",gap:7,background:C.dark,color:"white",border:"none",borderRadius:8,padding:sm?"11px 16px":"12px 20px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",letterSpacing:.5,textTransform:"uppercase",alignSelf:sm?"flex-start":"auto"}}>
+              ✦ Visualizador IA
+            </button>
+          </div>
+          <div style={{display:"flex",gap:8,marginBottom:28,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none"}}>
+            {CATS.map(c=><button key={c} onClick={()=>setFilterCat(c)} style={{flexShrink:0,padding:"8px 18px",border:`1.5px solid ${filterCat===c?C.warm:"#E8E0D4"}`,borderRadius:30,fontSize:12,fontWeight:600,cursor:"pointer",background:filterCat===c?C.warm:"white",color:filterCat===c?"white":C.mid,fontFamily:"inherit",transition:"all .15s"}}>{CAT_L[c]}</button>)}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${sm?2:md?3:4},1fr)`,gap:sm?12:18}}>
+            {filtered.map(p=>(
+              <div key={p.id} style={{background:"white",borderRadius:12,overflow:"hidden",cursor:"pointer",border:`1.5px solid ${expanded===p.id?C.warm:"#E8E0D4"}`,boxShadow:expanded===p.id?"0 8px 32px rgba(139,107,74,0.15)":"0 2px 12px rgba(0,0,0,0.05)",transition:"all .2s",position:"relative"}}
+                onMouseEnter={e=>{if(expanded!==p.id){e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(0,0,0,0.09)";}}}
+                onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=expanded===p.id?"0 8px 32px rgba(139,107,74,0.15)":"0 2px 12px rgba(0,0,0,0.05)";}}>
+                {editMode && (
+                  <button onClick={e=>{e.stopPropagation();setProductEditor(p);}} style={{position:"absolute",top:6,right:6,zIndex:10,background:"#F5A623",color:"white",border:"none",borderRadius:6,padding:"4px 8px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>✏️ Editar</button>
+                )}
+                <div style={{height:sm?90:120,overflow:"hidden"}} onClick={()=>!editMode&&setExpanded(expanded===p.id?null:p.id)}>
+                  <Thumb tk={p.tk} customImg={p.customImg||null} w={300} h={sm?90:120}/>
+                </div>
+                <div style={{padding:sm?"10px 12px":"12px 14px"}} onClick={()=>!editMode&&setExpanded(expanded===p.id?null:p.id)}>
+                  <div style={{fontSize:9,color:C.warm,letterSpacing:1.5,textTransform:"uppercase",fontWeight:600,marginBottom:3}}>{CAT_L[p.cat]||p.cat}</div>
+                  <div style={{fontFamily:"Georgia,serif",fontSize:sm?13:14,fontWeight:600,color:C.text,lineHeight:1.3,marginBottom:3}}>{p.name}</div>
+                  <div style={{fontSize:10,color:C.mid,marginBottom:8}}>{p.dims} · {p.code}</div>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
+                    <div style={{fontSize:sm?14:16,fontWeight:800,color:C.warmDk}}>{$$(p.price)} <span style={{fontSize:10,fontWeight:400,color:C.mid}}>/{p.unit}</span></div>
+                    <button onClick={e=>{e.stopPropagation();addCart(p);}} style={{background:C.dark,color:"white",border:"none",borderRadius:5,padding:sm?"5px 9px":"6px 11px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",flexShrink:0}}>+ Carro</button>
+                  </div>
+                </div>
+                {expanded===p.id&&!editMode&&(
+                  <div style={{borderTop:"1px solid #E8E0D4",padding:"12px 14px",background:"#FDF5EE"}}>
+                    <p style={{fontSize:12,color:C.mid,lineHeight:1.7,marginBottom:10}}>{p.desc}</p>
+                    <div style={{display:"flex",gap:8}}>
+                      <a href={`https://wa.me/${content.waNumber}`} target="_blank" rel="noreferrer" style={{flex:1,display:"block",textAlign:"center",background:"#25D366",color:"white",padding:"9px 4px",borderRadius:7,fontSize:11,fontWeight:700,textDecoration:"none"}}>💬 WhatsApp</a>
+                      <button onClick={()=>setVizOpen(true)} style={{flex:1,background:C.dark,color:"white",border:"none",borderRadius:7,padding:"9px 4px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>👁 Visualizar</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ SERVICES ═════════════════════════════════════════════ */}
+      <section id="servicios" style={{background:"white",padding:`${sm?52:80}px ${sm?16:32}px`}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:sm?36:52}}>
+            <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:12}}>Lo que ofrecemos</div>
+            <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,40px)",fontWeight:400,color:C.text}}>
+              {E("svcTitle","Título servicios",<span>{content.svcTitle.split(" ")[0]} <em style={{fontStyle:"italic"}}>{content.svcTitle.split(" ").slice(1).join(" ")}</em></span>)}
+            </h2>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${sm?1:md?2:4},1fr)`,gap:sm?12:20}}>
+            {[[1,2,3,4].map(i=>({icon:content[`svc${i}icon`],title:content[`svc${i}title`],desc:content[`svc${i}desc`],i}))].flat().map(({icon,title,desc,i})=>(
+              <div key={i} style={{padding:sm?"20px":"24px 22px",border:"1px solid #E8E0D4",borderRadius:12,background:C.bg,transition:"all .2s"}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=C.warm;e.currentTarget.style.background="white";e.currentTarget.style.boxShadow="0 6px 24px rgba(139,107,74,0.1)";}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor="#E8E0D4";e.currentTarget.style.background=C.bg;e.currentTarget.style.boxShadow="none";}}>
+                <div style={{fontSize:30,marginBottom:12}}>
+                  {E(`svc${i}icon`,`Ícono ${i}`,<span>{icon}</span>)}
+                </div>
+                <h3 style={{fontFamily:"Georgia,serif",fontSize:16,fontWeight:600,marginBottom:8,color:C.text}}>
+                  {E(`svc${i}title`,`Título ${i}`,<span>{title}</span>)}
+                </h3>
+                <p style={{fontSize:13,color:C.mid,lineHeight:1.75,fontWeight:300}}>
+                  {E(`svc${i}desc`,`Descripción ${i}`,<span>{desc}</span>,true)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ VIZ CTA ══════════════════════════════════════════════ */}
+      <section style={{background:C.dark,padding:`${sm?52:72}px ${sm?20:32}px`,position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,display:"grid",gridTemplateColumns:"repeat(6,1fr)",opacity:.07}}>
+          {Object.keys(TX).slice(0,6).map((k,i)=><div key={i} style={{backgroundImage:`url("data:image/svg+xml,${encodeURIComponent(TX[k])}")`,backgroundSize:"cover"}}/>)}
+        </div>
+        <div style={{position:"relative",maxWidth:640,margin:"0 auto",textAlign:"center"}}>
+          <div style={{fontSize:10,color:"#C4B49A",letterSpacing:2,textTransform:"uppercase",fontWeight:500,marginBottom:16}}>Herramienta exclusiva</div>
+          <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(24px,7vw,34px)":"clamp(26px,3vw,40px)",fontWeight:400,color:"white",lineHeight:1.25,marginBottom:14}}>
+            {E("ctaTitle1","Título CTA línea 1",<span>{content.ctaTitle1}</span>)}<br/>
+            <em style={{color:"#C4B49A",fontStyle:"italic"}}>{E("ctaTitle2","Título CTA línea 2",<span>{content.ctaTitle2}</span>)}</em>
+          </h2>
+          <p style={{fontSize:sm?13:14,color:"rgba(255,255,255,0.45)",lineHeight:1.8,marginBottom:28,fontWeight:300,maxWidth:400,margin:"0 auto 28px"}}>
+            {E("ctaBody","Texto CTA",<span>{content.ctaBody}</span>,true)}
+          </p>
+          <button onClick={()=>setVizOpen(true)} style={{background:"white",color:C.text,border:"none",borderRadius:8,padding:sm?"13px 24px":"15px 32px",fontSize:sm?13:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+            {E("ctaBtn","Botón CTA",<span>{content.ctaBtn}</span>)}
+          </button>
+        </div>
+      </section>
+
+      {/* ══ CONTACT ══════════════════════════════════════════════ */}
+      <section id="contacto" style={{background:C.bg,padding:`${sm?52:80}px ${sm?16:32}px`}}>
+        <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:md?"1fr":"1fr 1fr",gap:md?40:64,alignItems:"start"}}>
+          <div>
+            <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:14}}>Contáctanos</div>
+            <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,40px)",fontWeight:400,lineHeight:1.2,marginBottom:20,color:C.text}}>
+              {E("contactTitle1","Título contacto 1",<span>{content.contactTitle1}</span>)}<br/>
+              <em style={{fontStyle:"italic"}}>{E("contactTitle2","Título contacto 2",<span>{content.contactTitle2}</span>)}</em>
+            </h2>
+            <p style={{fontSize:14,color:C.mid,lineHeight:1.85,marginBottom:28,fontWeight:300}}>
+              {E("contactBody","Texto contacto",<span>{content.contactBody}</span>,true)}
+            </p>
+            <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:28}}>
+              {[["📍","Dirección","contactAddr"],["📱","WhatsApp","contactPhone"],["💳","Medios de pago","contactPay"]].map(([icon,label,key])=>(
+                <div key={key} style={{display:"flex",gap:12,alignItems:"center"}}>
+                  <div style={{width:38,height:38,background:"white",borderRadius:8,border:"1px solid #E8E0D4",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{icon}</div>
+                  <div>
+                    <div style={{fontSize:10,color:C.mid,fontWeight:600,letterSpacing:.5,textTransform:"uppercase"}}>{label}</div>
+                    <div style={{fontSize:13,fontWeight:500,color:C.text}}>
+                      {E(key,label,<span>{content[key]}</span>)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <a href={`https://wa.me/${content.waNumber}`} target="_blank" rel="noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,background:"#25D366",color:"white",padding:"13px 26px",borderRadius:8,fontSize:14,fontWeight:700,textDecoration:"none"}}>
+              {E("contactWaBtn","Botón WhatsApp",<span>{content.contactWaBtn}</span>)}
+            </a>
+          </div>
+          <div style={{background:"white",borderRadius:14,padding:sm?"20px":"28px",border:"1px solid #E8E0D4",boxShadow:"0 4px 24px rgba(0,0,0,0.05)"}}>
+            {sent
+              ? <div style={{textAlign:"center",padding:"40px 20px"}}><div style={{fontSize:48,marginBottom:14}}>✅</div><h3 style={{fontFamily:"Georgia,serif",fontSize:20,marginBottom:8}}>¡Mensaje enviado!</h3><p style={{fontSize:14,color:C.mid}}>Te contactaremos a la brevedad.</p></div>
+              : <>
+                  <h3 style={{fontFamily:"Georgia,serif",fontSize:18,fontWeight:600,marginBottom:18,color:C.text}}>Solicitar cotización</h3>
+                  {[["nombre","Nombre completo","text"],["tel","Teléfono","tel"],["email","Correo electrónico","email"]].map(([f,l,t])=>(
+                    <div key={f} style={{marginBottom:14}}>
+                      <label style={{display:"block",fontSize:10,fontWeight:600,color:C.mid,letterSpacing:.5,textTransform:"uppercase",marginBottom:5}}>{l}</label>
+                      <input type={t} value={form[f]||""} onChange={e=>setForm(x=>({...x,[f]:e.target.value}))}
+                        style={{width:"100%",padding:"11px 13px",border:"1px solid #E8E0D4",borderRadius:8,fontSize:14,fontFamily:"inherit",color:C.text,background:C.bg,outline:"none"}}
+                        onFocus={e=>e.target.style.borderColor=C.warm} onBlur={e=>e.target.style.borderColor="#E8E0D4"}/>
+                    </div>
+                  ))}
+                  <div style={{marginBottom:18}}>
+                    <label style={{display:"block",fontSize:10,fontWeight:600,color:C.mid,letterSpacing:.5,textTransform:"uppercase",marginBottom:5}}>Mensaje</label>
+                    <textarea rows={3} value={form.msg} onChange={e=>setForm(x=>({...x,msg:e.target.value}))}
+                      style={{width:"100%",padding:"11px 13px",border:"1px solid #E8E0D4",borderRadius:8,fontSize:14,fontFamily:"inherit",color:C.text,background:C.bg,resize:"none",outline:"none"}}
+                      onFocus={e=>e.target.style.borderColor=C.warm} onBlur={e=>e.target.style.borderColor="#E8E0D4"}/>
+                  </div>
+                  <button onClick={handleSubmit} disabled={sending} style={{width:"100%",padding:"14px",background:sending?"#A09488":C.dark,color:"white",border:"none",borderRadius:8,fontSize:14,fontWeight:700,cursor:sending?"not-allowed":"pointer",fontFamily:"inherit"}}>
+                  {sending?"⏳ Enviando...":"Enviar solicitud →"}
+                </button>
+                </>}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FOOTER ══════════════════════════════════════════════ */}
+      <footer style={{background:C.dark,padding:`${sm?20:28}px ${sm?16:32}px`,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+        <div>
+          <div style={{fontFamily:"Georgia,serif",fontSize:15,color:"white",fontWeight:600,marginBottom:3}}>
+            {E("brandName","Nombre marca",<span>{content.brandName}</span>)} <span style={{color:"#C4B49A"}}>{E("brandNum","Número",<span>{content.brandNum}</span>)}</span>
+          </div>
+          <div style={{fontSize:10,color:"rgba(255,255,255,0.28)",letterSpacing:.5}}>
+            {E("contactAddr","Dirección",<span>{content.contactAddr}</span>)} · {E("contactPhone","Teléfono",<span>{content.contactPhone}</span>)}
+          </div>
+        </div>
+        <div style={{fontSize:10,color:"rgba(255,255,255,0.22)"}}>© 2025 {content.brandName} {content.brandNum}</div>
+      </footer>
+
+      {/* ══ CART DRAWER ════════════════════════════════════════ */}
+      {cartOpen&&(
+        <div style={{position:"fixed",inset:0,zIndex:500,background:"rgba(0,0,0,0.3)",backdropFilter:"blur(2px)"}} onClick={()=>setCartOpen(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{position:"absolute",right:0,top:0,bottom:0,width:sm?"100%":"min(360px,100vw)",background:"white",boxShadow:"-8px 0 40px rgba(0,0,0,0.15)",display:"flex",flexDirection:"column"}}>
+            <div style={{padding:"18px 20px",borderBottom:"1px solid #E8E0D4",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+              <div style={{fontFamily:"Georgia,serif",fontSize:17,fontWeight:600}}>Mi Carro ({cart.length})</div>
+              <button onClick={()=>setCartOpen(false)} style={{background:"none",border:"none",fontSize:24,cursor:"pointer",color:C.mid}}>×</button>
+            </div>
+            <div style={{flex:1,overflowY:"auto",padding:16}}>
+              {cart.length===0
+                ? <div style={{textAlign:"center",padding:"60px 20px",color:C.mid}}><div style={{fontSize:40,marginBottom:12}}>🛒</div><p>Tu carro está vacío</p></div>
+                : cart.map((item,i)=>(
+                  <div key={i} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 0",borderBottom:"1px solid #E8E0D4"}}>
+                    <div style={{width:48,height:48,borderRadius:7,overflow:"hidden",flexShrink:0}}><Thumb tk={item.tk} customImg={item.customImg||null} w={48} h={48}/></div>
+                    <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</div><div style={{fontSize:11,color:C.mid}}>{item.code}</div><div style={{fontSize:13,fontWeight:800,color:C.warmDk}}>{$$(item.price)}</div></div>
+                    <button onClick={()=>rmCart(item.id)} style={{background:"none",border:"none",color:"#C45A5A",cursor:"pointer",fontSize:18}}>×</button>
+                  </div>
+                ))}
+            </div>
+            {cart.length>0&&(
+              <div style={{padding:16,borderTop:"1px solid #E8E0D4",flexShrink:0}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><span style={{fontWeight:600,fontSize:14}}>Total estimado</span><span style={{fontWeight:800,fontSize:16,color:C.warmDk}}>{$$(total)}</span></div>
+                <a href={`https://wa.me/${content.waNumber}`} target="_blank" rel="noreferrer" style={{display:"block",textAlign:"center",background:"#25D366",color:"white",padding:"14px",borderRadius:8,fontSize:14,fontWeight:700,marginBottom:10,textDecoration:"none"}}>💬 Cotizar por WhatsApp</a>
+                <button onClick={()=>setCart([])} style={{width:"100%",padding:"11px",background:"none",border:"1px solid #E8E0D4",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer",color:C.mid,fontFamily:"inherit"}}>Vaciar carro</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ══ MODALS ══════════════════════════════════════════════ */}
+      {vizOpen&&<VisualizerModal prods={prods} onClose={()=>setVizOpen(false)}/>}
+      {productEditor&&<ProductEditor product={productEditor} onSave={saveProds} onDelete={deleteProds} onClose={()=>setProductEditor(null)}/>}
+
+      {/* ══ EDITOR BAR ══════════════════════════════════════════ */}
+      {editMode&&<EditBar/>}
+
+      {/* ══ LOGIN MODAL ═════════════════════════════════════════ */}
+      {loginOpen && (
+        <div style={{position:"fixed",inset:0,background:"rgba(15,12,10,0.85)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16,backdropFilter:"blur(6px)"}}
+          onClick={()=>{setLoginOpen(false);setPassInput("");setPassError(false);}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"white",borderRadius:14,width:"100%",maxWidth:360,padding:32,boxShadow:"0 32px 80px rgba(0,0,0,0.4)"}}>
+            <div style={{textAlign:"center",marginBottom:24}}>
+              <div style={{fontSize:36,marginBottom:10}}>🔐</div>
+              <h3 style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:600,color:"#2C2420",marginBottom:4}}>Acceso Administrador</h3>
+              <p style={{fontSize:13,color:"#8A7868"}}>Casa-Estudio 1016</p>
+            </div>
+            <div style={{marginBottom:16}}>
+              <label style={{display:"block",fontSize:11,fontWeight:700,color:"#8A7868",textTransform:"uppercase",letterSpacing:.5,marginBottom:6}}>Contraseña</label>
+              <input
+                type="password"
+                value={passInput}
+                onChange={e=>{setPassInput(e.target.value);setPassError(false);}}
+                onKeyDown={e=>e.key==="Enter"&&tryLogin()}
+                autoFocus
+                placeholder="Ingresa tu contraseña"
+                style={{width:"100%",padding:"12px 14px",border:`2px solid ${passError?"#C45A5A":"#E0D8D0"}`,borderRadius:8,fontSize:14,fontFamily:"inherit",outline:"none",transition:"border-color .2s",background:passError?"#FEF2F2":"white",color:"#2C2420"}}
+              />
+              {passError && (
+                <div style={{display:"flex",alignItems:"center",gap:6,marginTop:8,color:"#C45A5A",fontSize:12,fontWeight:600}}>
+                  ❌ Contraseña incorrecta. Intenta de nuevo.
+                </div>
+              )}
+            </div>
+            <button onClick={tryLogin}
+              style={{width:"100%",padding:"13px",background:"#2C2420",color:"white",border:"none",borderRadius:8,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",marginBottom:10}}>
+              Entrar al panel de edición
+            </button>
+            <button onClick={()=>{setLoginOpen(false);setPassInput("");setPassError(false);}}
+              style={{width:"100%",padding:"11px",background:"none",border:"1px solid #E0D8D0",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer",color:"#8A7868",fontFamily:"inherit"}}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Trigger oculto — doble clic en desktop, doble tap en móvil */}
+      {!isAdmin && (
+        <div
+          onDoubleClick={()=>setLoginOpen(true)}
+          onTouchEnd={e=>{
+            const now = Date.now();
+            if(now - (window._lastTap||0) < 400) setLoginOpen(true);
+            window._lastTap = now;
+          }}
+          style={{position:"fixed",bottom:0,right:0,width:60,height:60,zIndex:100,cursor:"default",opacity:0}}
+        />
+      )}
+      {saved&&(
+        <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:"#2C2420",color:"white",padding:"11px 24px",borderRadius:40,fontSize:13,fontWeight:700,boxShadow:"0 8px 28px rgba(0,0,0,0.25)",zIndex:9999,whiteSpace:"nowrap"}}>
+          ✓ Cambios guardados
+        </div>
+      )}
+    </div>
+  );
+}
