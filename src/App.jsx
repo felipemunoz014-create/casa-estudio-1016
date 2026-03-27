@@ -706,7 +706,7 @@ export default function App() {
           </button>
         )}
 
-        <div style={{position:"relative",maxWidth:1100,margin:"0 auto",padding:`0 ${sm?20:32}px`,width:"100%",animation:"fadeUp .8s ease both"}}>
+        <div style={{position:"relative",maxWidth:1400,width:"100%",margin:"0 auto",padding:`0 ${sm?20:32}px`,width:"100%",animation:"fadeUp .8s ease both"}}>
           <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(196,180,154,0.15)",border:"1px solid rgba(196,180,154,0.3)",borderRadius:20,padding:"5px 14px",marginBottom:sm?20:28}}>
             <div style={{width:5,height:5,borderRadius:"50%",background:"#C4B49A"}}/>
             <span style={{fontSize:10,color:"#C4B49A",letterSpacing:2,textTransform:"uppercase",fontWeight:500}}>
@@ -732,7 +732,7 @@ export default function App() {
         </div>
 
         {!sm&&(
-          <div style={{position:"relative",maxWidth:1100,margin:"52px auto 0",padding:"0 32px",width:"100%",display:"grid",gridTemplateColumns:"repeat(4,1fr)",borderTop:"1px solid rgba(255,255,255,0.07)",paddingTop:36}}>
+          <div style={{position:"relative",maxWidth:1400,width:"100%",margin:"52px auto 0",padding:"0 32px",width:"100%",display:"grid",gridTemplateColumns:"repeat(4,1fr)",borderTop:"1px solid rgba(255,255,255,0.07)",paddingTop:36}}>
             {[["stat1n","stat1l"],["stat2n","stat2l"],["stat3n","stat3l"],["stat4n","stat4l"]].map(([nk,lk],i)=>(
               <div key={i} style={{paddingRight:24,borderRight:i<3?"1px solid rgba(255,255,255,0.07)":"none",paddingLeft:i>0?24:0}}>
                 <div style={{fontFamily:"Georgia,serif",fontSize:20,fontWeight:600,color:"white",marginBottom:3}}>
@@ -749,7 +749,7 @@ export default function App() {
 
       {/* ══ ABOUT ══════════════════════════════════════════════════ */}
       <section style={{background:"white",padding:`${sm?52:72}px ${sm?20:32}px`}}>
-        <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:md?"1fr":"1fr 1fr",gap:md?40:64,alignItems:"center"}}>
+        <div style={{maxWidth:1400,width:"100%",margin:"0 auto",display:"grid",gridTemplateColumns:md?"1fr":"1fr 1fr",gap:md?40:64,alignItems:"center"}}>
           <div>
             <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:14}}>
               {E("aboutTag","Etiqueta sección",<span>{content.aboutTag}</span>)}
@@ -785,7 +785,7 @@ export default function App() {
 
       {/* ══ CATALOG ══════════════════════════════════════════════ */}
       <section id="catalogo" style={{padding:`${sm?52:80}px ${sm?16:32}px`,background:C.bg}}>
-        <div style={{maxWidth:1100,margin:"0 auto"}}>
+        <div style={{maxWidth:1400,width:"100%",margin:"0 auto"}}>
           <div style={{display:"flex",alignItems:sm?"flex-start":"flex-end",justifyContent:"space-between",marginBottom:sm?24:36,flexWrap:"wrap",gap:16,flexDirection:sm?"column":"row"}}>
             <div>
               <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:10}}>Catálogo completo</div>
@@ -835,7 +835,7 @@ export default function App() {
 
       {/* ══ SERVICES ═════════════════════════════════════════════ */}
       <section id="servicios" style={{background:"white",padding:`${sm?52:80}px ${sm?16:32}px`}}>
-        <div style={{maxWidth:1100,margin:"0 auto"}}>
+        <div style={{maxWidth:1400,width:"100%",margin:"0 auto"}}>
           <div style={{textAlign:"center",marginBottom:sm?36:52}}>
             <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:12}}>Lo que ofrecemos</div>
             <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,40px)",fontWeight:400,color:C.text}}>
@@ -884,7 +884,7 @@ export default function App() {
 
       {/* ══ CONTACT ══════════════════════════════════════════════ */}
       <section id="contacto" style={{background:C.bg,padding:`${sm?52:80}px ${sm?16:32}px`}}>
-        <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:md?"1fr":"1fr 1fr",gap:md?40:64,alignItems:"start"}}>
+        <div style={{maxWidth:1400,width:"100%",margin:"0 auto",display:"grid",gridTemplateColumns:md?"1fr":"1fr 1fr",gap:md?40:64,alignItems:"start"}}>
           <div>
             <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:14}}>Contáctanos</div>
             <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,40px)",fontWeight:400,lineHeight:1.2,marginBottom:20,color:C.text}}>
