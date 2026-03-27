@@ -751,18 +751,47 @@ export default function App() {
       <section style={{background:"white",padding:`${sm?52:72}px ${sm?20:32}px`}}>
         <div style={{maxWidth:1400,width:"100%",margin:"0 auto",display:"grid",gridTemplateColumns:md?"1fr":"1fr 1fr",gap:md?40:64,alignItems:"center"}}>
           <div>
-            <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:14}}>
-              {E("aboutTag","Etiqueta sección",<span>{content.aboutTag}</span>)}
+<div
+  style={{
+    fontSize: "clamp(11px, 0.8vw, 15px)",
+    color: C.warm,
+    letterSpacing: 3,
+    textTransform: "uppercase",
+    fontWeight: 600,
+    marginBottom: 18
+  }}
+>              {E("aboutTag","Etiqueta sección",<span>{content.aboutTag}</span>)}
             </div>
-            <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,42px)",fontWeight:400,lineHeight:1.2,marginBottom:18,color:C.text}}>
-              {E("aboutTitle1","Título línea 1",<span>{content.aboutTitle1}</span>)}<br/>
+<h2
+  style={{
+    fontFamily: "Georgia,serif",
+    fontSize: "clamp(36px, 4vw, 64px)",
+    fontWeight: 400,
+    lineHeight: 1.1,
+    marginBottom: 24,
+    color: C.text
+  }}
+>              {E("aboutTitle1","Título línea 1",<span>{content.aboutTitle1}</span>)}<br/>
               <em style={{fontStyle:"italic"}}>{E("aboutTitle2","Título línea 2",<span>{content.aboutTitle2}</span>)}</em>
             </h2>
-            <p style={{fontSize:14,color:C.mid,lineHeight:1.85,marginBottom:14,fontWeight:300}}>
-              {E("aboutBody1","Párrafo 1",<span>{content.aboutBody1}</span>,true)}
+<p
+  style={{
+    fontSize: "clamp(16px, 1.2vw, 22px)",
+    color: C.mid,
+    lineHeight: 1.9,
+    marginBottom: 18,
+    fontWeight: 300
+  }}
+>              {E("aboutBody1","Párrafo 1",<span>{content.aboutBody1}</span>,true)}
             </p>
-            <p style={{fontSize:14,color:C.mid,lineHeight:1.85,fontWeight:300}}>
-              {E("aboutBody2","Párrafo 2",<span>{content.aboutBody2}</span>,true)}
+<p
+  style={{
+    fontSize: "clamp(16px, 1.2vw, 22px)",
+    color: C.mid,
+    lineHeight: 1.9,
+    fontWeight: 300
+  }}
+>              {E("aboutBody2","Párrafo 2",<span>{content.aboutBody2}</span>,true)}
             </p>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
