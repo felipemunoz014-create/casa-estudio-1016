@@ -10,6 +10,18 @@ import marmolNegro from "./assets/Marmol Negro.png";
 import wallCaoba from "./assets/Wall panel Caoba.png";
 import wallMarmol from "./assets/wall panel marmol.PNG";
 import wallRoble from "./assets/wall panel roble.png";
+import cieloPvcPino from "./assets/cielo pvc pino.png";
+import sidingMetalCastano from "./assets/siding metal castaño.png";
+import sidingMetalCedro from "./assets/siding metal cedro.png";
+import clipsWallPanel from "./assets/Clips wall panel.jpg";
+import perfilPvcH from "./assets/Perfil PVC H.jpg";
+import perfilPvcCornisa from "./assets/Perfil PVC CORNISA.jpg";
+import perfilHSiding from "./assets/Perfil H siding.jpg";
+import perfilTerminoSiding from "./assets/perfil termino siding.jpg";
+import perfilEsquineroSiding from "./assets/perfil esquinero siding.jpg";
+import perfilEsquineroInteriorSiding from "./assets/perfil esquinero interior siding.jpg";
+import perfilWInteriorPvcUv from "./assets/perfil W interior PVC UV.jpg";
+import perfilHPvcUv from "./assets/perfil H PVC UV .jpg";
 
 const EJS = {
   serviceId: "service_aycesln",
@@ -62,14 +74,14 @@ const DEFAULT_PRODS = [
   { id: 4, name: "Wall Panel Caoba 24mm", dims: "16×290cm", cat: "muro", code: "PY-60023-21", price: 6500, unit: "c/u", tk: "wood_caoba", image: wallCaoba, desc: "Calidez profunda. Textura acanalada contemporánea." },
   { id: 5, name: "Wall Panel Roble 24mm", dims: "16×290cm", cat: "muro", code: "PY-80450I-9", price: 6500, unit: "c/u", tk: "wood_roble", image: wallRoble, desc: "Tono natural cálido. Armonía nórdica." },
   { id: 6, name: "Wall Panel Mármol 24mm", dims: "16×290cm", cat: "muro", code: "PY-80401-2", price: 6500, unit: "c/u", tk: "panel_marble", image: wallMarmol, desc: "Mármol en formato panel acanalado." },
-  { id: 7, name: "Placa Cielo PVC Pino", dims: "25×580cm", cat: "cielo", code: "DS059", price: 12500, unit: "c/u", tk: "ceiling_pino", desc: "Calidez en el cielo con veta natural." },
-  { id: 8, name: "Siding Metal Castaño", dims: "38.3×580cm", cat: "exterior", code: "WG-02", price: 26500, unit: "c/u", tk: "siding_c", desc: "Alta densidad. 2.2m² por unidad." },
-  { id: 9, name: "Siding Metal Cedro", dims: "38.3×580cm", cat: "exterior", code: "WG-08", price: 26500, unit: "c/u", tk: "siding_r", desc: "Cedro para exteriores. Normativa térmica." },
-  { id: 10, name: "Perfil PVC H Cielo", dims: "1×4×580cm", cat: "accesorio", code: "DS059-H", price: 14500, unit: "c/u", tk: "gold", desc: "Unión entre placas de cielo PVC." },
-  { id: 11, name: "Perfil Cornisa 3×3", dims: "3×3×580cm", cat: "accesorio", code: "DS059-P", price: 14500, unit: "c/u", tk: "gold", desc: "Encuentro elegante muro-cielo." },
-  { id: 12, name: "100 Clips de Montaje", dims: "33×45mm", cat: "accesorio", code: "CLIPS", price: 6000, unit: "set", tk: "silver", desc: "Fijación oculta para Wall Panel." },
-  { id: 13, name: "Perfil H Aluminio", dims: "1.8×250cm", cat: "accesorio", code: "SILVER-H-JOINT", price: 3600, unit: "c/u", tk: "silver", desc: "Unión de alto acabado para mármol PVC." },
-  { id: 14, name: "Perfil Interior Aluminio", dims: "2×250cm", cat: "accesorio", code: "SILVER-INSIDE", price: 3600, unit: "c/u", tk: "silver", desc: "Perfil interior para terminaciones." },
+  { id: 7, name: "Placa Cielo PVC Pino", dims: "25×580cm", cat: "cielo", code: "DS059", price: 12500, unit: "c/u", tk: "ceiling_pino", image: cieloPvcPino, desc: "Calidez en el cielo con veta natural." },
+  { id: 8, name: "Siding Metal Castaño", dims: "38.3×580cm", cat: "exterior", code: "WG-02", price: 26500, unit: "c/u", tk: "siding_c", image: sidingMetalCastano, desc: "Alta densidad. 2.2m² por unidad." },
+  { id: 9, name: "Siding Metal Cedro", dims: "38.3×580cm", cat: "exterior", code: "WG-08", price: 26500, unit: "c/u", tk: "siding_r", image: sidingMetalCedro, desc: "Cedro para exteriores. Normativa térmica." },
+  { id: 10, name: "Perfil PVC H Cielo", dims: "1×4×580cm", cat: "accesorio", code: "DS059-H", price: 14500, unit: "c/u", tk: "gold", image: perfilPvcH, desc: "Unión entre placas de cielo PVC." },
+  { id: 11, name: "Perfil Cornisa 3×3", dims: "3×3×580cm", cat: "accesorio", code: "DS059-P", price: 14500, unit: "c/u", tk: "gold", image: perfilPvcCornisa, desc: "Encuentro elegante muro-cielo." },
+  { id: 12, name: "100 Clips de Montaje", dims: "33×45mm", cat: "accesorio", code: "CLIPS", price: 6000, unit: "set", tk: "silver", image: clipsWallPanel, desc: "Fijación oculta para Wall Panel." },
+  { id: 13, name: "Perfil H Aluminio", dims: "1.8×250cm", cat: "accesorio", code: "SILVER-H-JOINT", price: 3600, unit: "c/u", tk: "silver", image: perfilHPvcUv, desc: "Unión de alto acabado para mármol PVC." },
+  { id: 14, name: "Perfil Interior Aluminio", dims: "2×250cm", cat: "accesorio", code: "SILVER-INSIDE", price: 3600, unit: "c/u", tk: "silver", image: perfilWInteriorPvcUv, desc: "Perfil interior para terminaciones." },
 ];
 
 const $$ = (n) => `$${Number(n).toLocaleString("es-CL")}`;
