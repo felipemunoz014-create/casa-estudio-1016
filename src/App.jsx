@@ -82,6 +82,10 @@ const DEFAULT_PRODS = [
   { id: 12, name: "100 Clips de Montaje", dims: "33×45mm", cat: "accesorio", code: "CLIPS", price: 6000, unit: "set", tk: "silver", image: clipsWallPanel, desc: "Fijación oculta para Wall Panel." },
   { id: 13, name: "Perfil H Aluminio", dims: "1.8×250cm", cat: "accesorio", code: "SILVER-H-JOINT", price: 3600, unit: "c/u", tk: "silver", image: perfilHPvcUv, desc: "Unión de alto acabado para mármol PVC." },
   { id: 14, name: "Perfil Interior Aluminio", dims: "2×250cm", cat: "accesorio", code: "SILVER-INSIDE", price: 3600, unit: "c/u", tk: "silver", image: perfilWInteriorPvcUv, desc: "Perfil interior para terminaciones." },
+  { id: 15, name: "Perfil H Siding", dims: "20×50×3000mm", cat: "accesorio", code: "CENTER-JOINT", price: 7500, unit: "c/u", tk: "siding_r", image: perfilHSiding, desc: "Perfil conector para unión de siding exterior." },
+  { id: 16, name: "Perfil Término Siding", dims: "20×40×3000mm", cat: "accesorio", code: "STARTING-CLOSING", price: 7500, unit: "c/u", tk: "siding_r", image: perfilTerminoSiding, desc: "Perfil de inicio y término para muro exterior." },
+  { id: 17, name: "Perfil Esquinero Exterior", dims: "50×50×3000mm", cat: "accesorio", code: "OUTSIDE-CORNER", price: 7500, unit: "c/u", tk: "siding_c", image: perfilEsquineroSiding, desc: "Terminación esquinera exterior para siding." },
+  { id: 18, name: "Perfil Esquinero Interior", dims: "30×30×3000mm", cat: "accesorio", code: "INSIDE-CORNER", price: 7500, unit: "c/u", tk: "siding_r", image: perfilEsquineroInteriorSiding, desc: "Terminación esquinera interior para siding." },
 ];
 
 const $$ = (n) => `$${Number(n).toLocaleString("es-CL")}`;
