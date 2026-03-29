@@ -21,7 +21,7 @@ import perfilTerminoSiding from "./assets/perfil termino siding.jpg";
 import perfilEsquineroSiding from "./assets/perfil esquinero siding.jpg";
 import perfilEsquineroInteriorSiding from "./assets/perfil esquinero interior siding.jpg";
 import perfilWInteriorPvcUv from "./assets/perfil W interior PVC UV.jpg";
-import perfilHPvcUv from "./assets/perfil H PVC UV .jpg";
+import perfilHPvcUv from "./assets/perfil-h-pvc-uv.jpg";
 
 const EJS = {
   serviceId: "service_aycesln",
