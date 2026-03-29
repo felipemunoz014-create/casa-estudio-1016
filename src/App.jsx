@@ -706,32 +706,53 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
   const buildWhatsAppMessage = (product = null) => {
-    if (product) {
-      const qty = getQty(product.id);
-      const message =
-        `Estimados, buenas tardes.\n\n` +
-        `Me gustaría solicitar una cotización por el siguiente producto:\n\n` +
-        `1. ${product.name} | Cantidad: ${qty} | ${product.dims} | ${product.code} | ${$$(product.price * qty)}\n\n` +
-        `Agradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\n` +
-        `Quedo atento(a).`;
-      return encodeURIComponent(message);
-    }
+  if (product) {
+    const qty = getQty(product.id);
 
-    if (cart && cart.length > 0) {
-      const itemsText = cart.map((item, i) => `${i + 1}. ${item.name} | Cantidad: ${item.qty} | ${item.dims} | ${item.code} | ${$$(item.price * item.qty)}`).join("\n");
-      const message =
-        `Estimados, buenas tardes.\n\n` +
-        `Me gustaría solicitar una cotización por los siguientes productos:\n\n` +
-        `${itemsText}\n\n` +
-        `Total estimado de referencia: ${$$(total)}.\n\n` +
-        `Agradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\n` +
-        `Quedo atento(a).`;
-      return encodeURIComponent(message);
-    }
+    const message =
+      `Estimados, buenas tardes.\n\n` +
+      `Me gustaría solicitar una cotización por el siguiente producto:\n\n` +
+      `1. ${product.name} | Cantidad: ${qty} | ${product.dims} | ${product.code} | ${$$(product.price * qty)}\n\n` +
+      `Agradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\n` +
+      `Quedo atento(a).`;
 
-    return encodeURIComponent(`Estimados, buenas tardes.\n\nMe gustaría solicitar información y cotización de sus revestimientos.\n\nQuedo atento(a).`);
-  };
+    return encodeURIComponent(message);
+  }
 
+  if (cart && cart.length > 0) {
+    const itemsText = cart
+      .map(
+        (item, i) =>
+          `${i + 1}. ${item.name} | Cantidad: ${item.qty} | ${item.dims} | ${item.code} | ${$$(item.price * item.qty)}`
+      )
+      .join("\n");
+
+    const message =
+      `Estimados, buenas tardes.\n\n` +
+      `Me gustaría solicitar una cotización por los siguientes productos:\n\n` +
+      `${itemsText}\n\n` +
+      `Total estimado de referencia: ${$$(total)}.\n\n` +
+      `Agradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\n` +
+      `Quedo atento(a).`;
+
+    return encodeURIComponent(message);
+  }
+
+  return encodeURIComponent(
+    `Estimados, buenas tardes.\n\nMe gustaría solicitar información y cotización de sus revestimientos.\n\nQuedo atento(a).`
+  );
+};
+
+const buildServiceWhatsAppMessage = (serviceTitle) => {
+  const message =
+    `Estimados, buenas tardes.\n\n` +
+    `Me gustaría solicitar información y cotización por su servicio de ${serviceTitle}.\n\n` +
+    `Agradecería me pudieran indicar alcance del servicio, modalidad de trabajo, plazos estimados y valores de referencia.\n\n` +
+    `Quedo atento(a).\n\n` +
+    `Saludos cordiales.`;
+
+  return `https://wa.me/${content.waNumber}?text=${encodeURIComponent(message)}`;
+};
   async function handleSubmit() {
     if (!form.nombre || !form.tel) return;
     setSending(true);
@@ -1164,22 +1185,129 @@ export default function App() {
       </section>
 
       <section id="servicios" style={{ background: "white", padding: `${sm ? 52 : 80}px ${sm ? 16 : 32}px` }}>
-        <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: sm ? 36 : 52 }}>
-            <div style={{ fontSize: 10, color: C.warm, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600, marginBottom: 12 }}>Lo que ofrecemos</div>
-            <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 400, color: C.text }}>{E("svcTitle", "Título servicios", <span>{content.svcTitle.split(" ")[0]} <em style={{ fontStyle: "italic" }}>{content.svcTitle.split(" ").slice(1).join(" ")}</em></span>)}</h2>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${sm ? 1 : md ? 2 : 4},1fr)`, gap: sm ? 12 : 20 }}>
-            {[1, 2, 3, 4].map((i) => ({ icon: content[`svc${i}icon`], title: content[`svc${i}title`], desc: content[`svc${i}desc`], i })).map(({ icon, title, desc, i }) => (
-              <div key={i} style={{ padding: sm ? "20px" : "24px 22px", border: "1px solid #E8E0D4", borderRadius: 12, background: C.bg, transition: "all .2s" }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.warm; e.currentTarget.style.background = "white"; e.currentTarget.style.boxShadow = "0 6px 24px rgba(139,107,74,0.1)"; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8E0D4"; e.currentTarget.style.background = C.bg; e.currentTarget.style.boxShadow = "none"; }}>
-                <div style={{ fontSize: 30, marginBottom: 12 }}>{E(`svc${i}icon`, `Ícono ${i}`, <span>{icon}</span>)}</div>
-                <h3 style={{ fontFamily: "Georgia,serif", fontSize: 16, fontWeight: 600, marginBottom: 8, color: C.text }}>{E(`svc${i}title`, `Título ${i}`, <span>{title}</span>)}</h3>
-                <p style={{ fontSize: 13, color: C.mid, lineHeight: 1.75, fontWeight: 300 }}>{E(`svc${i}desc`, `Descripción ${i}`, <span>{desc}</span>, true)}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+  <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
+    <div style={{ textAlign: "center", marginBottom: sm ? 36 : 52 }}>
+      <div
+        style={{
+          fontSize: 10,
+          color: C.warm,
+          letterSpacing: 2,
+          textTransform: "uppercase",
+          fontWeight: 600,
+          marginBottom: 12
+        }}
+      >
+        Lo que ofrecemos
+      </div>
+
+      <h2
+        style={{
+          fontFamily: "Georgia,serif",
+          fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)",
+          fontWeight: 400,
+          color: C.text
+        }}
+      >
+        {E(
+          "svcTitle",
+          "Título servicios",
+          <span>
+            {content.svcTitle.split(" ")[0]}{" "}
+            <em style={{ fontStyle: "italic" }}>
+              {content.svcTitle.split(" ").slice(1).join(" ")}
+            </em>
+          </span>
+        )}
+      </h2>
+    </div>
+
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${sm ? 1 : md ? 2 : 3},1fr)`,
+        gap: sm ? 12 : 20
+      }}
+    >
+      {[1, 2, 3]
+        .map((i) => ({
+          icon: content[`svc${i}icon`],
+          title: content[`svc${i}title`],
+          desc: content[`svc${i}desc`],
+          i
+        }))
+        .map(({ icon, title, desc, i }) => (
+          <a
+            key={i}
+            href={buildServiceWhatsAppMessage(title)}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              padding: sm ? "20px" : "24px 22px",
+              border: "1px solid #E8E0D4",
+              borderRadius: 12,
+              background: C.bg,
+              transition: "all .2s",
+              textDecoration: "none",
+              display: "block",
+              color: "inherit"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = C.warm;
+              e.currentTarget.style.background = "white";
+              e.currentTarget.style.boxShadow = "0 6px 24px rgba(139,107,74,0.1)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "#E8E0D4";
+              e.currentTarget.style.background = C.bg;
+              e.currentTarget.style.boxShadow = "none";
+              e.currentTarget.style.transform = "translateY(0)";
+            }}
+          >
+            <div style={{ fontSize: 30, marginBottom: 12 }}>
+              {E(`svc${i}icon`, `Ícono ${i}`, <span>{icon}</span>)}
+            </div>
+
+            <h3
+              style={{
+                fontFamily: "Georgia,serif",
+                fontSize: 16,
+                fontWeight: 600,
+                marginBottom: 8,
+                color: C.text
+              }}
+            >
+              {E(`svc${i}title`, `Título ${i}`, <span>{title}</span>)}
+            </h3>
+
+            <p
+              style={{
+                fontSize: 13,
+                color: C.mid,
+                lineHeight: 1.75,
+                fontWeight: 300,
+                marginBottom: 12
+              }}
+            >
+              {E(`svc${i}desc`, `Descripción ${i}`, <span>{desc}</span>, true)}
+            </p>
+
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: C.warmDk,
+                textTransform: "uppercase",
+                letterSpacing: 0.5
+              }}
+            >
+              Solicitar por WhatsApp →
+            </div>
+          </a>
+        ))}
+    </div>
+  </div>
+</section>
 
       <section style={{ background: C.dark, padding: `${sm ? 52 : 72}px ${sm ? 20 : 32}px`, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "repeat(6,1fr)", opacity: 0.07 }}>
