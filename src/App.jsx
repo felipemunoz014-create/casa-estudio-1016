@@ -1,4 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import heroImg from "./assets/Hero1.png";
+import about1 from "./assets/Inicio1.jpeg";
+import about2 from "./assets/Inicio2.jpeg";
+import about3 from "./assets/Inicio3.jpeg";
+import about4 from "./assets/Inicio5.png";
+import marmolBlanco from "./assets/Marmol blanco.png";
+import marmolGris from "./assets/Marmol Gris.png";
+import marmolNegro from "./assets/Marmol Negro.png";
+import wallCaoba from "./assets/Wall panel Caoba.png";
+import wallMarmol from "./assets/wall panel marmol.PNG";
+import wallRoble from "./assets/wall panel roble.png";
 
 /* ═══ EMAILJS CONFIG ════════════════════════════════════════════ */
 const EJS = {
@@ -45,12 +56,12 @@ const TX = {
 
 /* ═══ PRODUCTS ══════════════════════════════════════════════════ */
 const DEFAULT_PRODS = [
-  {id:1, name:"PVC Mármol Gris",        dims:"122×244cm",  cat:"muro",      code:"KL8235",         price:18700, unit:"c/u", tk:"marble_gray",  desc:"Elegancia mineral con venas sutiles."},
-  {id:2, name:"PVC Mármol Blanco",       dims:"122×244cm",  cat:"muro",      code:"KL8263",         price:18700, unit:"c/u", tk:"marble_white", desc:"Pureza y luminosidad. Amplía cualquier espacio."},
-  {id:3, name:"PVC Mármol Negro",        dims:"122×244cm",  cat:"muro",      code:"KL8264",         price:18700, unit:"c/u", tk:"marble_black", desc:"Sofisticación absoluta. Contraste dramático."},
-  {id:4, name:"Wall Panel Caoba 24mm",   dims:"16×290cm",   cat:"muro",      code:"PY-60023-21",    price:6500,  unit:"c/u", tk:"wood_caoba",   desc:"Calidez profunda. Textura acanalada contemporánea."},
-  {id:5, name:"Wall Panel Roble 24mm",   dims:"16×290cm",   cat:"muro",      code:"PY-80450I-9",    price:6500,  unit:"c/u", tk:"wood_roble",   desc:"Tono natural cálido. Armonía nórdica."},
-  {id:6, name:"Wall Panel Mármol 24mm",  dims:"16×290cm",   cat:"muro",      code:"PY-80401-2",     price:6500,  unit:"c/u", tk:"panel_marble", desc:"Mármol en formato panel acanalado."},
+  {id:1, name:"PVC Mármol Gris",   dims:"122×244cm", cat:"muro", code:"KL8235", price:18700, unit:"c/u", tk:"marble_gray",  image:marmolGris,   desc:"Elegancia mineral con venas sutiles."},
+  {id:2, name:"PVC Mármol Blanco", dims:"122×244cm", cat:"muro", code:"KL8263", price:18700, unit:"c/u", tk:"marble_white", image:marmolBlanco, desc:"Pureza y luminosidad. Amplía cualquier espacio."},
+  {id:3, name:"PVC Mármol Negro",  dims:"122×244cm", cat:"muro", code:"KL8264", price:18700, unit:"c/u", tk:"marble_black", image:marmolNegro,  desc:"Sofisticación absoluta. Contraste dramático."},
+ {id:4, name:"Wall Panel Caoba 24mm",  dims:"16×290cm", cat:"muro", code:"PY-60023-21", price:6500, unit:"c/u", tk:"wood_caoba",   image:wallCaoba,  desc:"Calidez profunda. Textura acanalada contemporánea."},
+{id:5, name:"Wall Panel Roble 24mm",  dims:"16×290cm", cat:"muro", code:"PY-80450I-9", price:6500, unit:"c/u", tk:"wood_roble",   image:wallRoble,  desc:"Tono natural cálido. Armonía nórdica."},
+{id:6, name:"Wall Panel Mármol 24mm", dims:"16×290cm", cat:"muro", code:"PY-80401-2",  price:6500, unit:"c/u", tk:"panel_marble", image:wallMarmol, desc:"Mármol en formato panel acanalado."},
   {id:7, name:"Placa Cielo PVC Pino",    dims:"25×580cm",   cat:"cielo",     code:"DS059",          price:12500, unit:"c/u", tk:"ceiling_pino", desc:"Calidez en el cielo con veta natural."},
   {id:8, name:"Siding Metal Castaño",    dims:"38.3×580cm", cat:"exterior",  code:"WG-02",          price:26500, unit:"c/u", tk:"siding_c",     desc:"Alta densidad. 2.2m² por unidad."},
   {id:9, name:"Siding Metal Cedro",      dims:"38.3×580cm", cat:"exterior",  code:"WG-08",          price:26500, unit:"c/u", tk:"siding_r",     desc:"Cedro para exteriores. Normativa térmica."},
@@ -395,13 +406,13 @@ export default function App() {
     heroTag: "Importadora & Comercializadora",
     heroTitle1: "Revestimientos", heroTitle2: "de alto estándar", heroTitle3: "para tu espacio",
     heroSubtitle: "Arquitectura, diseño e importación de materiales decorativos. Santa Bárbara — atendemos todo Chile.",
-    heroBtnPrimary: "Ver Catálogo", heroBtnSecondary: "Cotizar", heroImage: null,
+    heroBtnPrimary: "Ver Catálogo", heroBtnSecondary: "Cotizar", heroImage: heroImg,
     stat1n:"14+", stat1l:"Productos", stat2n:"Alta densidad", stat2l:"Materiales",
     stat3n:"Inauguración", stat3l:"Precios 2026", stat4n:"Santa Bárbara", stat4l:"Todo Chile",
     aboutTag: "Quiénes somos", aboutTitle1:"Arquitectura", aboutTitle2:"& Diseño",
     aboutBody1: "Casa-Estudio 1016 es una importadora y comercializadora de materiales decorativos de construcción, con foco en revestimientos de alto estándar.",
-    aboutBody2: "Ofrecemos asesoría en arquitectura y diseño para proyectos residenciales y comerciales, con productos que combinan durabilidad, estética y precio accesible.",
-    aboutImg1:null, aboutImg2:null, aboutImg3:null, aboutImg4:null,
+    aboutBody2: "Ofrecemos servicio en arquitectura y diseño para proyectos residenciales y comerciales, con productos que combinan durabilidad, estética y precio accesible.",
+    aboutImg1: about1, aboutImg2: about2, aboutImg3: about3, aboutImg4: about4,
     svcTitle: "Servicios especializados",
     svc1icon:"🏛️", svc1title:"Arquitectura & Diseño",  svc1desc:"Asesoría profesional para proyectos residenciales y comerciales.",
     svc2icon:"📦", svc2title:"Importación Directa",      svc2desc:"Materiales de alta calidad desde el fabricante, sin intermediarios.",
@@ -814,53 +825,309 @@ export default function App() {
 
       {/* ══ CATALOG ══════════════════════════════════════════════ */}
       <section id="catalogo" style={{padding:`${sm?52:80}px ${sm?16:32}px`,background:C.bg}}>
-        <div style={{maxWidth:1400,width:"100%",margin:"0 auto"}}>
-          <div style={{display:"flex",alignItems:sm?"flex-start":"flex-end",justifyContent:"space-between",marginBottom:sm?24:36,flexWrap:"wrap",gap:16,flexDirection:sm?"column":"row"}}>
-            <div>
-              <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:10}}>Catálogo completo</div>
-              <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,42px)",fontWeight:400,lineHeight:1.2,color:C.text}}>Nuestros <em style={{fontStyle:"italic"}}>Revestimientos</em></h2>
-            </div>
-            <button onClick={()=>setVizOpen(true)} style={{display:"flex",alignItems:"center",gap:7,background:C.dark,color:"white",border:"none",borderRadius:8,padding:sm?"11px 16px":"12px 20px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit",letterSpacing:.5,textTransform:"uppercase",alignSelf:sm?"flex-start":"auto"}}>
-              ✦ Visualizador IA
-            </button>
-          </div>
-          <div style={{display:"flex",gap:8,marginBottom:28,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none"}}>
-            {CATS.map(c=><button key={c} onClick={()=>setFilterCat(c)} style={{flexShrink:0,padding:"8px 18px",border:`1.5px solid ${filterCat===c?C.warm:"#E8E0D4"}`,borderRadius:30,fontSize:12,fontWeight:600,cursor:"pointer",background:filterCat===c?C.warm:"white",color:filterCat===c?"white":C.mid,fontFamily:"inherit",transition:"all .15s"}}>{CAT_L[c]}</button>)}
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:`repeat(${sm?2:md?3:4},1fr)`,gap:sm?12:18}}>
-            {filtered.map(p=>(
-              <div key={p.id} style={{background:"white",borderRadius:12,overflow:"hidden",cursor:"pointer",border:`1.5px solid ${expanded===p.id?C.warm:"#E8E0D4"}`,boxShadow:expanded===p.id?"0 8px 32px rgba(139,107,74,0.15)":"0 2px 12px rgba(0,0,0,0.05)",transition:"all .2s",position:"relative"}}
-                onMouseEnter={e=>{if(expanded!==p.id){e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(0,0,0,0.09)";}}}
-                onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=expanded===p.id?"0 8px 32px rgba(139,107,74,0.15)":"0 2px 12px rgba(0,0,0,0.05)";}}>
-                {editMode && (
-                  <button onClick={e=>{e.stopPropagation();setProductEditor(p);}} style={{position:"absolute",top:6,right:6,zIndex:10,background:"#F5A623",color:"white",border:"none",borderRadius:6,padding:"4px 8px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>✏️ Editar</button>
-                )}
-                <div style={{height:sm?90:120,overflow:"hidden"}} onClick={()=>!editMode&&setExpanded(expanded===p.id?null:p.id)}>
-                  <Thumb tk={p.tk} customImg={p.customImg||null} w={300} h={sm?90:120}/>
-                </div>
-                <div style={{padding:sm?"10px 12px":"12px 14px"}} onClick={()=>!editMode&&setExpanded(expanded===p.id?null:p.id)}>
-                  <div style={{fontSize:9,color:C.warm,letterSpacing:1.5,textTransform:"uppercase",fontWeight:600,marginBottom:3}}>{CAT_L[p.cat]||p.cat}</div>
-                  <div style={{fontFamily:"Georgia,serif",fontSize:sm?13:14,fontWeight:600,color:C.text,lineHeight:1.3,marginBottom:3}}>{p.name}</div>
-                  <div style={{fontSize:10,color:C.mid,marginBottom:8}}>{p.dims} · {p.code}</div>
-                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
-                    <div style={{fontSize:sm?14:16,fontWeight:800,color:C.warmDk}}>{$$(p.price)} <span style={{fontSize:10,fontWeight:400,color:C.mid}}>/{p.unit}</span></div>
-                    <button onClick={e=>{e.stopPropagation();addCart(p);}} style={{background:C.dark,color:"white",border:"none",borderRadius:5,padding:sm?"5px 9px":"6px 11px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"inherit",flexShrink:0}}>+ Carro</button>
-                  </div>
-                </div>
-                {expanded===p.id&&!editMode&&(
-                  <div style={{borderTop:"1px solid #E8E0D4",padding:"12px 14px",background:"#FDF5EE"}}>
-                    <p style={{fontSize:12,color:C.mid,lineHeight:1.7,marginBottom:10}}>{p.desc}</p>
-                    <div style={{display:"flex",gap:8}}>
-                      <a href={`https://wa.me/${content.waNumber}`} target="_blank" rel="noreferrer" style={{flex:1,display:"block",textAlign:"center",background:"#25D366",color:"white",padding:"9px 4px",borderRadius:7,fontSize:11,fontWeight:700,textDecoration:"none"}}>💬 WhatsApp</a>
-                      <button onClick={()=>setVizOpen(true)} style={{flex:1,background:C.dark,color:"white",border:"none",borderRadius:7,padding:"9px 4px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>👁 Visualizar</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+  <div style={{maxWidth:1400,width:"100%",margin:"0 auto"}}>
+    <div style={{display:"flex",alignItems:sm?"flex-start":"flex-end",justifyContent:"space-between",marginBottom:sm?24:36,flexWrap:"wrap",gap:16,flexDirection:sm?"column":"row"}}>
+      <div>
+        <div style={{fontSize:10,color:C.warm,letterSpacing:2,textTransform:"uppercase",fontWeight:600,marginBottom:10}}>
+          Catálogo completo
         </div>
-      </section>
+        <h2 style={{fontFamily:"Georgia,serif",fontSize:sm?"clamp(26px,7vw,36px)":"clamp(28px,3vw,42px)",fontWeight:400,lineHeight:1.2,color:C.text}}>
+          Nuestros <em style={{fontStyle:"italic"}}>Revestimientos</em>
+        </h2>
+      </div>
+
+      <button
+        onClick={()=>setVizOpen(true)}
+        style={{
+          display:"flex",
+          alignItems:"center",
+          gap:7,
+          background:C.dark,
+          color:"white",
+          border:"none",
+          borderRadius:8,
+          padding:sm?"11px 16px":"12px 20px",
+          fontSize:12,
+          fontWeight:700,
+          cursor:"pointer",
+          fontFamily:"inherit",
+          letterSpacing:.5,
+          textTransform:"uppercase",
+          alignSelf:sm?"flex-start":"auto"
+        }}
+      >
+        ✦ Visualizador IA
+      </button>
+    </div>
+
+    <div style={{display:"flex",gap:8,marginBottom:28,overflowX:"auto",paddingBottom:4,scrollbarWidth:"none"}}>
+      {CATS.map(c=>(
+        <button
+          key={c}
+          onClick={()=>setFilterCat(c)}
+          style={{
+            flexShrink:0,
+            padding:"8px 18px",
+            border:`1.5px solid ${filterCat===c?C.warm:"#E8E0D4"}`,
+            borderRadius:30,
+            fontSize:12,
+            fontWeight:600,
+            cursor:"pointer",
+            background:filterCat===c?C.warm:"white",
+            color:filterCat===c?"white":C.mid,
+            fontFamily:"inherit",
+            transition:"all .15s"
+          }}
+        >
+          {CAT_L[c]}
+        </button>
+      ))}
+    </div>
+
+    <div style={{display:"grid",gridTemplateColumns:sm?"1fr":"1fr 1fr",gap:sm?14:24}}>
+      {filtered.map(p=>(
+        <div
+  key={p.id}
+  style={{
+    background:"white",
+    borderRadius:22,
+    overflow:"hidden",
+    cursor:"pointer",
+    border:`1.5px solid ${expanded===p.id?C.warm:"#E8E0D4"}`,
+    boxShadow:expanded===p.id
+      ? "0 10px 30px rgba(139,107,74,0.12)"
+      : "0 4px 18px rgba(0,0,0,0.06)",
+    transition:"all .2s",
+    position:"relative"
+  }}
+  onMouseEnter={e=>{
+    if(expanded!==p.id){
+      e.currentTarget.style.transform="translateY(-2px)";
+      e.currentTarget.style.boxShadow="0 12px 28px rgba(0,0,0,0.09)";
+    }
+  }}
+  onMouseLeave={e=>{
+    e.currentTarget.style.transform="translateY(0)";
+    e.currentTarget.style.boxShadow=expanded===p.id
+      ? "0 10px 30px rgba(139,107,74,0.12)"
+      : "0 4px 18px rgba(0,0,0,0.06)";
+  }}
+>
+  {editMode && (
+    <button
+      onClick={e=>{e.stopPropagation();setProductEditor(p);}}
+      style={{
+        position:"absolute",
+        top:10,
+        right:10,
+        zIndex:10,
+        background:"#F5A623",
+        color:"white",
+        border:"none",
+        borderRadius:8,
+        padding:"6px 10px",
+        fontSize:11,
+        fontWeight:700,
+        cursor:"pointer",
+        fontFamily:"inherit"
+      }}
+    >
+      ✏️ Editar
+    </button>
+  )}
+
+  <div
+    style={{
+      display:"grid",
+      gridTemplateColumns:sm?"1fr":"46% 54%",
+      minHeight:sm?"auto":320
+    }}
+    onClick={()=>!editMode&&setExpanded(expanded===p.id?null:p.id)}
+  >
+    <div
+      style={{
+        background:"#fff",
+        padding:sm?18:24,
+        display:"flex",
+        alignItems:"center",
+        justifyContent:"center",
+        minHeight:sm?220:320,
+        borderBottom:sm?"1px solid #F0EAE2":"none",
+        borderRight:sm?"none":"1px solid #F0EAE2"
+      }}
+    >
+      <div style={{width:"100%",height:"100%",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        {p.image ? (
+          <img
+            src={p.image}
+            alt={p.name}
+            style={{
+              width:"100%",
+              maxHeight:sm?220:260,
+              objectFit:"contain",
+              display:"block"
+            }}
+          />
+        ) : (
+          <div style={{width:"100%",height:sm?220:260}}>
+            <Thumb tk={p.tk} customImg={p.customImg||null} w={420} h={260}/>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div
+      style={{
+        padding:sm?"18px 18px 20px":"26px 24px",
+        display:"flex",
+        flexDirection:"column",
+        justifyContent:"center"
+      }}
+    >
+      <div
+        style={{
+          fontSize:11,
+          color:C.warm,
+          letterSpacing:2.5,
+          textTransform:"uppercase",
+          fontWeight:700,
+          marginBottom:12
+        }}
+      >
+        {CAT_L[p.cat] || p.cat}
+      </div>
+
+      <div
+        style={{
+          fontFamily:"Georgia,serif",
+          fontSize:sm?18:22,
+          lineHeight:1.15,
+          fontWeight:700,
+          color:C.text,
+          marginBottom:10
+        }}
+      >
+        {p.name}
+      </div>
+
+      <div
+        style={{
+          fontSize:sm?14:16,
+          color:"#5A4A3C",
+          fontWeight:600,
+          marginBottom:6
+        }}
+      >
+        {p.dims}
+      </div>
+
+      <div
+        style={{
+          fontSize:14,
+          color:"#9A8A7A",
+          fontWeight:600,
+          marginBottom:12
+        }}
+      >
+        COD: {p.code}
+      </div>
+
+      <div
+        style={{
+          fontSize:sm?13:14,
+          color:C.mid,
+          lineHeight:1.6,
+          marginBottom:16
+        }}
+      >
+        {p.desc}
+      </div>
+
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+        <div
+          style={{
+            background:"#2F6E6C",
+            color:"white",
+            padding:sm?"10px 14px":"12px 16px",
+            borderRadius:10,
+            fontSize:sm?15:17,
+            fontWeight:800,
+            lineHeight:1
+          }}
+        >
+          {$$(p.price)} <span style={{fontSize:12,fontWeight:500,opacity:.9}}>{p.unit}</span>
+        </div>
+
+        <button
+          onClick={e=>{e.stopPropagation();addCart(p);}}
+          style={{
+            background:C.dark,
+            color:"white",
+            border:"none",
+            borderRadius:10,
+            padding:sm?"11px 16px":"12px 18px",
+            fontSize:14,
+            fontWeight:700,
+            cursor:"pointer",
+            fontFamily:"inherit"
+          }}
+        >
+          + Carro
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {expanded===p.id && !editMode && (
+    <div style={{borderTop:"1px solid #E8E0D4",padding:"16px 20px",background:"#FDF8F3"}}>
+      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+        <a
+          href={`https://wa.me/${content.waNumber}`}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            flex:1,
+            minWidth:160,
+            display:"block",
+            textAlign:"center",
+            background:"#25D366",
+            color:"white",
+            padding:"11px 8px",
+            borderRadius:10,
+            fontSize:13,
+            fontWeight:700,
+            textDecoration:"none"
+          }}
+        >
+          💬 WhatsApp
+        </a>
+
+        <button
+          onClick={()=>setVizOpen(true)}
+          style={{
+            flex:1,
+            minWidth:160,
+            background:C.dark,
+            color:"white",
+            border:"none",
+            borderRadius:10,
+            padding:"11px 8px",
+            fontSize:13,
+            fontWeight:700,
+            cursor:"pointer",
+            fontFamily:"inherit"
+          }}
+        >
+          👁 Visualizar
+                     </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* ══ SERVICES ═════════════════════════════════════════════ */}
       <section id="servicios" style={{background:"white",padding:`${sm?52:80}px ${sm?16:32}px`}}>
