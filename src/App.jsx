@@ -1,3 +1,4 @@
+import QuotationModal from "./QuotationModal";
 import { useState, useRef, useEffect, useCallback } from "react";
 import heroImg from "./assets/Hero1.png";
 import about1 from "./assets/Inicio1.jpeg";
@@ -92,6 +93,7 @@ const $$ = (n) => `$${Number(n).toLocaleString("es-CL")}`;
 const CATS = ["todos", "muro", "cielo", "exterior", "accesorio"];
 const CAT_L = { todos: "Todos", muro: "Muros", cielo: "Cielos", exterior: "Exterior", accesorio: "Accesorios" };
 
+// ─── Thumb ────────────────────────────────────────────────────────────────────
 function Thumb({ tk, customImg, w = 120, h = 80 }) {
   const ref = useRef();
   useEffect(() => {
@@ -117,6 +119,7 @@ function Thumb({ tk, customImg, w = 120, h = 80 }) {
   return <canvas ref={ref} width={w} height={h} style={{ display: "block", width: "100%", height: "100%" }} />;
 }
 
+// ─── applyTexture ─────────────────────────────────────────────────────────────
 async function applyTexture(photoSrc, tk, zone, customImg = null) {
   const load = (src) => new Promise((res) => {
     const i = new Image();
@@ -166,98 +169,41 @@ async function applyTexture(photoSrc, tk, zone, customImg = null) {
   return c.toDataURL("image/jpeg", 0.93);
 }
 
+// ─── EditText ─────────────────────────────────────────────────────────────────
 function EditText({ value, onChange, editing, tag = "span", style = {}, multiline = false, placeholder = "Haz clic para editar" }) {
   const ref = useRef();
   const Tag = tag;
-
   useEffect(() => {
     if (editing && ref.current) ref.current.focus();
   }, [editing]);
-
   if (!editing) return <Tag style={style}>{value}</Tag>;
-
   if (multiline) {
     return (
-      <textarea
-        ref={ref}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: "rgba(255,255,200,0.9)",
-          border: "2px solid #F5A623",
-          borderRadius: 4,
-          padding: "4px 8px",
-          resize: "vertical",
-          width: "100%",
-          fontFamily: "inherit",
-          outline: "none",
-          minHeight: 80,
-        }}
-      />
+      <textarea ref={ref} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+        style={{ ...style, background: "rgba(255,255,200,0.9)", border: "2px solid #F5A623", borderRadius: 4, padding: "4px 8px", resize: "vertical", width: "100%", fontFamily: "inherit", outline: "none", minHeight: 80 }} />
     );
   }
-
   return (
-    <input
-      ref={ref}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: "rgba(255,255,200,0.9)",
-        border: "2px solid #F5A623",
-        borderRadius: 4,
-        padding: "4px 8px",
-        width: "100%",
-        fontFamily: "inherit",
-        outline: "none",
-      }}
-    />
+    <input ref={ref} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+      style={{ ...style, background: "rgba(255,255,200,0.9)", border: "2px solid #F5A623", borderRadius: 4, padding: "4px 8px", width: "100%", fontFamily: "inherit", outline: "none" }} />
   );
 }
 
+// ─── Editable ─────────────────────────────────────────────────────────────────
 function Editable({ editing, label, children, style = {}, onClick }) {
   if (!editing) return <div style={style}>{children}</div>;
   return (
-    <div
-      onClick={onClick}
-      style={{
-        ...style,
-        position: "relative",
-        outline: "2px dashed rgba(245,166,35,0.6)",
-        outlineOffset: 2,
-        borderRadius: 4,
-        cursor: "pointer",
-      }}
+    <div onClick={onClick}
+      style={{ ...style, position: "relative", outline: "2px dashed rgba(245,166,35,0.6)", outlineOffset: 2, borderRadius: 4, cursor: "pointer" }}
       onMouseEnter={(e) => { e.currentTarget.style.outline = "2px solid #F5A623"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.outline = "2px dashed rgba(245,166,35,0.6)"; }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: -18,
-          left: 0,
-          background: "#F5A623",
-          color: "white",
-          fontSize: 9,
-          fontWeight: 700,
-          padding: "2px 6px",
-          borderRadius: "3px 3px 3px 0",
-          whiteSpace: "nowrap",
-          zIndex: 10,
-          letterSpacing: 0.5,
-        }}
-      >
-        ✏️ {label}
-      </div>
+      onMouseLeave={(e) => { e.currentTarget.style.outline = "2px dashed rgba(245,166,35,0.6)"; }}>
+      <div style={{ position: "absolute", top: -18, left: 0, background: "#F5A623", color: "white", fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: "3px 3px 3px 0", whiteSpace: "nowrap", zIndex: 10, letterSpacing: 0.5 }}>✏️ {label}</div>
       {children}
     </div>
   );
 }
 
+// ─── ImgUpload ────────────────────────────────────────────────────────────────
 function ImgUpload({ onImage, children, style = {} }) {
   return (
     <label style={{ ...style, cursor: "pointer", display: "block", position: "relative" }}>
@@ -265,22 +211,13 @@ function ImgUpload({ onImage, children, style = {} }) {
       <div style={{ position: "absolute", inset: 0, background: "rgba(245,166,35,0.15)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "inherit" }}>
         <div style={{ background: "#F5A623", color: "white", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, boxShadow: "0 2px 12px rgba(0,0,0,0.2)" }}>📷 Cambiar imagen</div>
       </div>
-      <input
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const f = e.target.files[0];
-          if (!f) return;
-          const r = new FileReader();
-          r.onload = (ev) => onImage(ev.target.result);
-          r.readAsDataURL(f);
-        }}
-      />
+      <input type="file" accept="image/*" style={{ display: "none" }}
+        onChange={(e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => onImage(ev.target.result); r.readAsDataURL(f); }} />
     </label>
   );
 }
 
+// ─── ProductEditor ────────────────────────────────────────────────────────────
 function ProductEditor({ product, onSave, onDelete, onClose }) {
   const [p, setP] = useState({ ...product });
   const set = (k, v) => setP((x) => ({ ...x, [k]: v }));
@@ -295,12 +232,8 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
         {[["name", "Nombre", "text"], ["code", "Código", "text"], ["dims", "Dimensiones", "text"], ["price", "Precio", "number"], ["unit", "Unidad (c/u, set)", "text"]].map(([k, l, t]) => (
           <div key={k} style={{ marginBottom: 12 }}>
             <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>{l}</label>
-            <input
-              type={t}
-              value={p[k] || ""}
-              onChange={(e) => set(k, t === "number" ? Number(e.target.value) : e.target.value)}
-              style={{ width: "100%", padding: "9px 12px", border: "1px solid #E0D8D0", borderRadius: 7, fontSize: 14, fontFamily: "inherit", outline: "none" }}
-            />
+            <input type={t} value={p[k] || ""} onChange={(e) => set(k, t === "number" ? Number(e.target.value) : e.target.value)}
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #E0D8D0", borderRadius: 7, fontSize: 14, fontFamily: "inherit", outline: "none" }} />
           </div>
         ))}
 
@@ -316,26 +249,14 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
           <div style={{ width: "100%", height: 110, borderRadius: 8, overflow: "hidden", marginBottom: 10, border: "1px solid #E0D8D0", position: "relative" }}>
             <Thumb tk={p.tk} customImg={p.customImg || null} w={440} h={110} />
             {p.customImg && (
-              <button onClick={() => set("customImg", null)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(196,90,90,0.9)", color: "white", border: "none", borderRadius: 5, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                × Quitar foto
-              </button>
+              <button onClick={() => set("customImg", null)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(196,90,90,0.9)", color: "white", border: "none", borderRadius: 5, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>× Quitar foto</button>
             )}
           </div>
 
           <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "11px", background: "#FFF8F0", border: "2px dashed #F5A623", borderRadius: 8, cursor: "pointer", marginBottom: 10, fontSize: 13, fontWeight: 700, color: "#B87A10" }}>
             📷 {p.customImg ? "Cambiar foto del producto" : "Subir foto del revestimiento"}
-            <input
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={(e) => {
-                const f = e.target.files[0];
-                if (!f) return;
-                const r = new FileReader();
-                r.onload = (ev) => set("customImg", ev.target.result);
-                r.readAsDataURL(f);
-              }}
-            />
+            <input type="file" accept="image/*" style={{ display: "none" }}
+              onChange={(e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => set("customImg", ev.target.result); r.readAsDataURL(f); }} />
           </label>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
@@ -346,12 +267,8 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 5 }}>
             {Object.keys(TX).map((k) => (
-              <div
-                key={k}
-                onClick={() => { set("tk", k); set("customImg", null); }}
-                style={{ borderRadius: 6, overflow: "hidden", cursor: "pointer", border: `2px solid ${!p.customImg && p.tk === k ? "#F5A623" : "transparent"}`, height: 44, opacity: p.customImg ? 0.4 : 1, transition: "opacity .15s" }}
-                title={k}
-              >
+              <div key={k} onClick={() => { set("tk", k); set("customImg", null); }}
+                style={{ borderRadius: 6, overflow: "hidden", cursor: "pointer", border: `2px solid ${!p.customImg && p.tk === k ? "#F5A623" : "transparent"}`, height: 44, opacity: p.customImg ? 0.4 : 1, transition: "opacity .15s" }} title={k}>
                 <Thumb tk={k} w={80} h={44} />
               </div>
             ))}
@@ -360,7 +277,8 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
 
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Descripción</label>
-          <textarea value={p.desc || ""} onChange={(e) => set("desc", e.target.value)} rows={3} style={{ width: "100%", padding: "9px 12px", border: "1px solid #E0D8D0", borderRadius: 7, fontSize: 13, fontFamily: "inherit", resize: "none", outline: "none" }} />
+          <textarea value={p.desc || ""} onChange={(e) => set("desc", e.target.value)} rows={3}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #E0D8D0", borderRadius: 7, fontSize: 13, fontFamily: "inherit", resize: "none", outline: "none" }} />
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
@@ -372,40 +290,74 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
   );
 }
 
-function VisualizerModal({ prods, onClose }) {
+// ─── VisualizerModal ──────────────────────────────────────────────────────────
+// FIX: Receives all needed state as props from App instead of relying on outer scope
+function VisualizerModal({ prods, onClose, C, $$ }) {
   const w = useW();
   const sm = w < 640;
-  const [img, setImg] = useState(null);
-  const [zone, setZone] = useState("muro");
+
+  // Visualizer state (all local to this modal)
+  const [vizSurface, setVizSurface] = useState("muro");
+  const [vizFilterCat, setVizFilterCat] = useState("todos");
+  const [vizSelected, setVizSelected] = useState(null);
+  const [vizImage, setVizImage] = useState(null);
+  const [vizDragging, setVizDragging] = useState(false);
+  const [panel, setPanel] = useState("foto");
+
+  // Legacy viz state (for texture fallback)
   const [mat, setMat] = useState(null);
-  const [cat, setCat] = useState("todos");
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState(null);
   const [txt, setTxt] = useState("");
+  const [cat, setCat] = useState("todos");
   const [drag, setDrag] = useState(false);
-  const [panel, setPanel] = useState("foto");
 
+  useEffect(() => {
+    setVizFilterCat("todos");
+    setVizSelected(null);
+  }, [vizSurface]);
+
+  const vizCats =
+    vizSurface === "muro"
+      ? [{ key: "todos", label: "Todos" }, { key: "muro", label: "Muros int." }, { key: "exterior", label: "Muros ext." }]
+      : [{ key: "todos", label: "Todos" }, { key: "cielo", label: "Cielos" }];
+
+  const vizFiltered = prods.filter((p) => {
+    if (vizSurface === "muro" && !(p.cat === "muro" || p.cat === "exterior")) return false;
+    if (vizSurface === "cielo" && p.cat !== "cielo") return false;
+    if (vizFilterCat !== "todos" && p.cat !== vizFilterCat) return false;
+    return true;
+  });
+
+  const selectedVizProduct = vizSelected || vizFiltered[0] || null;
+
+  const handleVizFile = useCallback((file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => setVizImage(e.target.result);
+    reader.readAsDataURL(file);
+  }, []);
+
+  const vizInputChange = (e) => handleVizFile(e.target.files?.[0]);
+
+  // Legacy load for old panel
   const load = useCallback((f) => {
     if (!f || !f.type.startsWith("image/")) return;
     const r = new FileReader();
-    r.onload = (e) => {
-      setImg(e.target.result);
-      setRes(null);
-      setTxt("");
-      setPanel("foto");
-    };
+    r.onload = (e) => { setVizImage(e.target.result); setRes(null); setTxt(""); setPanel("foto"); };
     r.readAsDataURL(f);
   }, []);
 
   async function run() {
-    if (!img || !mat) return;
+    const currentMat = selectedVizProduct || mat;
+    if (!vizImage || !currentMat) return;
     setBusy(true);
     setRes(null);
     setTxt("");
 
     const OPENAI_KEY = import.meta.env.VITE_OPENAI_KEY;
     try {
-      const b64 = img.includes(",") ? img.split(",")[1] : img;
+      const b64 = vizImage.includes(",") ? vizImage.split(",")[1] : vizImage;
       const descResp = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENAI_KEY}` },
@@ -423,8 +375,8 @@ function VisualizerModal({ prods, onClose }) {
       });
       const descData = await descResp.json();
       const spaceDesc = descData.choices?.[0]?.message?.content || "a modern interior room";
-      const zoneEs = zone === "muro" ? "walls" : zone === "piso" ? "floor" : "ceiling";
-      const dallePrompt = `Photorealistic interior design render. The space is: ${spaceDesc}. Apply \"${mat.name}\" (${mat.desc}) to the ${zoneEs}. High quality architectural visualization, professional lighting, 4K quality. Keep all furniture and elements the same, only change the ${zoneEs} surface material.`;
+      const zoneEs = vizSurface === "muro" ? "walls" : vizSurface === "piso" ? "floor" : "ceiling";
+      const dallePrompt = `Photorealistic interior design render. The space is: ${spaceDesc}. Apply "${currentMat.name}" (${currentMat.desc}) to the ${zoneEs}. High quality architectural visualization, professional lighting, 4K quality. Keep all furniture and elements the same, only change the ${zoneEs} surface material.`;
 
       const imgResp = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
@@ -435,14 +387,14 @@ function VisualizerModal({ prods, onClose }) {
 
       if (imgData.data?.[0]?.url) {
         setRes(imgData.data[0].url);
-        setTxt(`✦ Visualización generada con IA — ${mat.name} aplicado en el ${zone}. Esta es una simulación artística de cómo podría verse tu espacio con este revestimiento.`);
+        setTxt(`✦ Visualización generada con IA — ${currentMat.name} aplicado en el ${vizSurface}. Esta es una simulación artística de cómo podría verse tu espacio con este revestimiento.`);
       } else {
-        const fallback = await applyTexture(img, mat.tk, zone, mat.customImg || null);
+        const fallback = await applyTexture(vizImage, currentMat.tk, vizSurface, currentMat.customImg || null);
         setRes(fallback);
         setTxt(imgData.error?.message || "No se pudo generar la imagen. Mostrando simulación de textura.");
       }
     } catch {
-      const fallback = await applyTexture(img, mat.tk, zone, mat.customImg || null);
+      const fallback = await applyTexture(vizImage, (selectedVizProduct || mat)?.tk || "marble_gray", vizSurface, (selectedVizProduct || mat)?.customImg || null);
       setRes(fallback);
       setTxt("Visítanos en Arturo Prat 1016 o al +56 9 7868 2990 para asesoría personalizada.");
     }
@@ -454,6 +406,8 @@ function VisualizerModal({ prods, onClose }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(15,12,10,0.88)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: sm ? 0 : 20, backdropFilter: "blur(6px)" }} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: "#FAF8F4", borderRadius: sm ? 0 : 16, width: "100%", maxWidth: 880, height: sm ? "100%" : "90vh", maxHeight: sm ? "100%" : "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
+
+        {/* Header */}
         <div style={{ padding: "14px 18px", borderBottom: "1px solid #EDE8E0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", flexShrink: 0 }}>
           <div>
             <div style={{ fontFamily: "Georgia,serif", fontSize: 16, fontWeight: 700 }}>✦ Visualizador IA</div>
@@ -462,74 +416,103 @@ function VisualizerModal({ prods, onClose }) {
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid #E0D8D0", background: "white", cursor: "pointer", fontSize: 20, color: "#8A7868", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>×</button>
         </div>
 
+        {/* Mobile tabs */}
         {sm && (
           <div style={{ display: "flex", borderBottom: "2px solid #EDE8E0", flexShrink: 0 }}>
-            {[ ["foto", "📷 Mi espacio"], ["catalogo", "🧱 Materiales"] ].map(([id, l]) => (
+            {[["foto", "📷 Mi espacio"], ["catalogo", "🧱 Materiales"]].map(([id, l]) => (
               <button key={id} onClick={() => setPanel(id)} style={{ flex: 1, padding: "11px 4px", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit", background: panel === id ? "#FAF8F4" : "white", color: panel === id ? "#5A3A1A" : "#8A7868", borderBottom: `2px solid ${panel === id ? "#8B6B4A" : "transparent"}`, marginBottom: -2 }}>{l}</button>
             ))}
           </div>
         )}
 
+        {/* Body */}
         <div style={{ display: "flex", flex: 1, overflow: "hidden", flexDirection: sm ? "column" : "row" }}>
+
+          {/* LEFT: photo + surface selector + result */}
           {(!sm || panel === "foto") && (
-            <div style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", gap: 8 }}>
-                {[ ["muro", "🧱 Muro"], ["piso", "🪵 Piso"], ["cielo", "☁️ Cielo"] ].map(([z, l]) => (
-                  <button key={z} onClick={() => setZone(z)} style={{ flex: 1, padding: "9px 4px", border: `2px solid ${zone === z ? "#8B6B4A" : "#E0D8D0"}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", background: zone === z ? "#F5EDE4" : "white", color: zone === z ? "#5A3010" : "#8A7868", fontFamily: "inherit" }}>{l}</button>
-                ))}
+            <div style={{ flex: 1, padding: sm ? 16 : 18, borderRight: sm ? "none" : "1px solid #E8E0D4", overflowY: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
+
+              {/* Surface toggle */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {[{ key: "muro", label: "Muros", icon: "🧱" }, { key: "cielo", label: "Cielos", icon: "☁️" }].map((item) => {
+                  const active = vizSurface === item.key;
+                  return (
+                    <button key={item.key} onClick={() => setVizSurface(item.key)}
+                      style={{ height: 46, borderRadius: 12, border: active ? `2px solid ${C.warm}` : "1px solid #D8CEC0", background: active ? "#F6EFE6" : "white", color: C.text, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "all .2s" }}>
+                      <span>{item.icon}</span><span>{item.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
-              {!img ? (
-                <div onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); load(e.dataTransfer.files[0]); }} style={{ border: `2px dashed ${drag ? "#8B6B4A" : "#D8D0C4"}`, borderRadius: 10, padding: "36px 16px", textAlign: "center", background: drag ? "#F5EDE4" : "#FDFAF6" }}>
-                  <div style={{ fontSize: 40, marginBottom: 8 }}>🏠</div>
-                  <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Arrastra tu foto aquí</p>
-                  <p style={{ fontSize: 12, color: "#8A7868", marginBottom: 14 }}>JPG, PNG, WEBP</p>
-                  <label style={{ background: "#2C2420", color: "white", padding: "11px 22px", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", display: "inline-block" }}>
-                    📂 Seleccionar
-                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => load(e.target.files[0])} />
-                  </label>
-                </div>
-              ) : (
-                <div style={{ borderRadius: 10, overflow: "hidden", position: "relative", border: "1px solid #E0D8D0" }}>
-                  <img src={img} style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }} />
-                  <label style={{ position: "absolute", top: 8, right: 8, background: "rgba(44,36,32,0.75)", color: "white", padding: "5px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(4px)" }}>
-                    Cambiar
-                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => load(e.target.files[0])} />
-                  </label>
-                </div>
-              )}
-
-              {mat && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "white", border: "1px solid #E0D8D0", borderRadius: 8 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-                    <Thumb tk={mat.tk} customImg={mat.customImg || null} w={40} h={40} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mat.name}</div>
-                    <div style={{ fontSize: 11, color: "#7A5B3A", fontWeight: 600 }}>{$$(mat.price)}</div>
+              {/* Selected product badge */}
+              {selectedVizProduct && (
+                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", border: "1px solid #E7DDD0", borderRadius: 12, background: "#FCF7F1" }}>
+                  <img src={selectedVizProduct.image} alt={selectedVizProduct.name} style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 10, border: "1px solid #E7DDD0" }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, color: "#7A6858", marginBottom: 4 }}>Revestimiento seleccionado</div>
+                    <div style={{ fontWeight: 700, color: C.text, marginBottom: 2 }}>{selectedVizProduct.name}</div>
+                    <div style={{ fontSize: 13, color: C.warmDk }}>{$$(selectedVizProduct.price)} {selectedVizProduct.unit}</div>
                   </div>
                 </div>
               )}
 
-              <button disabled={!img || !mat || busy} onClick={run} style={{ padding: "13px", background: (!img || !mat || busy) ? "#E0D8D0" : "#2C2420", color: (!img || !mat || busy) ? "#A09488" : "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (!img || !mat || busy) ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
-                {busy ? "⏳ Procesando..." : !img ? "Sube una foto" : !mat ? "Elige un material" : "✨ Visualizar"}
+              {/* Drop zone */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setVizDragging(true); }}
+                onDragLeave={() => setVizDragging(false)}
+                onDrop={(e) => { e.preventDefault(); setVizDragging(false); handleVizFile(e.dataTransfer.files?.[0]); }}
+                style={{ border: vizDragging ? `2px solid ${C.warm}` : "2px dashed #D8CEC0", background: vizDragging ? "#FCF7F1" : "#F7F3EE", borderRadius: 16, padding: sm ? 18 : 26, minHeight: 160, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", transition: "all .2s" }}>
+                {!vizImage ? (
+                  <div>
+                    <div style={{ fontSize: 42, marginBottom: 10 }}>🏠</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 6 }}>Arrastra tu foto aquí</div>
+                    <div style={{ fontSize: 13, color: "#7A6858", marginBottom: 18 }}>JPG, PNG, WEBP</div>
+                    <label style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 24px", borderRadius: 12, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer" }}>
+                      📁 Seleccionar
+                      <input type="file" accept="image/*" style={{ display: "none" }} onChange={vizInputChange} />
+                    </label>
+                  </div>
+                ) : (
+                  <div style={{ width: "100%" }}>
+                    <img src={vizImage} alt="Vista cargada" style={{ width: "100%", maxHeight: 300, objectFit: "contain", borderRadius: 14, border: "1px solid #E7DDD0", background: "white" }} />
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginTop: 14 }}>
+                      <label style={{ padding: "11px 16px", borderRadius: 10, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer" }}>
+                        Cambiar foto
+                        <input type="file" accept="image/*" style={{ display: "none" }} onChange={vizInputChange} />
+                      </label>
+                      <button onClick={() => { setVizImage(null); setRes(null); }}
+                        style={{ padding: "11px 16px", borderRadius: 10, background: "white", color: C.text, border: "1px solid #D8CEC0", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                        Quitar foto
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Visualize button */}
+              <button disabled={!vizImage || !selectedVizProduct || busy} onClick={run}
+                style={{ padding: "13px", background: (!vizImage || !selectedVizProduct || busy) ? "#E0D8D0" : C.dark, color: (!vizImage || !selectedVizProduct || busy) ? "#A09488" : "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (!vizImage || !selectedVizProduct || busy) ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                {busy ? "⏳ Procesando..." : !vizImage ? "Sube una foto" : !selectedVizProduct ? "Elige un material" : "✨ Visualizar con IA"}
               </button>
 
+              {/* Loading */}
               {busy && !res && (
-                <div style={{ height: 100, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, background: "#F5F0EA", borderRadius: 10 }}>
+                <div style={{ height: 80, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, background: "#F5F0EA", borderRadius: 10 }}>
                   <div style={{ width: 28, height: 28, border: "3px solid #E0D8D0", borderTopColor: "#8B6B4A", borderRadius: "50%", animation: "spin .7s linear infinite" }} />
                   <div>
                     <div style={{ fontSize: 13, color: "#8A7868", fontWeight: 600 }}>Generando imagen con IA...</div>
-                    <div style={{ fontSize: 11, color: "#A09488", marginTop: 3 }}>Esto puede tomar 15-30 segundos</div>
+                    <div style={{ fontSize: 11, color: "#A09488", marginTop: 3 }}>Puede tomar 15–30 segundos</div>
                   </div>
                 </div>
               )}
 
+              {/* Result */}
               {res && (
                 <>
                   <div style={{ borderRadius: 10, overflow: "hidden", position: "relative", border: "1px solid #E0D8D0" }}>
-                    <img src={res} style={{ width: "100%", display: "block" }} />
-                    <div style={{ position: "absolute", bottom: 8, left: 8, background: "rgba(44,36,32,0.82)", color: "white", fontSize: 10, padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>✦ {mat?.name}</div>
+                    <img src={res} style={{ width: "100%", display: "block" }} alt="Resultado" />
+                    <div style={{ position: "absolute", bottom: 8, left: 8, background: "rgba(44,36,32,0.82)", color: "white", fontSize: 10, padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>✦ {selectedVizProduct?.name}</div>
                   </div>
                   {txt && <div style={{ background: "#F5EDE4", borderLeft: "3px solid #8B6B4A", padding: "12px 14px", borderRadius: "0 8px 8px 0", fontSize: 13, lineHeight: 1.8 }}>{txt}</div>}
                 </>
@@ -537,27 +520,46 @@ function VisualizerModal({ prods, onClose }) {
             </div>
           )}
 
+          {/* RIGHT: catalog */}
           {(!sm || panel === "catalogo") && (
             <div style={{ width: sm ? "100%" : 268, borderLeft: sm ? "none" : "1px solid #EDE8E0", background: "white", display: "flex", flexDirection: "column", overflow: "hidden", flexShrink: 0 }}>
+
+              {/* Category filter tabs */}
               <div style={{ padding: "10px", borderBottom: "1px solid #EDE8E0", display: "flex", gap: 4, flexWrap: "wrap", flexShrink: 0 }}>
-                {CATS.map((c) => (
-                  <button key={c} onClick={() => setCat(c)} style={{ padding: "4px 9px", border: `1px solid ${cat === c ? "#8B6B4A" : "#E0D8D0"}`, borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer", background: cat === c ? "#8B6B4A" : "white", color: cat === c ? "white" : "#8A7868", fontFamily: "inherit" }}>{CAT_L[c]}</button>
+                {vizCats.map((c) => (
+                  <button key={c.key} onClick={() => setVizFilterCat(c.key)}
+                    style={{ padding: "4px 9px", border: `1px solid ${vizFilterCat === c.key ? "#8B6B4A" : "#E0D8D0"}`, borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer", background: vizFilterCat === c.key ? "#8B6B4A" : "white", color: vizFilterCat === c.key ? "white" : "#8A7868", fontFamily: "inherit" }}>
+                    {c.label}
+                  </button>
                 ))}
               </div>
+
+              {/* Product list */}
               <div style={{ flex: 1, overflowY: "auto", padding: 8, display: "flex", flexDirection: "column", gap: 6 }}>
-                {filtered.map((p) => (
-                  <div key={p.id} onClick={() => { setMat(p); if (sm) setPanel("foto"); }} style={{ display: "flex", gap: 10, alignItems: "center", padding: "8px 10px", borderRadius: 8, border: `2px solid ${mat?.id === p.id ? "#8B6B4A" : "transparent"}`, background: mat?.id === p.id ? "#FDF5EE" : "white", cursor: "pointer", transition: "all .15s" }} onMouseEnter={(e) => { if (mat?.id !== p.id) e.currentTarget.style.background = "#FAF7F4"; }} onMouseLeave={(e) => { if (mat?.id !== p.id) e.currentTarget.style.background = "white"; }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-                      <Thumb tk={p.tk} customImg={p.customImg || null} w={44} h={44} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                      <div style={{ fontSize: 10, color: "#8A7868" }}>{p.code}</div>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#7A5B3A" }}>{$$(p.price)}</div>
-                    </div>
-                    {mat?.id === p.id && <div style={{ width: 18, height: 18, background: "#8B6B4A", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", fontWeight: 800, flexShrink: 0 }}>✓</div>}
+                {vizFiltered.length === 0 && (
+                  <div style={{ textAlign: "center", padding: "40px 16px", color: "#8A7868", fontSize: 13 }}>
+                    No hay productos en esta categoría.
                   </div>
-                ))}
+                )}
+                {vizFiltered.map((p) => {
+                  const selected = vizSelected?.id === p.id;
+                  return (
+                    <div key={p.id} onClick={() => { setVizSelected(p); if (sm) setPanel("foto"); }}
+                      style={{ display: "flex", gap: 10, alignItems: "center", padding: "8px 10px", borderRadius: 8, border: `2px solid ${selected ? "#8B6B4A" : "transparent"}`, background: selected ? "#FDF5EE" : "white", cursor: "pointer", transition: "all .15s" }}
+                      onMouseEnter={(e) => { if (!selected) e.currentTarget.style.background = "#FAF7F4"; }}
+                      onMouseLeave={(e) => { if (!selected) e.currentTarget.style.background = "white"; }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
+                        <Thumb tk={p.tk} customImg={p.customImg || null} w={44} h={44} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+                        <div style={{ fontSize: 10, color: "#8A7868" }}>{p.code}</div>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: "#7A5B3A" }}>{$$(p.price)}</div>
+                      </div>
+                      {selected && <div style={{ width: 18, height: 18, background: "#8B6B4A", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", fontWeight: 800, flexShrink: 0 }}>✓</div>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -567,6 +569,7 @@ function VisualizerModal({ prods, onClose }) {
   );
 }
 
+// ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const w = useW();
   const sm = w < 640;
@@ -601,6 +604,19 @@ export default function App() {
   const [activeField, setActiveField] = useState(null);
   const [productEditor, setProductEditor] = useState(null);
   const [saved, setSaved] = useState(false);
+
+  // FIX: filterCat was missing — added here
+  const [filterCat, setFilterCat] = useState("todos");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [qtyByProduct, setQtyByProduct] = useState({});
+  const [cartOpen, setCartOpen] = useState(false);
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [form, setForm] = useState({ nombre: "", tel: "", email: "", msg: "" });
+  const [vizOpen, setVizOpen] = useState(false);
 
   const DEFAULT_CONTENT = {
     brandName: "Casa-Estudio",
@@ -667,108 +683,58 @@ export default function App() {
     try {
       const saved = localStorage.getItem("ce1016_content");
       return saved ? { ...DEFAULT_CONTENT, ...JSON.parse(saved) } : DEFAULT_CONTENT;
-    } catch {
-      return DEFAULT_CONTENT;
-    }
+    } catch { return DEFAULT_CONTENT; }
   });
 
   const [prods, setProds] = useState(() => {
     try {
       const saved = localStorage.getItem("ce1016_prods");
       return saved ? JSON.parse(saved) : DEFAULT_PRODS;
-    } catch {
-      return DEFAULT_PRODS;
-    }
+    } catch { return DEFAULT_PRODS; }
   });
 
   const set = (k, v) => setContent((x) => ({ ...x, [k]: v }));
   const isActive = (f) => editMode && activeField === f;
   const editClick = (f) => { if (editMode) setActiveField(f); };
 
-  const [vizOpen, setVizOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [filterCat, setFilterCat] = useState("todos");
-  const [expanded, setExpanded] = useState(null);
-  const [cart, setCart] = useState([]);
-  const [qtyByProduct, setQtyByProduct] = useState({});
-  const [cartOpen, setCartOpen] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [form, setForm] = useState({ nombre: "", tel: "", email: "", msg: "" });
+  const C = { bg: content.colorBg, dark: content.colorDark, warm: content.colorWarm, warmDk: content.colorAccent, border: "#E8E0D4", mid: "#7A6858", text: "#2C2420" };
 
   const getQty = (id) => qtyByProduct[id] || 1;
-  const changeQty = (id, delta) => {
-    setQtyByProduct((current) => ({
-      ...current,
-      [id]: Math.max(1, (current[id] || 1) + delta),
-    }));
-  };
+  const changeQty = (id, delta) => setQtyByProduct((cur) => ({ ...cur, [id]: Math.max(1, (cur[id] || 1) + delta) }));
 
   const addCart = (product, qty = 1) => {
-    setCart((current) => {
-      const existing = current.find((item) => item.id === product.id);
-      if (existing) {
-        return current.map((item) => item.id === product.id ? { ...item, qty: item.qty + qty } : item);
-      }
-      return [...current, { ...product, qty }];
+    setCart((cur) => {
+      const existing = cur.find((item) => item.id === product.id);
+      if (existing) return cur.map((item) => item.id === product.id ? { ...item, qty: item.qty + qty } : item);
+      return [...cur, { ...product, qty }];
     });
   };
-
-  const rmCart = (id) => setCart((current) => current.filter((item) => item.id !== id));
-  const incCartQty = (id) => setCart((current) => current.map((item) => item.id === id ? { ...item, qty: item.qty + 1 } : item));
-  const decCartQty = (id) => setCart((current) => current.map((item) => item.id === id ? { ...item, qty: Math.max(1, item.qty - 1) } : item));
+  const rmCart = (id) => setCart((cur) => cur.filter((item) => item.id !== id));
+  const incCartQty = (id) => setCart((cur) => cur.map((item) => item.id === id ? { ...item, qty: item.qty + 1 } : item));
+  const decCartQty = (id) => setCart((cur) => cur.map((item) => item.id === id ? { ...item, qty: Math.max(1, item.qty - 1) } : item));
 
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
   const buildWhatsAppMessage = (product = null) => {
-  if (product) {
-    const qty = getQty(product.id);
+    if (product) {
+      const qty = getQty(product.id);
+      const message = `Estimados, buenas tardes.\n\nMe gustaría solicitar una cotización por el siguiente producto:\n\n1. ${product.name} | Cantidad: ${qty} | ${product.dims} | ${product.code} | ${$$(product.price * qty)}\n\nAgradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\nQuedo atento(a).`;
+      return encodeURIComponent(message);
+    }
+    if (cart && cart.length > 0) {
+      const itemsText = cart.map((item, i) => `${i + 1}. ${item.name} | Cantidad: ${item.qty} | ${item.dims} | ${item.code} | ${$$(item.price * item.qty)}`).join("\n");
+      const message = `Estimados, buenas tardes.\n\nMe gustaría solicitar una cotización por los siguientes productos:\n\n${itemsText}\n\nTotal estimado de referencia: ${$$(total)}.\n\nAgradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\nQuedo atento(a).`;
+      return encodeURIComponent(message);
+    }
+    return encodeURIComponent(`Estimados, buenas tardes.\n\nMe gustaría solicitar información y cotización de sus revestimientos.\n\nQuedo atento(a).`);
+  };
 
-    const message =
-      `Estimados, buenas tardes.\n\n` +
-      `Me gustaría solicitar una cotización por el siguiente producto:\n\n` +
-      `1. ${product.name} | Cantidad: ${qty} | ${product.dims} | ${product.code} | ${$$(product.price * qty)}\n\n` +
-      `Agradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\n` +
-      `Quedo atento(a).`;
+  const buildServiceWhatsAppMessage = (serviceTitle) => {
+    const message = `Estimados, buenas tardes.\n\nMe gustaría solicitar información y cotización por su servicio de ${serviceTitle}.\n\nAgradecería me pudieran indicar alcance del servicio, modalidad de trabajo, plazos estimados y valores de referencia.\n\nQuedo atento(a).\n\nSaludos cordiales.`;
+    return `https://wa.me/${content.waNumber}?text=${encodeURIComponent(message)}`;
+  };
 
-    return encodeURIComponent(message);
-  }
-
-  if (cart && cart.length > 0) {
-    const itemsText = cart
-      .map(
-        (item, i) =>
-          `${i + 1}. ${item.name} | Cantidad: ${item.qty} | ${item.dims} | ${item.code} | ${$$(item.price * item.qty)}`
-      )
-      .join("\n");
-
-    const message =
-      `Estimados, buenas tardes.\n\n` +
-      `Me gustaría solicitar una cotización por los siguientes productos:\n\n` +
-      `${itemsText}\n\n` +
-      `Total estimado de referencia: ${$$(total)}.\n\n` +
-      `Agradecería me pudieran confirmar disponibilidad, plazo de entrega y condiciones de compra.\n\n` +
-      `Quedo atento(a).`;
-
-    return encodeURIComponent(message);
-  }
-
-  return encodeURIComponent(
-    `Estimados, buenas tardes.\n\nMe gustaría solicitar información y cotización de sus revestimientos.\n\nQuedo atento(a).`
-  );
-};
-
-const buildServiceWhatsAppMessage = (serviceTitle) => {
-  const message =
-    `Estimados, buenas tardes.\n\n` +
-    `Me gustaría solicitar información y cotización por su servicio de ${serviceTitle}.\n\n` +
-    `Agradecería me pudieran indicar alcance del servicio, modalidad de trabajo, plazos estimados y valores de referencia.\n\n` +
-    `Quedo atento(a).\n\n` +
-    `Saludos cordiales.`;
-
-  return `https://wa.me/${content.waNumber}?text=${encodeURIComponent(message)}`;
-};
   async function handleSubmit() {
     if (!form.nombre || !form.tel) return;
     setSending(true);
@@ -795,16 +761,23 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
     try {
       localStorage.setItem("ce1016_content", JSON.stringify(content));
       localStorage.setItem("ce1016_prods", JSON.stringify(prods));
-    } catch (e) {
-      console.warn("localStorage lleno, las imágenes son muy pesadas.", e);
-    }
+    } catch (e) { console.warn("localStorage lleno", e); }
     setEditMode(false);
     setActiveField(null);
     setSaved(true);
     setTimeout(() => setSaved(false), 2800);
   };
 
-  const C = { bg: content.colorBg, dark: content.colorDark, warm: content.colorWarm, warmDk: content.colorAccent, border: "#E8E0D4", mid: "#7A6858", text: "#2C2420" };
+  const E = (field, label, children, multiline = false, extraStyle = {}) => {
+    if (!editMode) return children;
+    return (
+      <Editable editing={editMode} label={label} style={extraStyle} onClick={() => editClick(field)}>
+        {isActive(field)
+          ? <EditText value={content[field]} onChange={(v) => set(field, v)} editing multiline={multiline} style={children.props?.style} />
+          : children}
+      </Editable>
+    );
+  };
 
   const EditBar = () => (
     <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 400, background: "white", borderTop: "2px solid #F5A623", padding: sm ? "10px 12px" : "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, boxShadow: "0 -4px 24px rgba(0,0,0,0.1)", flexWrap: "wrap" }}>
@@ -824,7 +797,7 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
   const ColorPanel = () => editMode && (
     <div style={{ position: "fixed", left: sm ? 0 : 16, top: "50%", transform: "translateY(-50%)", zIndex: 350, background: "white", border: "1px solid #E0D8D0", borderRadius: 12, padding: "14px", boxShadow: "0 8px 32px rgba(0,0,0,0.12)", width: sm ? "100%" : "auto", maxWidth: sm ? "100%" : 200 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>🎨 Colores</div>
-      {[ ["colorDark", "Fondo oscuro"], ["colorWarm", "Color principal"], ["colorAccent", "Color acento"], ["colorBg", "Fondo página"] ].map(([k, l]) => (
+      {[["colorDark", "Fondo oscuro"], ["colorWarm", "Color principal"], ["colorAccent", "Color acento"], ["colorBg", "Fondo página"]].map(([k, l]) => (
         <div key={k} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, gap: 8 }}>
           <span style={{ fontSize: 11, color: "#666", flex: 1 }}>{l}</span>
           <input type="color" value={content[k]} onChange={(e) => set(k, e.target.value)} style={{ width: 32, height: 24, border: "1px solid #E0D8D0", borderRadius: 4, cursor: "pointer", padding: 1 }} />
@@ -838,104 +811,18 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
     const meta = (name, value, prop = false) => {
       const sel = prop ? `meta[property="${name}"]` : `meta[name="${name}"]`;
       let el = document.querySelector(sel);
-      if (!el) {
-        el = document.createElement("meta");
-        prop ? el.setAttribute("property", name) : el.setAttribute("name", name);
-        document.head.appendChild(el);
-      }
+      if (!el) { el = document.createElement("meta"); prop ? el.setAttribute("property", name) : el.setAttribute("name", name); document.head.appendChild(el); }
       el.setAttribute("content", value);
     };
-
-    meta("description", "Casa-Estudio 1016 — Importadora y comercializadora de revestimientos interiores y exteriores de alto estándar. PVC mármol, Wall Panel madera, Siding metálico y más. Región del Biobío, Chile. Arturo Prat 1016, Santa Bárbara.");
-    meta("keywords", "revestimientos Santa Bárbara, revestimientos interiores Chile, wall panel madera Chile, PVC mármol precio Chile, importadora revestimientos, materiales decorativos construcción, revestimientos Biobío, casa estudio 1016, siding metálico Chile, placa cielo PVC");
+    meta("description", "Casa-Estudio 1016 — Importadora y comercializadora de revestimientos interiores y exteriores de alto estándar.");
+    meta("keywords", "revestimientos Santa Bárbara, wall panel madera Chile, PVC mármol precio Chile, importadora revestimientos, siding metálico Chile");
     meta("author", "Casa-Estudio 1016");
     meta("robots", "index, follow");
-    meta("language", "es-CL");
-    meta("geo.region", "CL-BI");
-    meta("geo.placename", "Santa Bárbara, Región del Biobío, Chile");
-    meta("geo.position", "-37.6667;-72.0167");
-    meta("ICBM", "-37.6667, -72.0167");
     meta("og:title", "Casa-Estudio 1016 | Revestimientos de Alto Estándar", true);
-    meta("og:description", "Importadora de revestimientos interiores y exteriores. PVC mármol, Wall Panel, Siding metálico. Santa Bárbara, Región del Biobío.", true);
+    meta("og:description", "Importadora de revestimientos interiores y exteriores. Santa Bárbara, Región del Biobío.", true);
     meta("og:url", "https://casaestudio1016.cl", true);
     meta("og:type", "website", true);
-    meta("og:locale", "es_CL", true);
-    meta("og:site_name", "Casa-Estudio 1016", true);
-
-    let canonical = document.querySelector("link[rel='canonical']");
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.setAttribute("rel", "canonical");
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute("href", "https://casaestudio1016.cl");
-
-    const schemaId = "ce1016-schema";
-    let schema = document.getElementById(schemaId);
-    if (!schema) {
-      schema = document.createElement("script");
-      schema.id = schemaId;
-      schema.type = "application/ld+json";
-      document.head.appendChild(schema);
-    }
-    schema.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "LocalBusiness",
-          "@id": "https://casaestudio1016.cl/#negocio",
-          name: "Casa-Estudio 1016",
-          alternateName: "Casa Estudio 1016",
-          description: "Importadora y comercializadora de revestimientos interiores y exteriores de alto estándar. Servicios de arquitectura y diseño.",
-          url: "https://casaestudio1016.cl",
-          telephone: "+56978682990",
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: "Arturo Prat 1016",
-            addressLocality: "Santa Bárbara",
-            addressRegion: "Región del Biobío",
-            addressCountry: "CL",
-          },
-          geo: { "@type": "GeoCoordinates", latitude: -37.6667, longitude: -72.0167 },
-          areaServed: { "@type": "AdministrativeArea", name: "Región del Biobío, Chile" },
-          priceRange: "$$",
-          openingHours: "Mo-Fr 09:00-18:00",
-          hasOfferCatalog: {
-            "@type": "OfferCatalog",
-            name: "Catálogo de Revestimientos",
-            itemListElement: [
-              { "@type": "Offer", itemOffered: { "@type": "Product", name: "PVC Mármol Gris", description: "Revestimiento interior muro 122×244cm" } },
-              { "@type": "Offer", itemOffered: { "@type": "Product", name: "PVC Mármol Blanco", description: "Revestimiento interior muro 122×244cm" } },
-              { "@type": "Offer", itemOffered: { "@type": "Product", name: "Wall Panel Caoba 24mm", description: "Panel madera interior muro 16×290cm" } },
-              { "@type": "Offer", itemOffered: { "@type": "Product", name: "Wall Panel Roble 24mm", description: "Panel madera interior muro 16×290cm" } },
-              { "@type": "Offer", itemOffered: { "@type": "Product", name: "Siding Metal Castaño", description: "Revestimiento exterior alta densidad 38.3×580cm" } },
-              { "@type": "Offer", itemOffered: { "@type": "Product", name: "Placa Cielo PVC Pino", description: "Revestimiento cielo interior 25×580cm" } },
-            ],
-          },
-          sameAs: ["https://wa.me/56978682990"],
-        },
-        {
-          "@type": "WebSite",
-          "@id": "https://casaestudio1016.cl/#sitio",
-          url: "https://casaestudio1016.cl",
-          name: "Casa-Estudio 1016",
-          description: "Revestimientos interiores y exteriores de alto estándar en la Región del Biobío",
-          inLanguage: "es-CL",
-        },
-      ],
-    });
   }, []);
-
-  const E = (field, label, children, multiline = false, extraStyle = {}) => {
-    if (!editMode) return children;
-    return (
-      <Editable editing={editMode} label={label} style={extraStyle} onClick={() => editClick(field)}>
-        {isActive(field)
-          ? <EditText value={content[field]} onChange={(v) => set(field, v)} editing multiline={multiline} style={children.props?.style} />
-          : children}
-      </Editable>
-    );
-  };
 
   return (
     <div style={{ fontFamily: "system-ui,sans-serif", background: C.bg, color: C.text, overflowX: "hidden", paddingBottom: editMode ? 70 : 0, width: "100%" }}>
@@ -951,11 +838,11 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
 
       <ColorPanel />
 
+      {/* ── NAV ── */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 500, background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
         <div style={{ background: C.dark, color: "#C4B49A", textAlign: "center", padding: "7px 16px", fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 500 }}>
           {E("promoText", "Promo", <span>{content.promoText}</span>)}
         </div>
-
         <nav style={{ background: "white", borderBottom: "1px solid #E8E0D4", padding: `0 ${sm ? 14 : 28}px`, display: "flex", alignItems: "center", justifyContent: "space-between", height: 58 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
             <div style={{ width: 32, height: 32, background: C.dark, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia,serif", fontWeight: 700, color: "white", fontSize: 11 }}>
@@ -985,53 +872,48 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
                 <button onClick={() => { setEditMode(!editMode); setActiveField(null); }} style={{ padding: "7px 12px", background: editMode ? "#FEF3C7" : "#F5F0EA", color: editMode ? "#B87A10" : "#7A6858", border: `1px solid ${editMode ? "#F5A623" : "#E0D8D0"}`, borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
                   {editMode ? "✏️ Editando" : "✏️ Editar"}
                 </button>
-                <button onClick={logout} title="Cerrar sesión admin" style={{ padding: "7px 10px", background: "none", border: "1px solid #E0D8D0", borderRadius: 6, fontSize: 13, cursor: "pointer", color: "#AAA" }}>
-                  🔓
-                </button>
+                <button onClick={logout} title="Cerrar sesión admin" style={{ padding: "7px 10px", background: "none", border: "1px solid #E0D8D0", borderRadius: 6, fontSize: 13, cursor: "pointer", color: "#AAA" }}>🔓</button>
               </div>
             )}
-
             {!sm && <button onClick={() => setVizOpen(true)} style={{ background: C.dark, color: "white", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5, textTransform: "uppercase" }}>✦ Visualizador</button>}
-
             <button onClick={() => setCartOpen(true)} style={{ position: "relative", background: "none", border: "1px solid #E8E0D4", borderRadius: 6, padding: "7px 12px", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: C.text }}>
               🛒
-              {cartCount > 0 && (
-                <span style={{ position: "absolute", top: -6, right: -6, minWidth: 18, height: 18, background: C.warm, borderRadius: "50%", fontSize: 10, color: "white", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>
-                  {cartCount}
-                </span>
-              )}
+              {cartCount > 0 && <span style={{ position: "absolute", top: -6, right: -6, minWidth: 18, height: 18, background: C.warm, borderRadius: "50%", fontSize: 10, color: "white", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{cartCount}</span>}
             </button>
-
             {md && <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "1px solid #E8E0D4", borderRadius: 6, padding: "7px 11px", cursor: "pointer", fontSize: 16, color: C.text }}>{menuOpen ? "×" : "☰"}</button>}
           </div>
         </nav>
+
+        {/* Mobile menu */}
+        {md && menuOpen && (
+          <div style={{ background: "white", borderBottom: "1px solid #E8E0D4", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 4 }}>
+            {["inicio", "catalogo", "servicios", "contacto"].map((id) => (
+              <button key={id} onClick={() => scrollTo(id)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 500, color: C.mid, padding: "8px 0", textAlign: "left", textTransform: "capitalize" }}>
+                {id.charAt(0).toUpperCase() + id.slice(1)}
+              </button>
+            ))}
+            <button onClick={() => { setVizOpen(true); setMenuOpen(false); }} style={{ background: C.dark, color: "white", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginTop: 8 }}>✦ Visualizador IA</button>
+          </div>
+        )}
       </div>
 
       <div style={{ height: 94 }} />
 
+      {/* ── HERO ── */}
       <section id="inicio" style={{ minHeight: sm ? "85vh" : "92vh", background: C.dark, position: "relative", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: `0 0 ${sm ? 52 : 80}px` }}>
         <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-          {content.heroImage ? (
-            <img src={content.heroImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 }} />
-          ) : (
-            <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: `repeat(${sm ? 2 : 3},1fr)`, gridTemplateRows: `repeat(${sm ? 3 : 2},1fr)`, gap: 2, opacity: 0.15 }}>
-              {["marble_gray", "wood_roble", "marble_black", "siding_c", "wood_caoba", "ceiling_pino"].map((k, i) => <div key={i} style={{ backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(TX[k])}")`, backgroundSize: "cover" }} />)}
-            </div>
-          )}
+          {content.heroImage && <img src={content.heroImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 }} />}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(30,26,22,0.2) 0%,rgba(30,26,22,0.8) 65%,rgba(30,26,22,1) 100%)" }} />
         </div>
 
         {editMode && (
           <label style={{ position: "absolute", top: 16, right: 16, zIndex: 10, background: "#F5A623", color: "white", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
-            📷 {content.heroImage ? "Cambiar fondo" : "Agregar imagen de fondo"}
+            📷 {content.heroImage ? "Cambiar fondo" : "Agregar imagen"}
             <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => set("heroImage", ev.target.result); r.readAsDataURL(f); }} />
           </label>
         )}
-
         {editMode && content.heroImage && (
-          <button onClick={() => set("heroImage", null)} style={{ position: "absolute", top: 16, right: sm ? 16 : 220, zIndex: 10, background: "#FEE2E2", color: "#C45A5A", border: "none", padding: "8px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-            🗑 Quitar imagen
-          </button>
+          <button onClick={() => set("heroImage", null)} style={{ position: "absolute", top: 16, right: sm ? 16 : 220, zIndex: 10, background: "#FEE2E2", color: "#C45A5A", border: "none", padding: "8px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>🗑 Quitar imagen</button>
         )}
 
         <div style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "0 auto", padding: `0 ${sm ? 20 : 32}px`, animation: "fadeUp .8s ease both" }}>
@@ -1041,17 +923,14 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
               {E("heroTag", "Etiqueta hero", <span>{content.heroTag}</span>)}
             </span>
           </div>
-
           <h1 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(32px,9vw,48px)" : "clamp(40px,6vw,76px)", fontWeight: 400, color: "white", lineHeight: 1.1, marginBottom: sm ? 16 : 20, maxWidth: 700 }}>
             {E("heroTitle1", "Título línea 1", <span>{content.heroTitle1}</span>)}<br />
-            <em style={{ color: "#C4B49A", fontStyle: "italic" }}>{E("heroTitle2", "Título línea 2 (itálica)", <span>{content.heroTitle2}</span>)}</em><br />
+            <em style={{ color: "#C4B49A", fontStyle: "italic" }}>{E("heroTitle2", "Título línea 2", <span>{content.heroTitle2}</span>)}</em><br />
             {E("heroTitle3", "Título línea 3", <span>{content.heroTitle3}</span>)}
           </h1>
-
           <p style={{ fontSize: sm ? 13 : 15, color: "rgba(255,255,255,0.5)", maxWidth: 460, lineHeight: 1.8, marginBottom: sm ? 28 : 36, fontWeight: 300 }}>
             {E("heroSubtitle", "Subtítulo hero", <span>{content.heroSubtitle}</span>, true)}
           </p>
-
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <button onClick={() => scrollTo("catalogo")} style={{ background: "white", color: C.text, border: "none", borderRadius: 8, padding: sm ? "13px 22px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
               {E("heroBtnPrimary", "Botón primario", <span>{content.heroBtnPrimary}</span>)}
@@ -1066,7 +945,7 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
           <div style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "52px auto 0", padding: "0 32px", display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 36 }}>
             {[["stat1n", "stat1l"], ["stat2n", "stat2l"], ["stat3n", "stat3l"], ["stat4n", "stat4l"]].map(([nk, lk], i) => (
               <div key={i} style={{ paddingRight: 24, borderRight: i < 3 ? "1px solid rgba(255,255,255,0.07)" : "none", paddingLeft: i > 0 ? 24 : 0 }}>
-                <div style={{ fontFamily: "Georgia,serif", fontSize: 20, fontWeight: 600, color: "white", marginBottom: 3 }}>{E(nk, `Stat ${i + 1} número`, <span>{content[nk]}</span>)}</div>
+                <div style={{ fontFamily: "Georgia,serif", fontSize: 20, fontWeight: 600, color: "white", marginBottom: 3 }}>{E(nk, `Stat ${i + 1}`, <span>{content[nk]}</span>)}</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.38)" }}>{E(lk, `Stat ${i + 1} label`, <span>{content[lk]}</span>)}</div>
               </div>
             ))}
@@ -1074,13 +953,16 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
         )}
       </section>
 
+      {/* ── ABOUT ── */}
       <section style={{ background: "white", padding: `${sm ? 52 : 72}px ${sm ? 20 : 32}px` }}>
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: md ? "1fr" : "1fr 1fr", gap: md ? 40 : 64, alignItems: "center" }}>
           <div>
-            <div style={{ fontSize: "clamp(11px, 0.8vw, 15px)", color: C.warm, letterSpacing: 3, textTransform: "uppercase", fontWeight: 600, marginBottom: 18 }}>{E("aboutTag", "Etiqueta sección", <span>{content.aboutTag}</span>)}</div>
-            <h2 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(36px, 4vw, 64px)", fontWeight: 400, lineHeight: 1.1, marginBottom: 24, color: C.text }}>{E("aboutTitle1", "Título línea 1", <span>{content.aboutTitle1}</span>)}<br /><em style={{ fontStyle: "italic" }}>{E("aboutTitle2", "Título línea 2", <span>{content.aboutTitle2}</span>)}</em></h2>
-            <p style={{ fontSize: "clamp(16px, 1.2vw, 22px)", color: C.mid, lineHeight: 1.9, marginBottom: 18, fontWeight: 300 }}>{E("aboutBody1", "Párrafo 1", <span>{content.aboutBody1}</span>, true)}</p>
-            <p style={{ fontSize: "clamp(16px, 1.2vw, 22px)", color: C.mid, lineHeight: 1.9, fontWeight: 300 }}>{E("aboutBody2", "Párrafo 2", <span>{content.aboutBody2}</span>, true)}</p>
+            <div style={{ fontSize: "clamp(11px,0.8vw,15px)", color: C.warm, letterSpacing: 3, textTransform: "uppercase", fontWeight: 600, marginBottom: 18 }}>{E("aboutTag", "Etiqueta sección", <span>{content.aboutTag}</span>)}</div>
+            <h2 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(36px,4vw,64px)", fontWeight: 400, lineHeight: 1.1, marginBottom: 24, color: C.text }}>
+              {E("aboutTitle1", "Título 1", <span>{content.aboutTitle1}</span>)}<br /><em style={{ fontStyle: "italic" }}>{E("aboutTitle2", "Título 2", <span>{content.aboutTitle2}</span>)}</em>
+            </h2>
+            <p style={{ fontSize: "clamp(16px,1.2vw,22px)", color: C.mid, lineHeight: 1.9, marginBottom: 18, fontWeight: 300 }}>{E("aboutBody1", "Párrafo 1", <span>{content.aboutBody1}</span>, true)}</p>
+            <p style={{ fontSize: "clamp(16px,1.2vw,22px)", color: C.mid, lineHeight: 1.9, fontWeight: 300 }}>{E("aboutBody2", "Párrafo 2", <span>{content.aboutBody2}</span>, true)}</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {["aboutImg1", "aboutImg2", "aboutImg3", "aboutImg4"].map((key, i) => (
@@ -1100,6 +982,7 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
         </div>
       </section>
 
+      {/* ── CATALOG ── */}
       <section id="catalogo" style={{ padding: `${sm ? 52 : 80}px ${sm ? 16 : 32}px`, background: C.bg }}>
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: sm ? "flex-start" : "flex-end", justifyContent: "space-between", marginBottom: sm ? 24 : 36, flexWrap: "wrap", gap: 16, flexDirection: sm ? "column" : "row" }}>
@@ -1120,44 +1003,24 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
             {filtered.map((p) => {
               const productQty = getQty(p.id);
               return (
-                <div
-                  key={p.id}
-                  style={{
-                    background: "white",
-                    borderRadius: 22,
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    border: `1.5px solid ${expanded === p.id ? C.warm : "#E8E0D4"}`,
-                    boxShadow: expanded === p.id ? "0 10px 30px rgba(139,107,74,0.12)" : "0 4px 18px rgba(0,0,0,0.06)",
-                    transition: "all .2s",
-                    position: "relative",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (expanded !== p.id) {
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                      e.currentTarget.style.boxShadow = "0 12px 28px rgba(0,0,0,0.09)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = expanded === p.id ? "0 10px 30px rgba(139,107,74,0.12)" : "0 4px 18px rgba(0,0,0,0.06)";
-                  }}
-                >
+                <div key={p.id}
+                  style={{ background: "white", borderRadius: 22, overflow: "hidden", cursor: "pointer", border: `1.5px solid ${expanded === p.id ? C.warm : "#E8E0D4"}`, boxShadow: expanded === p.id ? "0 10px 30px rgba(139,107,74,0.12)" : "0 4px 18px rgba(0,0,0,0.06)", transition: "all .2s", position: "relative" }}
+                  onMouseEnter={(e) => { if (expanded !== p.id) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 28px rgba(0,0,0,0.09)"; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = expanded === p.id ? "0 10px 30px rgba(139,107,74,0.12)" : "0 4px 18px rgba(0,0,0,0.06)"; }}>
+
                   {editMode && (
                     <button onClick={(e) => { e.stopPropagation(); setProductEditor(p); }} style={{ position: "absolute", top: 10, right: 10, zIndex: 10, background: "#F5A623", color: "white", border: "none", borderRadius: 8, padding: "6px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>✏️ Editar</button>
                   )}
 
                   <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "46% 54%", minHeight: sm ? "auto" : 320 }} onClick={() => !editMode && setExpanded(expanded === p.id ? null : p.id)}>
                     <div style={{ background: "#fff", padding: sm ? 18 : 24, display: "flex", alignItems: "center", justifyContent: "center", minHeight: sm ? 220 : 320, borderBottom: sm ? "1px solid #F0EAE2" : "none", borderRight: sm ? "none" : "1px solid #F0EAE2" }}>
-                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {p.image ? (
-                          <img src={p.image} alt={p.name} style={{ width: "100%", maxHeight: sm ? 220 : 260, objectFit: "contain", display: "block" }} />
-                        ) : (
-                          <div style={{ width: "100%", height: sm ? 220 : 260 }}>
-                            <Thumb tk={p.tk} customImg={p.customImg || null} w={420} h={260} />
-                          </div>
-                        )}
-                      </div>
+                      {p.image ? (
+                        <img src={p.image} alt={p.name} style={{ width: "100%", maxHeight: sm ? 220 : 260, objectFit: "contain", display: "block" }} />
+                      ) : (
+                        <div style={{ width: "100%", height: sm ? 220 : 260 }}>
+                          <Thumb tk={p.tk} customImg={p.customImg || null} w={420} h={260} />
+                        </div>
+                      )}
                     </div>
 
                     <div style={{ padding: sm ? "18px 18px 20px" : "26px 24px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
@@ -1200,151 +1063,67 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
         </div>
       </section>
 
+      {/* ── SERVICES ── */}
       <section id="servicios" style={{ background: "white", padding: `${sm ? 52 : 80}px ${sm ? 16 : 32}px` }}>
-  <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
-    <div style={{ textAlign: "center", marginBottom: sm ? 36 : 52 }}>
-      <div
-        style={{
-          fontSize: 10,
-          color: C.warm,
-          letterSpacing: 2,
-          textTransform: "uppercase",
-          fontWeight: 600,
-          marginBottom: 12
-        }}
-      >
-        Lo que ofrecemos
-      </div>
+        <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: sm ? 36 : 52 }}>
+            <div style={{ fontSize: 10, color: C.warm, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600, marginBottom: 12 }}>Lo que ofrecemos</div>
+            <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 400, color: C.text }}>
+              {E("svcTitle", "Título servicios", <span>{content.svcTitle.split(" ")[0]} <em style={{ fontStyle: "italic" }}>{content.svcTitle.split(" ").slice(1).join(" ")}</em></span>)}
+            </h2>
+          </div>
 
-      <h2
-        style={{
-          fontFamily: "Georgia,serif",
-          fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)",
-          fontWeight: 400,
-          color: C.text
-        }}
-      >
-        {E(
-          "svcTitle",
-          "Título servicios",
-          <span>
-            {content.svcTitle.split(" ")[0]}{" "}
-            <em style={{ fontStyle: "italic" }}>
-              {content.svcTitle.split(" ").slice(1).join(" ")}
-            </em>
-          </span>
-        )}
-      </h2>
-    </div>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${sm ? 1 : md ? 2 : 3},1fr)`, gap: sm ? 12 : 20 }}>
+            {[1, 2, 3].map((i) => {
+              const icon = content[`svc${i}icon`];
+              const title = content[`svc${i}title`];
+              const desc = content[`svc${i}desc`];
+              return (
+                <a key={i} href={buildServiceWhatsAppMessage(title)} target="_blank" rel="noreferrer"
+                  style={{ padding: sm ? "20px" : "24px 22px", border: "1px solid #E8E0D4", borderRadius: 12, background: C.bg, transition: "all .2s", textDecoration: "none", display: "block", color: "inherit" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.warm; e.currentTarget.style.background = "white"; e.currentTarget.style.boxShadow = "0 6px 24px rgba(139,107,74,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8E0D4"; e.currentTarget.style.background = C.bg; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}>
+                  <div style={{ fontSize: 30, marginBottom: 12 }}>{E(`svc${i}icon`, `Ícono ${i}`, <span>{icon}</span>)}</div>
+                  <h3 style={{ fontFamily: "Georgia,serif", fontSize: 16, fontWeight: 600, marginBottom: 8, color: C.text }}>{E(`svc${i}title`, `Título ${i}`, <span>{title}</span>)}</h3>
+                  <p style={{ fontSize: 13, color: C.mid, lineHeight: 1.75, fontWeight: 300, marginBottom: 12 }}>{E(`svc${i}desc`, `Descripción ${i}`, <span>{desc}</span>, true)}</p>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.warmDk, textTransform: "uppercase", letterSpacing: 0.5 }}>Solicitar por WhatsApp →</div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${sm ? 1 : md ? 2 : 3},1fr)`,
-        gap: sm ? 12 : 20
-      }}
-    >
-      {[1, 2, 3]
-        .map((i) => ({
-          icon: content[`svc${i}icon`],
-          title: content[`svc${i}title`],
-          desc: content[`svc${i}desc`],
-          i
-        }))
-        .map(({ icon, title, desc, i }) => (
-          <a
-            key={i}
-            href={buildServiceWhatsAppMessage(title)}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              padding: sm ? "20px" : "24px 22px",
-              border: "1px solid #E8E0D4",
-              borderRadius: 12,
-              background: C.bg,
-              transition: "all .2s",
-              textDecoration: "none",
-              display: "block",
-              color: "inherit"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = C.warm;
-              e.currentTarget.style.background = "white";
-              e.currentTarget.style.boxShadow = "0 6px 24px rgba(139,107,74,0.1)";
-              e.currentTarget.style.transform = "translateY(-2px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#E8E0D4";
-              e.currentTarget.style.background = C.bg;
-              e.currentTarget.style.boxShadow = "none";
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            <div style={{ fontSize: 30, marginBottom: 12 }}>
-              {E(`svc${i}icon`, `Ícono ${i}`, <span>{icon}</span>)}
-            </div>
-
-            <h3
-              style={{
-                fontFamily: "Georgia,serif",
-                fontSize: 16,
-                fontWeight: 600,
-                marginBottom: 8,
-                color: C.text
-              }}
-            >
-              {E(`svc${i}title`, `Título ${i}`, <span>{title}</span>)}
-            </h3>
-
-            <p
-              style={{
-                fontSize: 13,
-                color: C.mid,
-                lineHeight: 1.75,
-                fontWeight: 300,
-                marginBottom: 12
-              }}
-            >
-              {E(`svc${i}desc`, `Descripción ${i}`, <span>{desc}</span>, true)}
-            </p>
-
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: C.warmDk,
-                textTransform: "uppercase",
-                letterSpacing: 0.5
-              }}
-            >
-              Solicitar por WhatsApp →
-            </div>
-          </a>
-        ))}
-    </div>
-  </div>
-</section>
-
+      {/* ── CTA ── */}
       <section style={{ background: C.dark, padding: `${sm ? 52 : 72}px ${sm ? 20 : 32}px`, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "repeat(6,1fr)", opacity: 0.07 }}>
           {Object.keys(TX).slice(0, 6).map((k, i) => <div key={i} style={{ backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(TX[k])}")`, backgroundSize: "cover" }} />)}
         </div>
         <div style={{ position: "relative", maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
           <div style={{ fontSize: 10, color: "#C4B49A", letterSpacing: 2, textTransform: "uppercase", fontWeight: 500, marginBottom: 16 }}>Herramienta exclusiva</div>
-          <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(24px,7vw,34px)" : "clamp(26px,3vw,40px)", fontWeight: 400, color: "white", lineHeight: 1.25, marginBottom: 14 }}>{E("ctaTitle1", "Título CTA línea 1", <span>{content.ctaTitle1}</span>)}<br /><em style={{ color: "#C4B49A", fontStyle: "italic" }}>{E("ctaTitle2", "Título CTA línea 2", <span>{content.ctaTitle2}</span>)}</em></h2>
-          <p style={{ fontSize: sm ? 13 : 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.8, marginBottom: 28, fontWeight: 300, maxWidth: 400, margin: "0 auto 28px" }}>{E("ctaBody", "Texto CTA", <span>{content.ctaBody}</span>, true)}</p>
-          <button onClick={() => setVizOpen(true)} style={{ background: "white", color: C.text, border: "none", borderRadius: 8, padding: sm ? "13px 24px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{E("ctaBtn", "Botón CTA", <span>{content.ctaBtn}</span>)}</button>
+          <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(24px,7vw,34px)" : "clamp(26px,3vw,40px)", fontWeight: 400, color: "white", lineHeight: 1.25, marginBottom: 14 }}>
+            {E("ctaTitle1", "Título CTA 1", <span>{content.ctaTitle1}</span>)}<br /><em style={{ color: "#C4B49A", fontStyle: "italic" }}>{E("ctaTitle2", "Título CTA 2", <span>{content.ctaTitle2}</span>)}</em>
+          </h2>
+          <p style={{ fontSize: sm ? 13 : 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.8, marginBottom: 28, fontWeight: 300, maxWidth: 400, margin: "0 auto 28px" }}>
+            {E("ctaBody", "Texto CTA", <span>{content.ctaBody}</span>, true)}
+          </p>
+          <button onClick={() => setVizOpen(true)} style={{ background: "white", color: C.text, border: "none", borderRadius: 8, padding: sm ? "13px 24px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+            {E("ctaBtn", "Botón CTA", <span>{content.ctaBtn}</span>)}
+          </button>
         </div>
       </section>
 
+      {/* ── CONTACT ── */}
       <section id="contacto" style={{ background: C.bg, padding: `${sm ? 52 : 80}px ${sm ? 16 : 32}px` }}>
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: md ? "1fr" : "1fr 1fr", gap: md ? 40 : 64, alignItems: "start" }}>
           <div>
             <div style={{ fontSize: 10, color: C.warm, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600, marginBottom: 14 }}>Contáctanos</div>
-            <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 400, lineHeight: 1.2, marginBottom: 20, color: C.text }}>{E("contactTitle1", "Título contacto 1", <span>{content.contactTitle1}</span>)}<br /><em style={{ fontStyle: "italic" }}>{E("contactTitle2", "Título contacto 2", <span>{content.contactTitle2}</span>)}</em></h2>
+            <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 400, lineHeight: 1.2, marginBottom: 20, color: C.text }}>
+              {E("contactTitle1", "Título contacto 1", <span>{content.contactTitle1}</span>)}<br /><em style={{ fontStyle: "italic" }}>{E("contactTitle2", "Título contacto 2", <span>{content.contactTitle2}</span>)}</em>
+            </h2>
             <p style={{ fontSize: 14, color: C.mid, lineHeight: 1.85, marginBottom: 28, fontWeight: 300 }}>{E("contactBody", "Texto contacto", <span>{content.contactBody}</span>, true)}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
-              {[ ["📍", "Dirección", "contactAddr"], ["📱", "WhatsApp", "contactPhone"], ["💳", "Medios de pago", "contactPay"] ].map(([icon, label, key]) => (
+              {[["📍", "Dirección", "contactAddr"], ["📱", "WhatsApp", "contactPhone"], ["💳", "Medios de pago", "contactPay"]].map(([icon, label, key]) => (
                 <div key={key} style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   <div style={{ width: 38, height: 38, background: "white", borderRadius: 8, border: "1px solid #E8E0D4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{icon}</div>
                   <div>
@@ -1367,31 +1146,43 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
             ) : (
               <>
                 <h3 style={{ fontFamily: "Georgia,serif", fontSize: 18, fontWeight: 600, marginBottom: 18, color: C.text }}>Solicitar cotización</h3>
-                {[ ["nombre", "Nombre completo", "text"], ["tel", "Teléfono", "tel"], ["email", "Correo electrónico", "email"] ].map(([f, l, t]) => (
+                {[["nombre", "Nombre completo", "text"], ["tel", "Teléfono", "tel"], ["email", "Correo electrónico", "email"]].map(([f, l, t]) => (
                   <div key={f} style={{ marginBottom: 14 }}>
                     <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: C.mid, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 5 }}>{l}</label>
-                    <input type={t} value={form[f] || ""} onChange={(e) => setForm((x) => ({ ...x, [f]: e.target.value }))} style={{ width: "100%", padding: "11px 13px", border: "1px solid #E8E0D4", borderRadius: 8, fontSize: 14, fontFamily: "inherit", color: C.text, background: C.bg, outline: "none" }} onFocus={(e) => { e.target.style.borderColor = C.warm; }} onBlur={(e) => { e.target.style.borderColor = "#E8E0D4"; }} />
+                    <input type={t} value={form[f] || ""} onChange={(e) => setForm((x) => ({ ...x, [f]: e.target.value }))}
+                      style={{ width: "100%", padding: "11px 13px", border: "1px solid #E8E0D4", borderRadius: 8, fontSize: 14, fontFamily: "inherit", color: C.text, background: C.bg, outline: "none" }}
+                      onFocus={(e) => { e.target.style.borderColor = C.warm; }} onBlur={(e) => { e.target.style.borderColor = "#E8E0D4"; }} />
                   </div>
                 ))}
                 <div style={{ marginBottom: 18 }}>
                   <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: C.mid, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 5 }}>Mensaje</label>
-                  <textarea rows={3} value={form.msg} onChange={(e) => setForm((x) => ({ ...x, msg: e.target.value }))} style={{ width: "100%", padding: "11px 13px", border: "1px solid #E8E0D4", borderRadius: 8, fontSize: 14, fontFamily: "inherit", color: C.text, background: C.bg, resize: "none", outline: "none" }} onFocus={(e) => { e.target.style.borderColor = C.warm; }} onBlur={(e) => { e.target.style.borderColor = "#E8E0D4"; }} />
+                  <textarea rows={3} value={form.msg} onChange={(e) => setForm((x) => ({ ...x, msg: e.target.value }))}
+                    style={{ width: "100%", padding: "11px 13px", border: "1px solid #E8E0D4", borderRadius: 8, fontSize: 14, fontFamily: "inherit", color: C.text, background: C.bg, resize: "none", outline: "none" }}
+                    onFocus={(e) => { e.target.style.borderColor = C.warm; }} onBlur={(e) => { e.target.style.borderColor = "#E8E0D4"; }} />
                 </div>
-                <button onClick={handleSubmit} disabled={sending} style={{ width: "100%", padding: "14px", background: sending ? "#A09488" : C.dark, color: "white", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer", fontFamily: "inherit" }}>{sending ? "⏳ Enviando..." : "Enviar solicitud →"}</button>
+                <button onClick={handleSubmit} disabled={sending} style={{ width: "100%", padding: "14px", background: sending ? "#A09488" : C.dark, color: "white", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
+                  {sending ? "⏳ Enviando..." : "Enviar solicitud →"}
+                </button>
               </>
             )}
           </div>
         </div>
       </section>
 
+      {/* ── FOOTER ── */}
       <footer style={{ background: C.dark, padding: `${sm ? 20 : 28}px ${sm ? 16 : 32}px`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <div style={{ fontFamily: "Georgia,serif", fontSize: 15, color: "white", fontWeight: 600, marginBottom: 3 }}>{E("brandName", "Nombre marca", <span>{content.brandName}</span>)} <span style={{ color: "#C4B49A" }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</span></div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", letterSpacing: 0.5 }}>{E("contactAddr", "Dirección", <span>{content.contactAddr}</span>)} · {E("contactPhone", "Teléfono", <span>{content.contactPhone}</span>)}</div>
+          <div style={{ fontFamily: "Georgia,serif", fontSize: 15, color: "white", fontWeight: 600, marginBottom: 3 }}>
+            {E("brandName", "Nombre marca", <span>{content.brandName}</span>)} <span style={{ color: "#C4B49A" }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</span>
+          </div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", letterSpacing: 0.5 }}>
+            {E("contactAddr", "Dirección", <span>{content.contactAddr}</span>)} · {E("contactPhone", "Teléfono", <span>{content.contactPhone}</span>)}
+          </div>
         </div>
         <div style={{ fontSize: 10, color: "rgba(255,255,255,0.22)" }}>© 2025 {content.brandName} {content.brandNum}</div>
       </footer>
 
+      {/* ── CART DRAWER ── */}
       {cartOpen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(2px)" }} onClick={() => setCartOpen(false)}>
           <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: sm ? "100%" : "min(360px,100vw)", background: "white", boxShadow: "-8px 0 40px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column" }}>
@@ -1399,7 +1190,6 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
               <div style={{ fontFamily: "Georgia,serif", fontSize: 17, fontWeight: 600 }}>Mi Carro ({cartCount})</div>
               <button onClick={() => setCartOpen(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: C.mid }}>×</button>
             </div>
-
             <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
               {cart.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "60px 20px", color: C.mid }}>
@@ -1411,41 +1201,42 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
                   <div style={{ width: 48, height: 48, borderRadius: 7, overflow: "hidden", flexShrink: 0 }}>
                     {item.image ? <img src={item.image} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <Thumb tk={item.tk} customImg={item.customImg || null} w={48} h={48} />}
                   </div>
-
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</div>
                     <div style={{ fontSize: 11, color: C.mid }}>{item.code}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
                       <button onClick={() => decCartQty(item.id)} style={{ width: 26, height: 26, border: "1px solid #E8E0D4", background: "white", borderRadius: 6, cursor: "pointer" }}>−</button>
                       <span style={{ fontSize: 13, fontWeight: 700 }}>{item.qty}</span>
                       <button onClick={() => incCartQty(item.id)} style={{ width: 26, height: 26, border: "1px solid #E8E0D4", background: "white", borderRadius: 6, cursor: "pointer" }}>+</button>
                     </div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: C.warmDk, marginTop: 6 }}>{$$(item.price * item.qty)}</div>
                   </div>
-
                   <button onClick={() => rmCart(item.id)} style={{ background: "none", border: "none", color: "#C45A5A", cursor: "pointer", fontSize: 18 }}>×</button>
                 </div>
               ))}
             </div>
-
             {cart.length > 0 && (
               <div style={{ padding: 16, borderTop: "1px solid #E8E0D4", flexShrink: 0 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
                   <span style={{ fontWeight: 600, fontSize: 14 }}>Total estimado</span>
                   <span style={{ fontWeight: 800, fontSize: 16, color: C.warmDk }}>{$$(total)}</span>
                 </div>
-                <a href={`https://wa.me/${content.waNumber}?text=${buildWhatsAppMessage()}`} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", background: "#25D366", color: "white", padding: "14px", borderRadius: 8, fontSize: 14, fontWeight: 700, marginBottom: 10, textDecoration: "none" }}>💬 Cotizar por WhatsApp</a>
-                <button onClick={() => setCart([])} style={{ width: "100%", padding: "11px", background: "none", border: "1px solid #E8E0D4", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", color: C.mid, fontFamily: "inherit" }}>Vaciar carro</button>
+                <button onClick={() => { setCartOpen(false); setQuoteOpen(true); }} style={{ display: "block", width: "100%", textAlign: "center", background: content.colorDark || "#1E1A16", color: "white", padding: "14px", borderRadius: 8, fontSize: 14, fontWeight: 700, marginBottom: 8, cursor: "pointer", border: "none", fontFamily: "inherit" }}>📄 Ver Cotización formal</button>
+                <a href={`https://wa.me/${content.waNumber}?text=${buildWhatsAppMessage()}`} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", background: "#25D366", color: "white", padding: "12px", borderRadius: 8, fontSize: 13, fontWeight: 700, marginBottom: 10, textDecoration: "none" }}>💬 Cotizar por WhatsApp</a>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {vizOpen && <VisualizerModal prods={prods} onClose={() => setVizOpen(false)} />}
+      {/* ── MODALS ── */}
+      {/* FIX: Pass C and $$ as props to VisualizerModal */}
+      {vizOpen && <VisualizerModal prods={prods} onClose={() => setVizOpen(false)} C={C} $$={$$} />}
+      {quoteOpen && <QuotationModal cart={cart} total={total} content={content} $$={$$} onClose={() => setQuoteOpen(false)} />}
       {productEditor && <ProductEditor product={productEditor} onSave={saveProds} onDelete={deleteProds} onClose={() => setProductEditor(null)} />}
       {editMode && <EditBar />}
 
+      {/* Admin login */}
       {loginOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(15,12,10,0.85)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(6px)" }} onClick={() => { setLoginOpen(false); setPassInput(""); setPassError(false); }}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 14, width: "100%", maxWidth: 360, padding: 32, boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
@@ -1456,8 +1247,9 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#8A7868", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>Contraseña</label>
-              <input type="password" value={passInput} onChange={(e) => { setPassInput(e.target.value); setPassError(false); }} onKeyDown={(e) => e.key === "Enter" && tryLogin()} autoFocus placeholder="Ingresa tu contraseña" style={{ width: "100%", padding: "12px 14px", border: `2px solid ${passError ? "#C45A5A" : "#E0D8D0"}`, borderRadius: 8, fontSize: 14, fontFamily: "inherit", outline: "none", transition: "border-color .2s", background: passError ? "#FEF2F2" : "white", color: "#2C2420" }} />
-              {passError && <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, color: "#C45A5A", fontSize: 12, fontWeight: 600 }}>❌ Contraseña incorrecta. Intenta de nuevo.</div>}
+              <input type="password" value={passInput} onChange={(e) => { setPassInput(e.target.value); setPassError(false); }} onKeyDown={(e) => e.key === "Enter" && tryLogin()} autoFocus placeholder="Ingresa tu contraseña"
+                style={{ width: "100%", padding: "12px 14px", border: `2px solid ${passError ? "#C45A5A" : "#E0D8D0"}`, borderRadius: 8, fontSize: 14, fontFamily: "inherit", outline: "none", background: passError ? "#FEF2F2" : "white", color: "#2C2420" }} />
+              {passError && <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, color: "#C45A5A", fontSize: 12, fontWeight: 600 }}>❌ Contraseña incorrecta.</div>}
             </div>
             <button onClick={tryLogin} style={{ width: "100%", padding: "13px", background: "#2C2420", color: "white", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginBottom: 10 }}>Entrar al panel de edición</button>
             <button onClick={() => { setLoginOpen(false); setPassInput(""); setPassError(false); }} style={{ width: "100%", padding: "11px", background: "none", border: "1px solid #E0D8D0", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", color: "#8A7868", fontFamily: "inherit" }}>Cancelar</button>
@@ -1465,14 +1257,11 @@ const buildServiceWhatsAppMessage = (serviceTitle) => {
         </div>
       )}
 
+      {/* Hidden admin trigger */}
       {!isAdmin && (
         <div
           onDoubleClick={() => setLoginOpen(true)}
-          onTouchEnd={() => {
-            const now = Date.now();
-            if (now - (window._lastTap || 0) < 400) setLoginOpen(true);
-            window._lastTap = now;
-          }}
+          onTouchEnd={() => { const now = Date.now(); if (now - (window._lastTap || 0) < 400) setLoginOpen(true); window._lastTap = now; }}
           style={{ position: "fixed", bottom: 0, right: 0, width: 60, height: 60, zIndex: 100, cursor: "default", opacity: 0 }}
         />
       )}
