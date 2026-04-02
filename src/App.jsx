@@ -1,4 +1,5 @@
 import QuotationModal from "./QuotationModal";
+import FlujoCaja from "./FlujoCaja";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import heroImg from "./assets/Hero1.png";
@@ -383,7 +384,7 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, width: "100%", maxWidth: 480, maxHeight: "90vh", overflow: "auto", padding: 24, boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h3 style={{ fontFamily: "Georgia,serif", fontSize: 18, fontWeight: 600 }}>Editar Producto</h3>
+          <h3 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 18, fontWeight: 600 }}>Editar Producto</h3>
           <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", color: "#888" }}>×</button>
         </div>
         {[["name", "Nombre", "text"], ["code", "Código", "text"], ["dims", "Dimensiones", "text"], ["price", "Precio", "number"], ["unit", "Unidad (c/u, set)", "text"]].map(([k, l, t]) => (
@@ -505,7 +506,7 @@ function VisualizerModal({ prods, onClose, C, $$ }) {
       <div onClick={(e) => e.stopPropagation()} style={{ background: "#FAF8F4", borderRadius: sm ? 0 : 16, width: "100%", maxWidth: 880, height: sm ? "100%" : "90vh", maxHeight: sm ? "100%" : "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
         <div style={{ padding: "14px 18px", borderBottom: "1px solid #EDE8E0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", flexShrink: 0 }}>
           <div>
-            <div style={{ fontFamily: "Georgia,serif", fontSize: 16, fontWeight: 700 }}>✦ Visualizador IA</div>
+            <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 16, fontWeight: 700 }}>✦ Visualizador IA</div>
             <div style={{ fontSize: 11, color: "#8A7868", marginTop: 1 }}>Aplica texturas reales en tu espacio</div>
           </div>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid #E0D8D0", background: "white", cursor: "pointer", fontSize: 20, color: "#8A7868", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
@@ -638,6 +639,7 @@ export default function App() {
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ nombre: "", tel: "", email: "", msg: "" });
   const [vizOpen, setVizOpen] = useState(false);
+  const [flujoCajaOpen, setFlujoCajaOpen] = useState(false);
 
   const DEFAULT_CONTENT = {
     brandName: "Casa-Estudio", brandNum: "1016", brandSub: "Revestimientos · Santa Bárbara",
@@ -658,7 +660,7 @@ export default function App() {
     ctaTitle1: "¿Cómo quedaría en", ctaTitle2: "tu espacio?", ctaBody: "Sube una foto y aplica cualquier revestimiento del catálogo con IA.", ctaBtn: "✦ Abrir Visualizador IA",
     contactTitle1: "Hablemos de", contactTitle2: "tu proyecto", contactBody: "Estamos en Santa Bárbara. Visítanos para una asesoría personalizada sin costo.",
     contactAddr: "Arturo Prat 1016, Santa Bárbara", contactPhone: "+56 9 7868 2990", contactPay: "VISA · Redcompra · MercadoPago", contactWaBtn: "💬 Abrir WhatsApp", waNumber: "56978682990",
-    colorDark: "#1E1A16", colorWarm: "#8B6B4A", colorAccent: "#5A3A1A", colorBg: "#F8F4EF",
+    colorDark: "#4A6741", colorWarm: "#F4806D", colorAccent: "#6B8C52", colorBg: "#F5F4F2",
   };
 
   const [content, setContent] = useState(() => {
@@ -686,7 +688,7 @@ export default function App() {
   const set = (k, v) => setContent((x) => ({ ...x, [k]: v }));
   const isActive = (f) => editMode && activeField === f;
   const editClick = (f) => { if (editMode) setActiveField(f); };
-  const C = { bg: content.colorBg, dark: content.colorDark, warm: content.colorWarm, warmDk: content.colorAccent, border: "#E8E0D4", mid: "#7A6858", text: "#2C2420" };
+  const C = { bg: content.colorBg, dark: content.colorDark, warm: content.colorWarm, warmDk: content.colorAccent, border: "#D0CECA", mid: "#6B7B6A", text: "#2A3528" };
 
   const getQty = (id) => qtyByProduct[id] || 1;
   const changeQty = (id, delta) => setQtyByProduct((cur) => ({ ...cur, [id]: Math.max(1, (cur[id] || 1) + delta) }));
@@ -767,28 +769,33 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ fontFamily: "system-ui,sans-serif", background: C.bg, color: C.text, overflowX: "hidden", paddingBottom: editMode ? 70 : 0, width: "100%" }}>
+    <div style={{ fontFamily: "'HWYGothic', sans-serif", background: C.bg, color: C.text, overflowX: "hidden", paddingBottom: editMode ? 70 : 0, width: "100%" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @font-face { font-family: 'HWYGothic'; src: url('/src/assets/fonts/HWYGOTH.TTF') format('truetype'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'HWYGWide'; src: url('/src/assets/fonts/HWYGWDE.TTF') format('truetype'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'HWYGNarrow'; src: url('/src/assets/fonts/HWYGNRRW.TTF') format('truetype'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'HWYGCond'; src: url('/src/assets/fonts/HWYGCOND.TTF') format('truetype'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'HWYGExpd'; src: url('/src/assets/fonts/HWYGEXPD.TTF') format('truetype'); font-weight: 400; font-style: normal; }
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
         *{box-sizing:border-box;margin:0;padding:0}
-        ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:#C4B49A;border-radius:2px}
+        body{font-family:'HWYGothic',sans-serif}
+        ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:#8A9E87;border-radius:2px}
         html{scroll-behavior:smooth}
       `}</style>
       <ColorPanel />
 
       {/* NAV */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 500, background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-        <div style={{ background: C.dark, color: "#C4B49A", textAlign: "center", padding: "7px 16px", fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 500 }}>
+        <div style={{ background: C.dark, color: "#F5D5CF", textAlign: "center", padding: "7px 16px", fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 600 }}>
           {E("promoText", "Promo", <span>{content.promoText}</span>)}
         </div>
         <nav style={{ background: "white", borderBottom: "1px solid #E8E0D4", padding: `0 ${sm ? 14 : 28}px`, display: "flex", alignItems: "center", justifyContent: "space-between", height: 58 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
-            <div style={{ width: 32, height: 32, background: C.dark, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia,serif", fontWeight: 700, color: "white", fontSize: 11 }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</div>
+            <div style={{ width: 32, height: 32, background: C.dark, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'HWYGWide',sans-serif", fontWeight: 700, color: "white", fontSize: 11 }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</div>
             <div>
-              <div style={{ fontFamily: "Georgia,serif", fontSize: sm ? 14 : 16, fontWeight: 700, color: C.text, lineHeight: 1.1 }}>{E("brandName", "Marca", <span>{content.brandName}</span>)} <span style={{ color: C.warm }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</span></div>
+              <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: sm ? 14 : 16, fontWeight: 700, color: C.text, lineHeight: 1.1 }}>{E("brandName", "Marca", <span>{content.brandName}</span>)} <span style={{ color: C.warm }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</span></div>
               {!sm && <div style={{ fontSize: 9, color: C.mid, letterSpacing: 1.5, textTransform: "uppercase" }}>{E("brandSub", "Subtítulo", <span>{content.brandSub}</span>)}</div>}
             </div>
           </div>
@@ -802,6 +809,7 @@ export default function App() {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {isAdmin && (
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                <button onClick={() => setFlujoCajaOpen(true)} style={{ padding: "7px 12px", background: "#F0F7F0", color: "#3A6B3A", border: "1px solid #7A8B5A", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>📊 Caja</button>
                 <button onClick={() => { setEditMode(!editMode); setActiveField(null); }} style={{ padding: "7px 12px", background: editMode ? "#FEF3C7" : "#F5F0EA", color: editMode ? "#B87A10" : "#7A6858", border: `1px solid ${editMode ? "#F5A623" : "#E0D8D0"}`, borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{editMode ? "✏️ Editando" : "✏️ Editar"}</button>
                 <button onClick={logout} title="Cerrar sesión admin" style={{ padding: "7px 10px", background: "none", border: "1px solid #E0D8D0", borderRadius: 6, fontSize: 13, cursor: "pointer", color: "#AAA" }}>🔓</button>
               </div>
@@ -826,21 +834,21 @@ export default function App() {
       <div style={{ height: 94 }} />
 
       {/* HERO */}
-      <section id="inicio" style={{ minHeight: sm ? "85vh" : "92vh", background: C.dark, position: "relative", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: `0 0 ${sm ? 52 : 80}px` }}>
+      <section id="inicio" style={{ minHeight: sm ? "85vh" : "92vh", background: "#2A2A2A", position: "relative", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: `0 0 ${sm ? 52 : 80}px` }}>
         <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
           {content.heroImage && <img src={content.heroImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 }} />}
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(30,26,22,0.2) 0%,rgba(30,26,22,0.8) 65%,rgba(30,26,22,1) 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(40,40,40,0.05) 0%,rgba(40,40,40,0.45) 50%,rgba(30,30,30,0.82) 100%)" }} />
         </div>
         {editMode && <label style={{ position: "absolute", top: 16, right: 16, zIndex: 10, background: "#F5A623", color: "white", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>📷 {content.heroImage ? "Cambiar fondo" : "Agregar imagen"}<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => set("heroImage", ev.target.result); r.readAsDataURL(f); }} /></label>}
         {editMode && content.heroImage && <button onClick={() => set("heroImage", null)} style={{ position: "absolute", top: 16, right: sm ? 16 : 220, zIndex: 10, background: "#FEE2E2", color: "#C45A5A", border: "none", padding: "8px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>🗑 Quitar imagen</button>}
         <div style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "0 auto", padding: `0 ${sm ? 20 : 32}px`, animation: "fadeUp .8s ease both" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(196,180,154,0.15)", border: "1px solid rgba(196,180,154,0.3)", borderRadius: 20, padding: "5px 14px", marginBottom: sm ? 20 : 28 }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#C4B49A" }} />
-            <span style={{ fontSize: 10, color: "#C4B49A", letterSpacing: 2, textTransform: "uppercase", fontWeight: 500 }}>{E("heroTag", "Etiqueta hero", <span>{content.heroTag}</span>)}</span>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(244,128,109,0.15)", border: "1px solid rgba(244,128,109,0.35)", borderRadius: 20, padding: "5px 14px", marginBottom: sm ? 20 : 28 }}>
+            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#F4806D" }} />
+            <span style={{ fontSize: 10, color: "#F4806D", letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>{E("heroTag", "Etiqueta hero", <span>{content.heroTag}</span>)}</span>
           </div>
-          <h1 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(32px,9vw,48px)" : "clamp(40px,6vw,76px)", fontWeight: 400, color: "white", lineHeight: 1.1, marginBottom: sm ? 16 : 20, maxWidth: 700 }}>
+          <h1 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: sm ? "clamp(32px,9vw,48px)" : "clamp(40px,6vw,76px)", fontWeight: 400, color: "white", lineHeight: 1.1, marginBottom: sm ? 16 : 20, maxWidth: 700 }}>
             {E("heroTitle1", "Título línea 1", <span>{content.heroTitle1}</span>)}<br />
-            <em style={{ color: "#C4B49A", fontStyle: "italic" }}>{E("heroTitle2", "Título línea 2", <span>{content.heroTitle2}</span>)}</em><br />
+            <em style={{ color: "#F4806D", fontStyle: "italic" }}>{E("heroTitle2", "Título línea 2", <span>{content.heroTitle2}</span>)}</em><br />
             {E("heroTitle3", "Título línea 3", <span>{content.heroTitle3}</span>)}
           </h1>
           <p style={{ fontSize: sm ? 13 : 15, color: "rgba(255,255,255,0.5)", maxWidth: 460, lineHeight: 1.8, marginBottom: sm ? 28 : 36, fontWeight: 300 }}>{E("heroSubtitle", "Subtítulo hero", <span>{content.heroSubtitle}</span>, true)}</p>
@@ -852,9 +860,9 @@ export default function App() {
         {!sm && (
           <div style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "52px auto 0", padding: "0 32px", display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 36 }}>
             {[["stat1n", "stat1l"], ["stat2n", "stat2l"], ["stat3n", "stat3l"], ["stat4n", "stat4l"]].map(([nk, lk], i) => (
-              <div key={i} style={{ paddingRight: 24, borderRight: i < 3 ? "1px solid rgba(255,255,255,0.07)" : "none", paddingLeft: i > 0 ? 24 : 0 }}>
-                <div style={{ fontFamily: "Georgia,serif", fontSize: 20, fontWeight: 600, color: "white", marginBottom: 3 }}>{E(nk, `Stat ${i + 1}`, <span>{content[nk]}</span>)}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.38)" }}>{E(lk, `Stat ${i + 1} label`, <span>{content[lk]}</span>)}</div>
+              <div key={i} style={{ paddingRight: 24, borderRight: i < 3 ? "1px solid rgba(255,255,255,0.12)" : "none", paddingLeft: i > 0 ? 24 : 0 }}>
+                <div style={{ fontFamily: "'HWYGothic',sans-serif", fontSize: 20, fontWeight: 800, color: "white", marginBottom: 3 }}>{E(nk, `Stat ${i + 1}`, <span>{content[nk]}</span>)}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{E(lk, `Stat ${i + 1} label`, <span>{content[lk]}</span>)}</div>
               </div>
             ))}
           </div>
@@ -866,8 +874,8 @@ export default function App() {
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: md ? "1fr" : "1fr 1fr", gap: md ? 40 : 64, alignItems: "center" }}>
           <div>
             <div style={{ fontSize: "clamp(11px,0.8vw,15px)", color: C.warm, letterSpacing: 3, textTransform: "uppercase", fontWeight: 600, marginBottom: 18 }}>{E("aboutTag", "Etiqueta sección", <span>{content.aboutTag}</span>)}</div>
-            <h2 style={{ fontFamily: "Georgia,serif", fontSize: "clamp(36px,4vw,64px)", fontWeight: 400, lineHeight: 1.1, marginBottom: 24, color: C.text }}>
-              {E("aboutTitle1", "Título 1", <span>{content.aboutTitle1}</span>)}<br /><em style={{ fontStyle: "italic" }}>{E("aboutTitle2", "Título 2", <span>{content.aboutTitle2}</span>)}</em>
+            <h2 style={{ fontFamily: "'HWYGothic',sans-serif", fontSize: "clamp(36px,4vw,64px)", fontWeight: 800, lineHeight: 1.1, marginBottom: 24, color: C.text }}>
+              {E("aboutTitle1", "Título 1", <span>{content.aboutTitle1}</span>)}<br /><em style={{ fontStyle: "italic", color: C.warm }}>{E("aboutTitle2", "Título 2", <span>{content.aboutTitle2}</span>)}</em>
             </h2>
             <p style={{ fontSize: "clamp(16px,1.2vw,22px)", color: C.mid, lineHeight: 1.9, marginBottom: 18, fontWeight: 300 }}>{E("aboutBody1", "Párrafo 1", <span>{content.aboutBody1}</span>, true)}</p>
             <p style={{ fontSize: "clamp(16px,1.2vw,22px)", color: C.mid, lineHeight: 1.9, fontWeight: 300 }}>{E("aboutBody2", "Párrafo 2", <span>{content.aboutBody2}</span>, true)}</p>
@@ -892,7 +900,7 @@ export default function App() {
           <div style={{ display: "flex", alignItems: sm ? "flex-start" : "flex-end", justifyContent: "space-between", marginBottom: sm ? 24 : 36, flexWrap: "wrap", gap: 16, flexDirection: sm ? "column" : "row" }}>
             <div>
               <div style={{ fontSize: 10, color: C.warm, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600, marginBottom: 10 }}>Catálogo completo</div>
-              <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,42px)", fontWeight: 400, lineHeight: 1.2, color: C.text }}>Nuestros <em style={{ fontStyle: "italic" }}>Revestimientos</em></h2>
+              <h2 style={{ fontFamily: "'HWYGothic',sans-serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,42px)", fontWeight: 800, lineHeight: 1.2, color: C.text }}>Nuestros <em style={{ fontStyle: "italic", color: C.warm }}>Revestimientos</em></h2>
             </div>
             <button onClick={() => setVizOpen(true)} style={{ display: "flex", alignItems: "center", gap: 7, background: C.dark, color: "white", border: "none", borderRadius: 8, padding: sm ? "11px 16px" : "12px 20px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5, textTransform: "uppercase", alignSelf: sm ? "flex-start" : "auto" }}>✦ Visualizador IA</button>
           </div>
@@ -927,7 +935,7 @@ export default function App() {
                     {/* INFO */}
                     <div style={{ padding: sm ? "18px 18px 20px" : "26px 24px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                       <div style={{ fontSize: 11, color: C.warm, letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 700, marginBottom: 12 }}>{CAT_L[p.cat] || p.cat}</div>
-                      <div style={{ fontFamily: "Georgia,serif", fontSize: sm ? 18 : 22, lineHeight: 1.15, fontWeight: 700, color: C.text, marginBottom: 10 }}>{p.name}</div>
+                      <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: sm ? 18 : 22, lineHeight: 1.15, fontWeight: 700, color: C.text, marginBottom: 10 }}>{p.name}</div>
                       <div style={{ fontSize: sm ? 14 : 16, color: "#5A4A3C", fontWeight: 600, marginBottom: 6 }}>{p.dims}</div>
                       <div style={{ fontSize: 14, color: "#9A8A7A", fontWeight: 600, marginBottom: 12 }}>COD: {p.code}</div>
                       <div style={{ fontSize: sm ? 13 : 14, color: C.mid, lineHeight: 1.6, marginBottom: 16 }}>{p.desc}</div>
@@ -965,7 +973,7 @@ export default function App() {
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: sm ? 36 : 52 }}>
             <div style={{ fontSize: 10, color: C.warm, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600, marginBottom: 12 }}>Lo que ofrecemos</div>
-            <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 400, color: C.text }}>{E("svcTitle", "Título servicios", <span>{content.svcTitle.split(" ")[0]} <em style={{ fontStyle: "italic" }}>{content.svcTitle.split(" ").slice(1).join(" ")}</em></span>)}</h2>
+            <h2 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 400, color: C.text }}>{E("svcTitle", "Título servicios", <span>{content.svcTitle.split(" ")[0]} <em style={{ fontStyle: "italic" }}>{content.svcTitle.split(" ").slice(1).join(" ")}</em></span>)}</h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${sm ? 1 : md ? 2 : 3},1fr)`, gap: sm ? 12 : 20 }}>
             {[1, 2, 3].map((i) => {
@@ -975,7 +983,7 @@ export default function App() {
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.warm; e.currentTarget.style.background = "white"; e.currentTarget.style.boxShadow = "0 6px 24px rgba(139,107,74,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8E0D4"; e.currentTarget.style.background = C.bg; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "translateY(0)"; }}>
                   <div style={{ fontSize: 30, marginBottom: 12 }}>{E(`svc${i}icon`, `Ícono ${i}`, <span>{icon}</span>)}</div>
-                  <h3 style={{ fontFamily: "Georgia,serif", fontSize: 16, fontWeight: 600, marginBottom: 8, color: C.text }}>{E(`svc${i}title`, `Título ${i}`, <span>{title}</span>)}</h3>
+                  <h3 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 16, fontWeight: 600, marginBottom: 8, color: C.text }}>{E(`svc${i}title`, `Título ${i}`, <span>{title}</span>)}</h3>
                   <p style={{ fontSize: 13, color: C.mid, lineHeight: 1.75, fontWeight: 300, marginBottom: 12 }}>{E(`svc${i}desc`, `Descripción ${i}`, <span>{desc}</span>, true)}</p>
                   <div style={{ fontSize: 12, fontWeight: 700, color: C.warmDk, textTransform: "uppercase", letterSpacing: 0.5 }}>Solicitar por WhatsApp →</div>
                 </a>
@@ -992,8 +1000,8 @@ export default function App() {
         </div>
         <div style={{ position: "relative", maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
           <div style={{ fontSize: 10, color: "#C4B49A", letterSpacing: 2, textTransform: "uppercase", fontWeight: 500, marginBottom: 16 }}>Herramienta exclusiva</div>
-          <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(24px,7vw,34px)" : "clamp(26px,3vw,40px)", fontWeight: 400, color: "white", lineHeight: 1.25, marginBottom: 14 }}>
-            {E("ctaTitle1", "Título CTA 1", <span>{content.ctaTitle1}</span>)}<br /><em style={{ color: "#C4B49A", fontStyle: "italic" }}>{E("ctaTitle2", "Título CTA 2", <span>{content.ctaTitle2}</span>)}</em>
+          <h2 style={{ fontFamily: "'HWYGothic',sans-serif", fontSize: sm ? "clamp(24px,7vw,34px)" : "clamp(26px,3vw,40px)", fontWeight: 800, color: "white", lineHeight: 1.25, marginBottom: 14 }}>
+            {E("ctaTitle1", "Título CTA 1", <span>{content.ctaTitle1}</span>)}<br /><em style={{ color: "#F4806D", fontStyle: "italic" }}>{E("ctaTitle2", "Título CTA 2", <span>{content.ctaTitle2}</span>)}</em>
           </h2>
           <p style={{ fontSize: sm ? 13 : 14, color: "rgba(255,255,255,0.45)", lineHeight: 1.8, marginBottom: 28, fontWeight: 300, maxWidth: 400, margin: "0 auto 28px" }}>{E("ctaBody", "Texto CTA", <span>{content.ctaBody}</span>, true)}</p>
           <button onClick={() => setVizOpen(true)} style={{ background: "white", color: C.text, border: "none", borderRadius: 8, padding: sm ? "13px 24px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{E("ctaBtn", "Botón CTA", <span>{content.ctaBtn}</span>)}</button>
@@ -1005,8 +1013,8 @@ export default function App() {
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: md ? "1fr" : "1fr 1fr", gap: md ? 40 : 64, alignItems: "start" }}>
           <div>
             <div style={{ fontSize: 10, color: C.warm, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600, marginBottom: 14 }}>Contáctanos</div>
-            <h2 style={{ fontFamily: "Georgia,serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 400, lineHeight: 1.2, marginBottom: 20, color: C.text }}>
-              {E("contactTitle1", "Título contacto 1", <span>{content.contactTitle1}</span>)}<br /><em style={{ fontStyle: "italic" }}>{E("contactTitle2", "Título contacto 2", <span>{content.contactTitle2}</span>)}</em>
+            <h2 style={{ fontFamily: "'HWYGothic',sans-serif", fontSize: sm ? "clamp(26px,7vw,36px)" : "clamp(28px,3vw,40px)", fontWeight: 800, lineHeight: 1.2, marginBottom: 20, color: C.text }}>
+              {E("contactTitle1", "Título contacto 1", <span>{content.contactTitle1}</span>)}<br /><em style={{ fontStyle: "italic", color: C.warm }}>{E("contactTitle2", "Título contacto 2", <span>{content.contactTitle2}</span>)}</em>
             </h2>
             <p style={{ fontSize: 14, color: C.mid, lineHeight: 1.85, marginBottom: 28, fontWeight: 300 }}>{E("contactBody", "Texto contacto", <span>{content.contactBody}</span>, true)}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 28 }}>
@@ -1026,12 +1034,12 @@ export default function App() {
             {sent ? (
               <div style={{ textAlign: "center", padding: "40px 20px" }}>
                 <div style={{ fontSize: 48, marginBottom: 14 }}>✅</div>
-                <h3 style={{ fontFamily: "Georgia,serif", fontSize: 20, marginBottom: 8 }}>¡Mensaje enviado!</h3>
+                <h3 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 20, marginBottom: 8 }}>¡Mensaje enviado!</h3>
                 <p style={{ fontSize: 14, color: C.mid }}>Te contactaremos a la brevedad.</p>
               </div>
             ) : (
               <>
-                <h3 style={{ fontFamily: "Georgia,serif", fontSize: 18, fontWeight: 600, marginBottom: 18, color: C.text }}>Solicitar cotización</h3>
+                <h3 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 18, fontWeight: 600, marginBottom: 18, color: C.text }}>Solicitar cotización</h3>
                 {[["nombre", "Nombre completo", "text"], ["tel", "Teléfono", "tel"], ["email", "Correo electrónico", "email"]].map(([f, l, t]) => (
                   <div key={f} style={{ marginBottom: 14 }}>
                     <label style={{ display: "block", fontSize: 10, fontWeight: 600, color: C.mid, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 5 }}>{l}</label>
@@ -1054,7 +1062,7 @@ export default function App() {
       {/* FOOTER */}
       <footer style={{ background: C.dark, padding: `${sm ? 20 : 28}px ${sm ? 16 : 32}px`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <div style={{ fontFamily: "Georgia,serif", fontSize: 15, color: "white", fontWeight: 600, marginBottom: 3 }}>{E("brandName", "Nombre marca", <span>{content.brandName}</span>)} <span style={{ color: "#C4B49A" }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</span></div>
+          <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 15, color: "white", fontWeight: 600, marginBottom: 3 }}>{E("brandName", "Nombre marca", <span>{content.brandName}</span>)} <span style={{ color: "#C4B49A" }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</span></div>
           <div style={{ fontSize: 10, color: "rgba(255,255,255,0.28)", letterSpacing: 0.5 }}>{E("contactAddr", "Dirección", <span>{content.contactAddr}</span>)} · {E("contactPhone", "Teléfono", <span>{content.contactPhone}</span>)}</div>
         </div>
         <div style={{ fontSize: 10, color: "rgba(255,255,255,0.22)" }}>© 2025 {content.brandName} {content.brandNum}</div>
@@ -1065,7 +1073,7 @@ export default function App() {
         <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(2px)" }} onClick={() => setCartOpen(false)}>
           <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: sm ? "100%" : "min(360px,100vw)", background: "white", boxShadow: "-8px 0 40px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "18px 20px", borderBottom: "1px solid #E8E0D4", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-              <div style={{ fontFamily: "Georgia,serif", fontSize: 17, fontWeight: 600 }}>Mi Carro ({cartCount})</div>
+              <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 17, fontWeight: 600 }}>Mi Carro ({cartCount})</div>
               <button onClick={() => setCartOpen(false)} style={{ background: "none", border: "none", fontSize: 24, cursor: "pointer", color: C.mid }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
@@ -1107,6 +1115,7 @@ export default function App() {
       {vizOpen && <VisualizerModal prods={prods} onClose={() => setVizOpen(false)} C={C} $$={$$} />}
       {quoteOpen && <QuotationModal cart={cart} total={total} content={content} $$={$$} onClose={() => setQuoteOpen(false)} />}
       {productEditor && <ProductEditor product={productEditor} onSave={saveProds} onDelete={deleteProds} onClose={() => setProductEditor(null)} />}
+      {flujoCajaOpen && <FlujoCaja onClose={() => setFlujoCajaOpen(false)} />}
       {editMode && <EditBar />}
 
       {loginOpen && (
@@ -1114,7 +1123,7 @@ export default function App() {
           <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 14, width: "100%", maxWidth: 360, padding: 32, boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
             <div style={{ textAlign: "center", marginBottom: 24 }}>
               <div style={{ fontSize: 36, marginBottom: 10 }}>🔐</div>
-              <h3 style={{ fontFamily: "Georgia,serif", fontSize: 20, fontWeight: 600, color: "#2C2420", marginBottom: 4 }}>Acceso Administrador</h3>
+              <h3 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 20, fontWeight: 600, color: "#2C2420", marginBottom: 4 }}>Acceso Administrador</h3>
               <p style={{ fontSize: 13, color: "#8A7868" }}>Casa-Estudio 1016</p>
             </div>
             <div style={{ marginBottom: 16 }}>
