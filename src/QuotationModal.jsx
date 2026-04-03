@@ -331,8 +331,7 @@ export default function QuotationModal({ cart, total, content, $$, onClose }) {
             <div style={{ fontSize: fs.notes, color: "#5A4A3C", lineHeight: 1.85 }}>
               • Cotización válida por 15 días desde la fecha de emisión.<br />
               • Precios sujetos a disponibilidad de stock al momento de la compra.<br />
-              • Despacho a coordinar según región. Consultar tarifas de envío.<br />
-              • Se requiere un 50% de adelanto para confirmar el pedido.
+              • Retiro en bodega previa coordinación, una vez realizada la transferencia. Horario de entrega: 09:00 a 17:00 hrs.
             </div>
           </div>
 

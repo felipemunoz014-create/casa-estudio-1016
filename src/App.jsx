@@ -14,6 +14,8 @@ import wallCaoba from "./assets/Wall panel Caoba.png";
 import wallMarmol from "./assets/wall panel marmol.PNG";
 import wallRoble from "./assets/wall panel roble.png";
 import cieloPvcPino from "./assets/cielo pvc pino.png";
+import cieloPvcPinoTextura from "./assets/cielo pvc pino textura.png";
+import cieloPvcPinoliving from "./assets/cielo pvc pino living.png";
 import sidingMetalCastano from "./assets/siding metal castaño.png";
 import sidingMetalCedro from "./assets/siding metal cedro.png";
 import clipsWallPanel from "./assets/Clips wall panel.jpg";
@@ -25,6 +27,12 @@ import perfilEsquineroSiding from "./assets/perfil esquinero siding.jpg";
 import perfilEsquineroInteriorSiding from "./assets/perfil esquinero interior siding.jpg";
 import perfilWInteriorPvcUv from "./assets/perfil W interior PVC UV.jpg";
 import perfilHPvcUv from "./assets/perfil-h-pvc-uv.jpg";
+import wallCaobaLiving from "./assets/Wall panel Caoba Living.png";
+import wallCaobaTextura from "./assets/Wall panel Caoba textura.png";
+import wallMarmolTextura from "./assets/Wall panel marmol textura.png";
+import wallMarmolLiving from "./assets/Wall panel marmol Living.png";
+import wallRobleTextura from "./assets/Wall panel roble textura.png";
+import wallRoblelLiving from "./assets/Wall panel roble Living.png";
 
 const EJS = {
   serviceId: "service_aycesln",
@@ -74,10 +82,10 @@ const DEFAULT_PRODS = [
   { id: 1, name: "PVC Mármol Gris", dims: "122×244cm", cat: "muro", code: "KL8235", price: 18700, unit: "c/u", tk: "marble_gray", image: marmolGris, images: [marmolGris, marmolGris, marmolGris], desc: "Elegancia mineral con venas sutiles." },
   { id: 2, name: "PVC Mármol Blanco", dims: "122×244cm", cat: "muro", code: "KL8263", price: 18700, unit: "c/u", tk: "marble_white", image: marmolBlanco, images: [marmolBlanco, marmolBlanco, marmolBlanco], desc: "Pureza y luminosidad. Amplía cualquier espacio." },
   { id: 3, name: "PVC Mármol Negro", dims: "122×244cm", cat: "muro", code: "KL8264", price: 18700, unit: "c/u", tk: "marble_black", image: marmolNegro, images: [marmolNegro, marmolNegro, marmolNegro], desc: "Sofisticación absoluta. Contraste dramático." },
-  { id: 4, name: "Wall Panel Caoba 24mm", dims: "16×290cm", cat: "muro", code: "PY-60023-21", price: 6500, unit: "c/u", tk: "wood_caoba", image: wallCaoba, images: [wallCaoba, wallCaoba, wallCaoba], desc: "Calidez profunda. Textura acanalada contemporánea." },
-  { id: 5, name: "Wall Panel Roble 24mm", dims: "16×290cm", cat: "muro", code: "PY-80450I-9", price: 6500, unit: "c/u", tk: "wood_roble", image: wallRoble, images: [wallRoble, wallRoble, wallRoble], desc: "Tono natural cálido. Armonía nórdica." },
-  { id: 6, name: "Wall Panel Mármol 24mm", dims: "16×290cm", cat: "muro", code: "PY-80401-2", price: 6500, unit: "c/u", tk: "panel_marble", image: wallMarmol, images: [wallMarmol, wallMarmol, wallMarmol], desc: "Mármol en formato panel acanalado." },
-  { id: 7, name: "Placa Cielo PVC Pino", dims: "25×580cm", cat: "cielo", code: "DS059", price: 12500, unit: "c/u", tk: "ceiling_pino", image: cieloPvcPino, images: [cieloPvcPino, cieloPvcPino, cieloPvcPino], desc: "Calidez en el cielo con veta natural." },
+  { id: 4, name: "Wall Panel Caoba 24mm", dims: "16×290cm", cat: "muro", code: "PY-60023-21", price: 6500, unit: "c/u", tk: "wood_caoba", image: wallCaoba, images: [wallCaobaTextura, wallCaoba, wallCaobaLiving], desc: "Calidez profunda. Textura acanalada contemporánea." },
+  { id: 5, name: "Wall Panel Roble 24mm", dims: "16×290cm", cat: "muro", code: "PY-80450I-9", price: 6500, unit: "c/u", tk: "wood_roble", image: wallRoble, images: [wallRobleTextura, wallRoble, wallRoblelLiving], desc: "Tono natural cálido. Armonía nórdica." },
+  { id: 6, name: "Wall Panel Mármol 24mm", dims: "16×290cm", cat: "muro", code: "PY-80401-2", price: 6500, unit: "c/u", tk: "panel_marble", image: wallMarmol, images: [wallMarmolTextura, wallMarmol, wallMarmolLiving], desc: "Mármol en formato panel acanalado." },
+  { id: 7, name: "Placa Cielo PVC Pino", dims: "25×580cm", cat: "cielo", code: "DS059", price: 12500, unit: "c/u", tk: "ceiling_pino", image: cieloPvcPino, images: [cieloPvcPinoTextura, cieloPvcPino, cieloPvcPinoliving], desc: "Calidez en el cielo con veta natural." },
   { id: 8, name: "Siding Metal Castaño", dims: "38.3×580cm", cat: "exterior", code: "WG-02", price: 26500, unit: "c/u", tk: "siding_c", image: sidingMetalCastano, images: [sidingMetalCastano, sidingMetalCastano, sidingMetalCastano], desc: "Alta densidad. 2.2m² por unidad." },
   { id: 9, name: "Siding Metal Cedro", dims: "38.3×580cm", cat: "exterior", code: "WG-08", price: 26500, unit: "c/u", tk: "siding_r", image: sidingMetalCedro, images: [sidingMetalCedro, sidingMetalCedro, sidingMetalCedro], desc: "Cedro para exteriores. Normativa térmica." },
   { id: 10, name: "Perfil PVC H Cielo", dims: "1×4×580cm", cat: "accesorio", code: "DS059-H", price: 14500, unit: "c/u", tk: "gold", image: perfilPvcH, images: [perfilPvcH, perfilPvcH, perfilPvcH], desc: "Unión entre placas de cielo PVC." },
@@ -198,7 +206,7 @@ function ProductCarousel({ images, productName }) {
     if (imgs.length <= 1) return;
     intervalRef.current = setInterval(() => {
       setCurrent((c) => (c + 1) % imgs.length);
-    }, 1000);
+    }, 1700);
     return () => clearInterval(intervalRef.current);
   }, [imgs.length]);
 
