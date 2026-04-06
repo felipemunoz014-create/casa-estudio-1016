@@ -33,6 +33,10 @@ import wallMarmolTextura from "./assets/Wall panel marmol textura.png";
 import wallMarmolLiving from "./assets/Wall panel marmol Living.png";
 import wallRobleTextura from "./assets/Wall panel roble textura.png";
 import wallRoblelLiving from "./assets/Wall panel roble Living.png";
+import sidingMetalCedroTextura from "./assets/siding metal cedro textura.png";
+import sidingMetalCedroExterior from "./assets/siding metal cedro exterior.png";
+import sidingMetalCastanoTextura from "./assets/siding metal castaño textura.png";
+import sidingMetalCastanoExterior from "./assets/siding metal castaño exterior.png";
 
 const EJS = {
   serviceId: "service_aycesln",
@@ -86,8 +90,8 @@ const DEFAULT_PRODS = [
   { id: 5, name: "Wall Panel Roble 24mm", dims: "16×290cm", cat: "muro", code: "PY-80450I-9", price: 6500, unit: "c/u", tk: "wood_roble", image: wallRoble, images: [wallRobleTextura, wallRoble, wallRoblelLiving], desc: "Tono natural cálido. Armonía nórdica." },
   { id: 6, name: "Wall Panel Mármol 24mm", dims: "16×290cm", cat: "muro", code: "PY-80401-2", price: 6500, unit: "c/u", tk: "panel_marble", image: wallMarmol, images: [wallMarmolTextura, wallMarmol, wallMarmolLiving], desc: "Mármol en formato panel acanalado." },
   { id: 7, name: "Placa Cielo PVC Pino", dims: "25×580cm", cat: "cielo", code: "DS059", price: 12500, unit: "c/u", tk: "ceiling_pino", image: cieloPvcPino, images: [cieloPvcPinoTextura, cieloPvcPino, cieloPvcPinoliving], desc: "Calidez en el cielo con veta natural." },
-  { id: 8, name: "Siding Metal Castaño", dims: "38.3×580cm", cat: "exterior", code: "WG-02", price: 26500, unit: "c/u", tk: "siding_c", image: sidingMetalCastano, images: [sidingMetalCastano, sidingMetalCastano, sidingMetalCastano], desc: "Alta densidad. 2.2m² por unidad." },
-  { id: 9, name: "Siding Metal Cedro", dims: "38.3×580cm", cat: "exterior", code: "WG-08", price: 26500, unit: "c/u", tk: "siding_r", image: sidingMetalCedro, images: [sidingMetalCedro, sidingMetalCedro, sidingMetalCedro], desc: "Cedro para exteriores. Normativa térmica." },
+  { id: 8, name: "Siding Metal Castaño", dims: "38.3×580cm", cat: "exterior", code: "WG-02", price: 26500, unit: "c/u", tk: "siding_c", image: sidingMetalCastano, images: [sidingMetalCastanoTextura, sidingMetalCastano, sidingMetalCastanoExterior], desc: "Alta densidad. 2.2m² por unidad." },
+  { id: 9, name: "Siding Metal Cedro", dims: "38.3×580cm", cat: "exterior", code: "WG-08", price: 26500, unit: "c/u", tk: "siding_r", image: sidingMetalCedro, images: [sidingMetalCedroTextura, sidingMetalCedro, sidingMetalCedroExterior], desc: "Cedro para exteriores. Normativa térmica." },
   { id: 10, name: "Perfil PVC H Cielo", dims: "1×4×580cm", cat: "accesorio", code: "DS059-H", price: 14500, unit: "c/u", tk: "gold", image: perfilPvcH, images: [perfilPvcH, perfilPvcH, perfilPvcH], desc: "Unión entre placas de cielo PVC." },
   { id: 11, name: "Perfil Cornisa 3×3", dims: "3×3×580cm", cat: "accesorio", code: "DS059-P", price: 14500, unit: "c/u", tk: "gold", image: perfilPvcCornisa, images: [perfilPvcCornisa, perfilPvcCornisa, perfilPvcCornisa], desc: "Encuentro elegante muro-cielo." },
   { id: 12, name: "100 Clips de Montaje", dims: "33×45mm", cat: "accesorio", code: "CLIPS", price: 6000, unit: "set", tk: "silver", image: clipsWallPanel, images: [clipsWallPanel, clipsWallPanel, clipsWallPanel], desc: "Fijación oculta para Wall Panel." },
