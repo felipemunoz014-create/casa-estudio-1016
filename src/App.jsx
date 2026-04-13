@@ -12,7 +12,7 @@ import marmolGris from "./assets/Marmol Gris.png";
 import marmolNegro from "./assets/Marmol Negro.png";
 import wallCaoba from "./assets/Wall panel Caoba.png";
 import wallMarmol from "./assets/wall-panel-marmol.png";
-import wallRoble from "./assets/wall panel roble.png";
+import wallRoble from "./assets/wall-panel-roble.png";
 import cieloPvcPino from "./assets/cielo pvc pino.png";
 import cieloPvcPinoTextura from "./assets/cielo pvc pino textura.png";
 import cieloPvcPinoliving from "./assets/cielo pvc pino living.png";
