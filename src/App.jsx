@@ -37,6 +37,9 @@ import sidingMetalCedroTextura from "./assets/siding metal cedro textura.png";
 import sidingMetalCedroExterior from "./assets/siding metal cedro exterior.png";
 import sidingMetalCastanoTextura from "./assets/siding metal castaño textura.png";
 import sidingMetalCastanoExterior from "./assets/siding metal castaño exterior.png";
+import marmolBlancoMedida from "./assets/PvcUVmarmol.png";
+import marmolGrisMedida from "./assets/PvcUVgris.png";
+import marmolNegroMedida from "./assets/PvcUVnegro.png";
 
 const EJS = {
   serviceId: "service_aycesln",
@@ -83,9 +86,9 @@ const TX = {
 };
 
 const DEFAULT_PRODS = [
-  { id: 1, name: "PVC Mármol Gris", dims: "122×244cm", cat: "muro", code: "KL8235", price: 18700, unit: "c/u", tk: "marble_gray", image: marmolGris, images: [marmolGris, marmolGris, marmolGris], desc: "Elegancia mineral con venas sutiles." },
-  { id: 2, name: "PVC Mármol Blanco", dims: "122×244cm", cat: "muro", code: "KL8263", price: 18700, unit: "c/u", tk: "marble_white", image: marmolBlanco, images: [marmolBlanco, marmolBlanco, marmolBlanco], desc: "Pureza y luminosidad. Amplía cualquier espacio." },
-  { id: 3, name: "PVC Mármol Negro", dims: "122×244cm", cat: "muro", code: "KL8264", price: 18700, unit: "c/u", tk: "marble_black", image: marmolNegro, images: [marmolNegro, marmolNegro, marmolNegro], desc: "Sofisticación absoluta. Contraste dramático." },
+  { id: 1, name: "PVC Mármol Gris", dims: "122×244cm", cat: "muro", code: "KL8235", price: 18700, unit: "c/u", tk: "marble_gray", image: marmolGris, images: [marmolGris, marmolGrisMedida, marmolGris], desc: "Elegancia mineral con venas sutiles." },
+  { id: 2, name: "PVC Mármol Blanco", dims: "122×244cm", cat: "muro", code: "KL8263", price: 18700, unit: "c/u", tk: "marble_white", image: marmolBlanco, images: [marmolBlanco, marmolBlancoMedida, marmolBlanco], desc: "Pureza y luminosidad. Amplía cualquier espacio." },
+  { id: 3, name: "PVC Mármol Negro", dims: "122×244cm", cat: "muro", code: "KL8264", price: 18700, unit: "c/u", tk: "marble_black", image: marmolNegro, images: [marmolNegro, marmolNegroMedida, marmolNegro], desc: "Sofisticación absoluta. Contraste dramático." },
   { id: 4, name: "Wall Panel Caoba 24mm", dims: "16×290cm", cat: "muro", code: "PY-60023-21", price: 6500, unit: "c/u", tk: "wood_caoba", image: wallCaoba, images: [wallCaobaTextura, wallCaoba, wallCaobaLiving], desc: "Calidez profunda. Textura acanalada contemporánea." },
   { id: 5, name: "Wall Panel Roble 24mm", dims: "16×290cm", cat: "muro", code: "PY-80450I-9", price: 6500, unit: "c/u", tk: "wood_roble", image: wallRoble, images: [wallRobleTextura, wallRoble, wallRoblelLiving], desc: "Tono natural cálido. Armonía nórdica." },
   { id: 6, name: "Wall Panel Mármol 24mm", dims: "16×290cm", cat: "muro", code: "PY-80401-2", price: 6500, unit: "c/u", tk: "panel_marble", image: wallMarmol, images: [wallMarmolTextura, wallMarmol, wallMarmolLiving], desc: "Mármol en formato panel acanalado." },
@@ -210,7 +213,7 @@ function ProductCarousel({ images, productName }) {
     if (imgs.length <= 1) return;
     intervalRef.current = setInterval(() => {
       setCurrent((c) => (c + 1) % imgs.length);
-    }, 1700);
+    }, 3000);
     return () => clearInterval(intervalRef.current);
   }, [imgs.length]);
 
