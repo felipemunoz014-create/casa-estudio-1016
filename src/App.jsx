@@ -658,7 +658,7 @@ export default function App() {
 
   const DEFAULT_CONTENT = {
     brandName: "Casa-Estudio", brandNum: "1016", brandSub: "Revestimientos · Santa Bárbara",
-    promoText: "⭐ Precios de Inauguración — Válidos hasta el 31 de Abril 2026",
+    promoText: "⭐ Precios de Inauguración — Válidos hasta el 31 de Mayo 2026",
     heroTag: "Importadora & Comercializadora", heroTitle1: "Revestimientos", heroTitle2: "de alto estándar", heroTitle3: "para tu espacio",
     heroSubtitle: "Arquitectura, diseño e importación de materiales decorativos. Santa Bárbara — atendemos todo Chile.",
     heroBtnPrimary: "Ver Catálogo", heroBtnSecondary: "Cotizar", heroImage: heroImg,
