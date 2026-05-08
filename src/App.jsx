@@ -71,6 +71,38 @@ function useW() {
   return w;
 }
 
+// ─── FUNCIÓN AUXILIAR: cobertura m² por unidad ───────────────────────────────
+// Lee la propiedad dims del producto (ej: "122×244cm", "16×290cm")
+// Soporta separadores: × x X
+// Retorna m² por unidad. Si no puede calcularlo, retorna 1.
+function getCoverageM2(product) {
+  if (!product || !product.dims) return 1;
+  const match = product.dims.match(/([\d.]+)\s*[×xX]\s*([\d.]+)/);
+  if (!match) return 1;
+  const a = parseFloat(match[1]) / 100; // cm → m
+  const b = parseFloat(match[2]) / 100;
+  const result = a * b;
+  return result > 0 ? result : 1;
+}
+
+// ─── FUNCIÓN AUXILIAR: cubicación completa ───────────────────────────────────
+// Calcula m² brutos, netos, con merma, unidades y precio total.
+function calcularCubicacion({
+  largo,
+  alto,
+  merma,
+  descuentoVanos,
+  coberturaM2PorUnidad,
+  precioUnitario,
+}) {
+  const m2Bruto = largo * alto;
+  const m2Neto = Math.max(m2Bruto - descuentoVanos, 0);
+  const m2ConMerma = m2Neto * (1 + merma / 100);
+  const unidades = Math.ceil(m2ConMerma / coberturaM2PorUnidad);
+  const precioTotal = unidades * precioUnitario;
+  return { m2Bruto, m2Neto, m2ConMerma, unidades, precioTotal };
+}
+
 const TX = {
   marble_gray: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#9BA5A8"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#B8C2C5"/><stop offset="40%" stop-color="#8A9599"/><stop offset="100%" stop-color="#7A8588"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M0,80 Q100,60 200,100 T400,80" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/><path d="M50,0 Q80,100 60,200 T80,400" stroke="rgba(255,255,255,0.35)" stroke-width="2" fill="none"/><path d="M200,0 Q230,150 210,250 T230,400" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none"/></svg>`,
   marble_white: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#E8E4DC"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0EDE8"/><stop offset="50%" stop-color="#E0DBD2"/><stop offset="100%" stop-color="#EAE6DE"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M0,100 Q100,80 200,120 T400,100" stroke="rgba(160,150,140,0.5)" stroke-width="1.5" fill="none"/><path d="M80,0 Q100,100 90,200 T100,400" stroke="rgba(160,150,140,0.4)" stroke-width="1.5" fill="none"/></svg>`,
@@ -208,7 +240,6 @@ function ProductCarousel({ images, productName }) {
   const intervalRef = useRef(null);
   const imgs = images && images.length > 0 ? images : [];
 
-  // Auto-rotate cada 1 segundo
   useEffect(() => {
     if (imgs.length <= 1) return;
     intervalRef.current = setInterval(() => {
@@ -217,17 +248,12 @@ function ProductCarousel({ images, productName }) {
     return () => clearInterval(intervalRef.current);
   }, [imgs.length]);
 
-  // Bloquear scroll del body cuando el lightbox está abierto
   useEffect(() => {
-    if (lightboxOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (lightboxOpen) { document.body.style.overflow = "hidden"; }
+    else { document.body.style.overflow = ""; }
     return () => { document.body.style.overflow = ""; };
   }, [lightboxOpen]);
 
-  // Navegación con teclado
   useEffect(() => {
     if (!lightboxOpen) return;
     const handler = (e) => {
@@ -239,124 +265,28 @@ function ProductCarousel({ images, productName }) {
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxOpen, imgs.length]);
 
-  const openLightbox = (e) => {
-    e.stopPropagation();
-    setLightboxIdx(current);
-    setLightboxOpen(true);
-  };
+  const openLightbox = (e) => { e.stopPropagation(); setLightboxIdx(current); setLightboxOpen(true); };
 
   if (imgs.length === 0) return null;
 
-  // Lightbox renderizado con portal directo al body — nunca queda cortado
   const lightbox = lightboxOpen ? createPortal(
-    <div
-      onClick={() => setLightboxOpen(false)}
-      style={{
-        position: "fixed", inset: 0, zIndex: 99999,
-        background: "rgba(0,0,0,0.93)",
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        gap: "clamp(10px,2vh,20px)",
-        padding: "clamp(12px,3vw,32px)",
-      }}
-    >
-      {/* Botón cerrar */}
-      <button
-        onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
-        style={{
-          position: "fixed", top: 14, right: 14,
-          background: "rgba(255,255,255,0.15)",
-          border: "none", color: "white",
-          fontSize: "clamp(20px,4vw,28px)",
-          cursor: "pointer", width: 44, height: 44,
-          borderRadius: "50%", display: "flex",
-          alignItems: "center", justifyContent: "center",
-          zIndex: 100000, backdropFilter: "blur(4px)",
-        }}
-      >×</button>
-
-      {/* Nombre producto */}
-      <div style={{
-        color: "rgba(255,255,255,0.55)", fontSize: "clamp(10px,1.5vw,13px)",
-        fontWeight: 600, letterSpacing: 2, textTransform: "uppercase",
-        textAlign: "center", maxWidth: "80vw",
-      }}>{productName}</div>
-
-      {/* Flecha izquierda */}
+    <div onClick={() => setLightboxOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.93)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "clamp(10px,2vh,20px)", padding: "clamp(12px,3vw,32px)" }}>
+      <button onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }} style={{ position: "fixed", top: 14, right: 14, background: "rgba(255,255,255,0.15)", border: "none", color: "white", fontSize: "clamp(20px,4vw,28px)", cursor: "pointer", width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100000, backdropFilter: "blur(4px)" }}>×</button>
+      <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "clamp(10px,1.5vw,13px)", fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", maxWidth: "80vw" }}>{productName}</div>
       {imgs.length > 1 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i - 1 + imgs.length) % imgs.length); }}
-          style={{
-            position: "fixed", left: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)",
-            background: "rgba(255,255,255,0.12)", border: "none", color: "white",
-            fontSize: "clamp(22px,4vw,36px)", cursor: "pointer",
-            padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)",
-            borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)",
-          }}
-        >‹</button>
+        <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i - 1 + imgs.length) % imgs.length); }} style={{ position: "fixed", left: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", color: "white", fontSize: "clamp(22px,4vw,36px)", cursor: "pointer", padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)", borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)" }}>‹</button>
       )}
-
-      {/* Imagen principal */}
-      <img
-        src={imgs[lightboxIdx]}
-        alt={`${productName} vista ${lightboxIdx + 1}`}
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          maxWidth: "min(90vw, 900px)",
-          maxHeight: "clamp(200px, 55vh, 600px)",
-          objectFit: "contain",
-          borderRadius: "clamp(8px,1.5vw,16px)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(255,255,255,0.03)",
-          display: "block",
-        }}
-      />
-
-      {/* Miniaturas */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          display: "flex", gap: "clamp(8px,1.5vw,14px)",
-          flexWrap: "wrap", justifyContent: "center",
-          maxWidth: "90vw",
-        }}
-      >
+      <img src={imgs[lightboxIdx]} alt={`${productName} vista ${lightboxIdx + 1}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "min(90vw, 900px)", maxHeight: "clamp(200px, 55vh, 600px)", objectFit: "contain", borderRadius: "clamp(8px,1.5vw,16px)", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", display: "block" }} />
+      <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", gap: "clamp(8px,1.5vw,14px)", flexWrap: "wrap", justifyContent: "center", maxWidth: "90vw" }}>
         {imgs.map((src, i) => (
-          <div
-            key={i}
-            onClick={(e) => { e.stopPropagation(); setLightboxIdx(i); }}
-            style={{
-              width: "clamp(56px,10vw,80px)",
-              height: "clamp(56px,10vw,80px)",
-              borderRadius: "clamp(6px,1vw,10px)",
-              overflow: "hidden", cursor: "pointer", flexShrink: 0,
-              border: `${i === lightboxIdx ? 3 : 1.5}px solid ${i === lightboxIdx ? "white" : "rgba(255,255,255,0.25)"}`,
-              opacity: i === lightboxIdx ? 1 : 0.5,
-              transition: "all 0.2s",
-            }}
-          >
+          <div key={i} onClick={(e) => { e.stopPropagation(); setLightboxIdx(i); }} style={{ width: "clamp(56px,10vw,80px)", height: "clamp(56px,10vw,80px)", borderRadius: "clamp(6px,1vw,10px)", overflow: "hidden", cursor: "pointer", flexShrink: 0, border: `${i === lightboxIdx ? 3 : 1.5}px solid ${i === lightboxIdx ? "white" : "rgba(255,255,255,0.25)"}`, opacity: i === lightboxIdx ? 1 : 0.5, transition: "all 0.2s" }}>
             <img src={src} alt={`Vista ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </div>
         ))}
       </div>
-
-      {/* Contador */}
-      <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "clamp(11px,1.5vw,13px)" }}>
-        {lightboxIdx + 1} / {imgs.length}
-      </div>
-
-      {/* Flecha derecha */}
+      <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "clamp(11px,1.5vw,13px)" }}>{lightboxIdx + 1} / {imgs.length}</div>
       {imgs.length > 1 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i + 1) % imgs.length); }}
-          style={{
-            position: "fixed", right: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)",
-            background: "rgba(255,255,255,0.12)", border: "none", color: "white",
-            fontSize: "clamp(22px,4vw,36px)", cursor: "pointer",
-            padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)",
-            borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)",
-          }}
-        >›</button>
+        <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i + 1) % imgs.length); }} style={{ position: "fixed", right: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", color: "white", fontSize: "clamp(22px,4vw,36px)", cursor: "pointer", padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)", borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)" }}>›</button>
       )}
     </div>,
     document.body
@@ -364,17 +294,8 @@ function ProductCarousel({ images, productName }) {
 
   return (
     <>
-      {/* Carrusel */}
-      <div
-        onClick={openLightbox}
-        style={{ position: "relative", width: "100%", height: "100%", cursor: "zoom-in", overflow: "hidden" }}
-      >
-        <img
-          src={imgs[current]}
-          alt={productName}
-          style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", transition: "opacity 0.35s ease" }}
-        />
-        {/* Dots */}
+      <div onClick={openLightbox} style={{ position: "relative", width: "100%", height: "100%", cursor: "zoom-in", overflow: "hidden" }}>
+        <img src={imgs[current]} alt={productName} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", transition: "opacity 0.35s ease" }} />
         {imgs.length > 1 && (
           <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, zIndex: 2 }}>
             {imgs.map((_, i) => (
@@ -382,11 +303,8 @@ function ProductCarousel({ images, productName }) {
             ))}
           </div>
         )}
-        {/* Hint */}
         <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.42)", color: "white", fontSize: 10, padding: "3px 8px", borderRadius: 5, fontWeight: 600, zIndex: 2, pointerEvents: "none" }}>🔍 ver</div>
       </div>
-
-      {/* Portal lightbox — se monta en document.body, nunca queda cortado */}
       {lightbox}
     </>
   );
@@ -450,21 +368,62 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
   );
 }
 
-function VisualizerModal({ prods, onClose, C, $$ }) {
+// ─── VisualizerModal ──────────────────────────────────────────────────────────
+function VisualizerModal({ prods, onClose, C, $$, waNumber }) {
   const w = useW();
   const sm = w < 640;
+
+  // ── Superficie / catálogo
   const [vizSurface, setVizSurface] = useState("muro");
   const [vizFilterCat, setVizFilterCat] = useState("todos");
   const [vizSelected, setVizSelected] = useState(null);
+  const [panel, setPanel] = useState("foto");
+
+  // ── Foto
   const [vizImage, setVizImage] = useState(null);
   const [vizDragging, setVizDragging] = useState(false);
-  const [panel, setPanel] = useState("foto");
-  const [busy, setBusy] = useState(false);
-  const [res, setRes] = useState(null);
-  const [txt, setTxt] = useState("");
 
+  // ── Medidas
+  const [wallLength, setWallLength] = useState("");
+  const [wallHeight, setWallHeight] = useState("");
+  const [wastePercent, setWastePercent] = useState(10);
+  const [openingsM2, setOpeningsM2] = useState(0);
+
+  // ── Resultado
+  const [busy, setBusy] = useState(false);
+  const [resultOriginal, setResultOriginal] = useState(null);
+  const [resultImg, setResultImg] = useState(null);
+  const [resultTxt, setResultTxt] = useState("");
+
+  // Bloquear scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  // Reset filtro al cambiar superficie
   useEffect(() => { setVizFilterCat("todos"); setVizSelected(null); }, [vizSurface]);
 
+  // ── Producto activo
+  const selectedVizProduct = vizSelected || null;
+
+  // ── Cubicación en vivo
+  const coverage = selectedVizProduct ? getCoverageM2(selectedVizProduct) : 1;
+  const cubiResult =
+    selectedVizProduct &&
+    parseFloat(wallLength) > 0 &&
+    parseFloat(wallHeight) > 0
+      ? calcularCubicacion({
+          largo: parseFloat(wallLength),
+          alto: parseFloat(wallHeight),
+          merma: parseFloat(wastePercent) || 0,
+          descuentoVanos: parseFloat(openingsM2) || 0,
+          coberturaM2PorUnidad: coverage,
+          precioUnitario: selectedVizProduct.price,
+        })
+      : null;
+
+  // ── Filtros catálogo
   const vizCats = vizSurface === "muro"
     ? [{ key: "todos", label: "Todos" }, { key: "muro", label: "Muros int." }, { key: "exterior", label: "Muros ext." }]
     : [{ key: "todos", label: "Todos" }, { key: "cielo", label: "Cielos" }];
@@ -476,8 +435,7 @@ function VisualizerModal({ prods, onClose, C, $$ }) {
     return true;
   });
 
-  const selectedVizProduct = vizSelected || vizFiltered[0] || null;
-
+  // ── Foto handler
   const handleVizFile = useCallback((file) => {
     if (!file || !file.type.startsWith("image/")) return;
     const reader = new FileReader();
@@ -485,137 +443,370 @@ function VisualizerModal({ prods, onClose, C, $$ }) {
     reader.readAsDataURL(file);
   }, []);
 
-  async function run() {
-    const currentMat = selectedVizProduct;
-    if (!vizImage || !currentMat) return;
-    setBusy(true); setRes(null); setTxt("");
-    const OPENAI_KEY = import.meta.env.VITE_OPENAI_KEY;
+  // ── Prompt preparado para futura integración IA
+  // CONEXIÓN IA: cuando tengas el backend listo, envía aiPrompt en el body del
+  // POST a /api/generate-visualization junto con la imagen y datos del producto.
+  // NUNCA expongas la API key en el frontend.
+  const aiPrompt = selectedVizProduct
+    ? `Toma la foto del muro subida por el usuario y aplica únicamente sobre la superficie principal del ${vizSurface} el revestimiento seleccionado: ${selectedVizProduct.name}. Usa la textura o imagen del producto como referencia visual. Mantén la perspectiva original, iluminación real, sombras, proporciones y entorno. No modifiques muebles, objetos, ventanas ni puertas. Genera una visualización hiperrealista, creíble y comercial, como una foto profesional de interiorismo.`
+    : "";
+
+  // ── Generación visualización
+  // CONEXIÓN IA: reemplaza el bloque "FALLBACK LOCAL" por:
+  //
+  //   const response = await fetch("/api/generate-visualization", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       imageBase64: vizImage,
+  //       productName: selectedVizProduct.name,
+  //       productImage: selectedVizProduct.customImg || selectedVizProduct.image || null,
+  //       surface: vizSurface,
+  //       largo: parseFloat(wallLength),
+  //       alto: parseFloat(wallHeight),
+  //       prompt: aiPrompt,
+  //     }),
+  //   });
+  //   const data = await response.json();
+  //   setResultImg(data.imageUrl);
+  //
+  // Desde el backend puedes conectar: OpenAI DALL-E 3, Replicate, Stability AI, etc.
+  async function generarVisualizacionIA() {
+    if (!vizImage || !selectedVizProduct) return;
+    if (!(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0)) return;
+    setBusy(true); setResultImg(null); setResultTxt(""); setResultOriginal(vizImage);
     try {
-      const b64 = vizImage.includes(",") ? vizImage.split(",")[1] : vizImage;
-      const descResp = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENAI_KEY}` },
-        body: JSON.stringify({ model: "gpt-4o", max_tokens: 300, messages: [{ role: "user", content: [{ type: "image_url", image_url: { url: `data:image/jpeg;base64,${b64}` } }, { type: "text", text: "Describe this interior space in detail for an image generation prompt: dimensions, colors, lighting, furniture style, architectural features. Be specific and concise (max 100 words)." }] }] }),
-      });
-      const descData = await descResp.json();
-      const spaceDesc = descData.choices?.[0]?.message?.content || "a modern interior room";
-      const zoneEs = vizSurface === "muro" ? "walls" : "ceiling";
-      const dallePrompt = `Photorealistic interior design render. The space is: ${spaceDesc}. Apply "${currentMat.name}" (${currentMat.desc}) to the ${zoneEs}. High quality architectural visualization, professional lighting, 4K quality. Keep all furniture and elements the same, only change the ${zoneEs} surface material.`;
-      const imgResp = await fetch("https://api.openai.com/v1/images/generations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENAI_KEY}` },
-        body: JSON.stringify({ model: "dall-e-3", prompt: dallePrompt, n: 1, size: "1024x1024", quality: "standard" }),
-      });
-      const imgData = await imgResp.json();
-      if (imgData.data?.[0]?.url) { setRes(imgData.data[0].url); setTxt(`✦ Visualización generada con IA — ${currentMat.name} aplicado en el ${vizSurface}.`); }
-      else { const fallback = await applyTexture(vizImage, currentMat.tk, vizSurface, currentMat.customImg || null); setRes(fallback); setTxt(imgData.error?.message || "Mostrando simulación de textura."); }
+      // ── FALLBACK LOCAL: simulación con applyTexture ──────────────
+      // Reemplaza este bloque cuando tengas el endpoint de IA listo.
+      const fallback = await applyTexture(
+        vizImage,
+        selectedVizProduct.tk,
+        vizSurface,
+        selectedVizProduct.customImg || null
+      );
+      setResultImg(fallback);
+      setResultTxt("Simulación local de textura. Conecta el backend IA para resultados hiperrealistas.");
+      // ── FIN FALLBACK ─────────────────────────────────────────────
     } catch {
-      const fallback = await applyTexture(vizImage, selectedVizProduct?.tk || "marble_gray", vizSurface, selectedVizProduct?.customImg || null);
-      setRes(fallback); setTxt("Visítanos en Arturo Prat 1016 o al +56 9 7868 2990 para asesoría personalizada.");
+      setResultTxt("Error al procesar la imagen. Intenta con otra foto.");
     }
     setBusy(false);
   }
 
+  // ── WhatsApp
+  function buildWAMessage() {
+    if (!selectedVizProduct || !cubiResult) return "";
+    return encodeURIComponent(
+      `Hola, quiero cotizar este revestimiento:\n\n` +
+      `Producto:\n${selectedVizProduct.name}\n` +
+      `Código:\n${selectedVizProduct.code}\n\n` +
+      `Dimensiones del muro:\n` +
+      `Largo: ${wallLength} m\n` +
+      `Alto: ${wallHeight} m\n\n` +
+      `Superficie:\n` +
+      `m² brutos: ${cubiResult.m2Bruto.toFixed(2)}\n` +
+      `m² netos: ${cubiResult.m2Neto.toFixed(2)}\n` +
+      `m² con merma: ${cubiResult.m2ConMerma.toFixed(2)}\n\n` +
+      `Cantidad estimada:\n${cubiResult.unidades} ${selectedVizProduct.unit}\n\n` +
+      `Precio unitario:\n${$$(selectedVizProduct.price)}\n\n` +
+      `Precio total estimado:\n${$$(cubiResult.precioTotal)}\n\n` +
+      `Adjunto o envío la imagen de referencia para revisar factibilidad.`
+    );
+  }
+
+  // ── Estilos reutilizables
+  const inputSt = {
+    width: "100%", padding: "9px 11px", border: "1px solid #D8CEC0",
+    borderRadius: 7, fontSize: 13, fontFamily: "inherit", outline: "none",
+    background: "#FAFAF8", color: C.text,
+  };
+  const labelSt = {
+    display: "block", fontSize: 10, fontWeight: 700, color: "#8A7868",
+    textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 4,
+  };
+  const cardSt = {
+    background: "white", border: "1px solid #EDE8E0",
+    borderRadius: 12, padding: sm ? 14 : 16,
+  };
+  const secTitle = {
+    fontFamily: "'HWYGWide', sans-serif", fontSize: 11, fontWeight: 700,
+    color: C.dark, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5,
+  };
+
+  // ── Panel catálogo (derecho)
+  const renderCatalogo = () => (
+    <div style={{ width: sm ? "100%" : 260, background: "white", borderLeft: sm ? "none" : "1px solid #EDE8E0", display: "flex", flexDirection: "column", overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ padding: "10px 10px 6px", borderBottom: "1px solid #EDE8E0", flexShrink: 0 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 8 }}>
+          {[{ k: "muro", icon: "🧱", l: "Muros" }, { k: "cielo", icon: "☁️", l: "Cielos" }].map((s) => (
+            <button key={s.k} onClick={() => setVizSurface(s.k)}
+              style={{ padding: "8px 4px", borderRadius: 8, border: `2px solid ${vizSurface === s.k ? C.warm : "#E0D8D0"}`, background: vizSurface === s.k ? "#FFF4F0" : "white", color: vizSurface === s.k ? C.warm : C.mid, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
+              {s.icon} {s.l}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+          {vizCats.map((c) => (
+            <button key={c.key} onClick={() => setVizFilterCat(c.key)}
+              style={{ padding: "3px 9px", border: `1px solid ${vizFilterCat === c.key ? C.warm : "#E0D8D0"}`, borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer", background: vizFilterCat === c.key ? C.warm : "white", color: vizFilterCat === c.key ? "white" : "#8A7868", fontFamily: "inherit" }}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: 8, display: "flex", flexDirection: "column", gap: 5 }}>
+        {vizFiltered.length === 0 && <div style={{ textAlign: "center", padding: "30px 10px", color: "#8A7868", fontSize: 12 }}>Sin productos en esta categoría.</div>}
+        {vizFiltered.map((p) => {
+          const sel = vizSelected?.id === p.id;
+          const cov = getCoverageM2(p);
+          return (
+            <div key={p.id} onClick={() => { setVizSelected(p); if (sm) setPanel("foto"); }}
+              style={{ display: "flex", gap: 8, alignItems: "center", padding: "8px 9px", borderRadius: 8, border: `2px solid ${sel ? C.warm : "transparent"}`, background: sel ? "#FFF4F0" : "#FAFAF8", cursor: "pointer", transition: "all .15s" }}
+              onMouseEnter={(e) => { if (!sel) e.currentTarget.style.background = "#F5F0EA"; }}
+              onMouseLeave={(e) => { if (!sel) e.currentTarget.style.background = "#FAFAF8"; }}>
+              <div style={{ width: 44, height: 44, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
+                {p.image
+                  ? <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  : <Thumb tk={p.tk} customImg={p.customImg || null} w={44} h={44} />}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+                <div style={{ fontSize: 9, color: "#8A7868" }}>{p.dims} · {cov.toFixed(3)} m²/ud</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: C.warmDk }}>{$$(p.price)}</div>
+              </div>
+              {sel && <div style={{ width: 18, height: 18, background: C.warm, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", fontWeight: 800, flexShrink: 0 }}>✓</div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // ── Panel principal (izquierdo)
+  const renderMain = () => (
+    <div style={{ flex: 1, overflowY: "auto", padding: sm ? 14 : 18, display: "flex", flexDirection: "column", gap: 14 }}>
+
+      {/* BLOQUE 1: Foto */}
+      <div style={cardSt}>
+        <div style={secTitle}>📷 Foto del espacio</div>
+        <div
+          onDragOver={(e) => { e.preventDefault(); setVizDragging(true); }}
+          onDragLeave={() => setVizDragging(false)}
+          onDrop={(e) => { e.preventDefault(); setVizDragging(false); handleVizFile(e.dataTransfer.files?.[0]); }}
+          style={{ border: vizDragging ? `2px solid ${C.warm}` : "2px dashed #D8CEC0", background: vizDragging ? "#FFF4F0" : "#F7F3EE", borderRadius: 10, overflow: "hidden" }}>
+          {!vizImage ? (
+            <div style={{ padding: 24, textAlign: "center" }}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🏠</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>Sube una foto clara del muro o espacio que quieres revestir</div>
+              <div style={{ fontSize: 11, color: "#8A7868", marginBottom: 14 }}>JPG, PNG o WEBP</div>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", borderRadius: 8, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                📁 Seleccionar foto
+                <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} />
+              </label>
+            </div>
+          ) : (
+            <div>
+              <img src={vizImage} alt="Espacio cargado" style={{ width: "100%", maxHeight: 220, objectFit: "contain", display: "block" }} />
+              <div style={{ display: "flex", gap: 8, padding: "10px 12px", justifyContent: "flex-end" }}>
+                <label style={{ padding: "7px 12px", borderRadius: 7, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer", fontSize: 11, fontFamily: "inherit" }}>
+                  Cambiar foto
+                  <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} />
+                </label>
+                <button onClick={() => { setVizImage(null); setResultImg(null); setResultOriginal(null); }}
+                  style={{ padding: "7px 12px", borderRadius: 7, background: "white", color: C.text, border: "1px solid #D8CEC0", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 11 }}>
+                  Quitar foto
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* BLOQUE 2: Producto seleccionado */}
+      {selectedVizProduct && (
+        <div style={cardSt}>
+          <div style={secTitle}>🧱 Producto seleccionado</div>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <div style={{ width: 58, height: 58, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: "1px solid #EDE8E0" }}>
+              {selectedVizProduct.image
+                ? <img src={selectedVizProduct.image} alt={selectedVizProduct.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <Thumb tk={selectedVizProduct.tk} customImg={selectedVizProduct.customImg || null} w={58} h={58} />}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 2 }}>{selectedVizProduct.name}</div>
+              <div style={{ fontSize: 11, color: "#8A7868", marginBottom: 2 }}>Código: {selectedVizProduct.code} · {selectedVizProduct.dims}</div>
+              <div style={{ fontSize: 11, color: "#8A7868", marginBottom: 4 }}>Cobertura: <strong>{getCoverageM2(selectedVizProduct).toFixed(4)} m²/unidad</strong></div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.dark }}>{$$(selectedVizProduct.price)} <span style={{ fontSize: 11, fontWeight: 400, color: "#8A7868" }}>{selectedVizProduct.unit}</span></div>
+            </div>
+          </div>
+          {sm && (
+            <button onClick={() => setPanel("catalogo")}
+              style={{ marginTop: 10, width: "100%", padding: "8px", borderRadius: 7, border: `1px solid ${C.warm}`, background: "white", color: C.warm, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
+              Cambiar material →
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* BLOQUE 3: Medidas */}
+      <div style={cardSt}>
+        <div style={secTitle}>📐 Medidas del muro</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
+          <div>
+            <label style={labelSt}>Largo (m)</label>
+            <input type="number" min="0" step="0.01" value={wallLength} onChange={(e) => setWallLength(e.target.value)} placeholder="ej: 4.20" style={inputSt}
+              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
+          </div>
+          <div>
+            <label style={labelSt}>Alto (m)</label>
+            <input type="number" min="0" step="0.01" value={wallHeight} onChange={(e) => setWallHeight(e.target.value)} placeholder="ej: 2.40" style={inputSt}
+              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
+          </div>
+          <div>
+            <label style={labelSt}>Merma (%)</label>
+            <input type="number" min="0" max="50" step="1" value={wastePercent} onChange={(e) => setWastePercent(e.target.value)} style={inputSt}
+              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
+          </div>
+          <div>
+            <label style={labelSt}>Descuento vanos (m²)</label>
+            <input type="number" min="0" step="0.01" value={openingsM2} onChange={(e) => setOpeningsM2(e.target.value)} placeholder="ej: 1.80" style={inputSt}
+              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
+          </div>
+        </div>
+        <div style={{ fontSize: 10, color: "#A09488", lineHeight: 1.6 }}>Los vanos son superficies a descontar: puertas, ventanas, etc.</div>
+      </div>
+
+      {/* BLOQUE 4: Cubicación */}
+      {cubiResult && selectedVizProduct && (
+        <div style={{ ...cardSt, background: "#F0F7F0", border: "1px solid #B8D8B0" }}>
+          <div style={{ ...secTitle, color: "#2A6A2A" }}>📦 Resumen de cubicación</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
+            {[
+              ["m² brutos", cubiResult.m2Bruto.toFixed(2) + " m²"],
+              ["m² netos", cubiResult.m2Neto.toFixed(2) + " m²"],
+              ["m² con merma", cubiResult.m2ConMerma.toFixed(2) + " m²"],
+              ["Cobertura/ud", getCoverageM2(selectedVizProduct).toFixed(4) + " m²"],
+              ["Unidades a comprar", cubiResult.unidades + " " + selectedVizProduct.unit],
+              ["Precio unitario", $$(selectedVizProduct.price)],
+            ].map(([l, v]) => (
+              <div key={l} style={{ background: "white", borderRadius: 7, padding: "8px 10px", border: "1px solid #C8E0C0" }}>
+                <div style={{ fontSize: 9, color: "#5A8A5A", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 2 }}>{l}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#1A4A1A" }}>{v}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: C.dark, borderRadius: 8, padding: "11px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,.7)", fontWeight: 600 }}>Total estimado</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: "white" }}>{$$(cubiResult.precioTotal)}</span>
+          </div>
+          <div style={{ fontSize: 10, color: "#5A8A5A", marginTop: 8 }}>* Referencial. No incluye instalación ni despacho.</div>
+        </div>
+      )}
+
+      {/* BLOQUE 5: Botón generar */}
+      <button
+        disabled={!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy}
+        onClick={generarVisualizacionIA}
+        style={{
+          padding: "14px", borderRadius: 10, border: "none",
+          background: (!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy) ? "#D8CEC0" : C.dark,
+          color: (!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy) ? "#A09488" : "white",
+          fontSize: 14, fontWeight: 700,
+          cursor: (!vizImage || !selectedVizProduct || busy) ? "not-allowed" : "pointer",
+          fontFamily: "inherit", transition: "background .2s",
+        }}>
+        {busy ? "⏳ Procesando visualización..." :
+          !vizImage ? "Sube una foto para comenzar" :
+          !selectedVizProduct ? "Elige un material del catálogo" :
+          !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) ? "Ingresa las medidas del muro" :
+          "✨ Generar visualización"}
+      </button>
+
+      {/* Loading */}
+      {busy && (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#F5F0EA", borderRadius: 10, padding: "14px 16px" }}>
+          <div style={{ width: 26, height: 26, border: "3px solid #E0D8D0", borderTopColor: C.dark, borderRadius: "50%", animation: "spin .7s linear infinite", flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>Generando visualización...</div>
+            <div style={{ fontSize: 11, color: "#8A7868", marginTop: 2 }}>Aplicando textura a tu imagen</div>
+          </div>
+        </div>
+      )}
+
+      {/* Resultado: Antes / Después */}
+      {resultImg && resultOriginal && !busy && (
+        <div style={cardSt}>
+          <div style={secTitle}>✦ Resultado</div>
+          <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 10, color: "#8A7868", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>Antes</div>
+              <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #EDE8E0" }}>
+                <img src={resultOriginal} alt="Antes" style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "cover" }} />
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: C.warm, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>Después</div>
+              <div style={{ borderRadius: 8, overflow: "hidden", border: `1px solid ${C.warm}`, position: "relative" }}>
+                <img src={resultImg} alt="Después" style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "cover" }} />
+                <div style={{ position: "absolute", bottom: 6, left: 6, background: "rgba(44,36,32,.85)", color: "white", fontSize: 10, padding: "3px 9px", borderRadius: 12, fontWeight: 700 }}>
+                  ✦ {selectedVizProduct?.name}
+                </div>
+              </div>
+            </div>
+          </div>
+          {resultTxt && (
+            <div style={{ background: "#F5EDE4", borderLeft: "3px solid #8B6B4A", padding: "10px 12px", borderRadius: "0 7px 7px 0", fontSize: 12, color: "#5A4A3C", lineHeight: 1.7, marginBottom: 12 }}>
+              {resultTxt}
+            </div>
+          )}
+          {cubiResult && selectedVizProduct && (
+            <a href={`https://wa.me/${waNumber}?text=${buildWAMessage()}`} target="_blank" rel="noreferrer"
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "white", padding: "13px", borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>
+              💬 Solicitar cotización por WhatsApp
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* WhatsApp sin resultado de imagen (solo con cubicación lista) */}
+      {!resultImg && cubiResult && selectedVizProduct && (
+        <a href={`https://wa.me/${waNumber}?text=${buildWAMessage()}`} target="_blank" rel="noreferrer"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "white", padding: "13px", borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>
+          💬 Cotizar por WhatsApp (sin visualización)
+        </a>
+      )}
+    </div>
+  );
+
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(15,12,10,0.88)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: sm ? 0 : 20, backdropFilter: "blur(6px)" }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "#FAF8F4", borderRadius: sm ? 0 : 16, width: "100%", maxWidth: 880, height: sm ? "100%" : "90vh", maxHeight: sm ? "100%" : "90vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
-        <div style={{ padding: "14px 18px", borderBottom: "1px solid #EDE8E0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", flexShrink: 0 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "#FAF8F4", borderRadius: sm ? 0 : 16, width: "100%", maxWidth: 940, height: sm ? "100%" : "92vh", maxHeight: sm ? "100%" : "92vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
+
+        {/* Header */}
+        <div style={{ padding: "12px 18px", borderBottom: "1px solid #EDE8E0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", flexShrink: 0 }}>
           <div>
-            <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 16, fontWeight: 700 }}>✦ Visualizador IA</div>
-            <div style={{ fontSize: 11, color: "#8A7868", marginTop: 1 }}>Aplica texturas reales en tu espacio</div>
+            <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 16, fontWeight: 700, color: C.text }}>✦ Visualizador IA</div>
+            <div style={{ fontSize: 11, color: "#8A7868", marginTop: 1 }}>Aplica texturas reales y calcula materiales</div>
           </div>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid #E0D8D0", background: "white", cursor: "pointer", fontSize: 20, color: "#8A7868", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
         </div>
+
+        {/* Tabs móvil */}
         {sm && (
           <div style={{ display: "flex", borderBottom: "2px solid #EDE8E0", flexShrink: 0 }}>
             {[["foto", "📷 Mi espacio"], ["catalogo", "🧱 Materiales"]].map(([id, l]) => (
-              <button key={id} onClick={() => setPanel(id)} style={{ flex: 1, padding: "11px 4px", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit", background: panel === id ? "#FAF8F4" : "white", color: panel === id ? "#5A3A1A" : "#8A7868", borderBottom: `2px solid ${panel === id ? "#8B6B4A" : "transparent"}`, marginBottom: -2 }}>{l}</button>
+              <button key={id} onClick={() => setPanel(id)}
+                style={{ flex: 1, padding: "11px 4px", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit", background: panel === id ? "#FAF8F4" : "white", color: panel === id ? C.dark : "#8A7868", borderBottom: `2px solid ${panel === id ? C.dark : "transparent"}`, marginBottom: -2 }}>
+                {l}
+              </button>
             ))}
           </div>
         )}
-        <div style={{ display: "flex", flex: 1, overflow: "hidden", flexDirection: sm ? "column" : "row" }}>
-          {(!sm || panel === "foto") && (
-            <div style={{ flex: 1, padding: sm ? 16 : 18, borderRight: sm ? "none" : "1px solid #E8E0D4", overflowY: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {[{ key: "muro", label: "Muros", icon: "🧱" }, { key: "cielo", label: "Cielos", icon: "☁️" }].map((item) => {
-                  const active = vizSurface === item.key;
-                  return <button key={item.key} onClick={() => setVizSurface(item.key)} style={{ height: 46, borderRadius: 12, border: active ? `2px solid ${C.warm}` : "1px solid #D8CEC0", background: active ? "#F6EFE6" : "white", color: C.text, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span>{item.icon}</span><span>{item.label}</span></button>;
-                })}
-              </div>
-              {selectedVizProduct && (
-                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", border: "1px solid #E7DDD0", borderRadius: 12, background: "#FCF7F1" }}>
-                  <img src={selectedVizProduct.image} alt={selectedVizProduct.name} style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 10, border: "1px solid #E7DDD0" }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, color: "#7A6858", marginBottom: 4 }}>Revestimiento seleccionado</div>
-                    <div style={{ fontWeight: 700, color: C.text, marginBottom: 2 }}>{selectedVizProduct.name}</div>
-                    <div style={{ fontSize: 13, color: C.warmDk }}>{$$(selectedVizProduct.price)} {selectedVizProduct.unit}</div>
-                  </div>
-                </div>
-              )}
-              <div onDragOver={(e) => { e.preventDefault(); setVizDragging(true); }} onDragLeave={() => setVizDragging(false)} onDrop={(e) => { e.preventDefault(); setVizDragging(false); handleVizFile(e.dataTransfer.files?.[0]); }} style={{ border: vizDragging ? `2px solid ${C.warm}` : "2px dashed #D8CEC0", background: vizDragging ? "#FCF7F1" : "#F7F3EE", borderRadius: 16, padding: sm ? 18 : 26, minHeight: 160, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-                {!vizImage ? (
-                  <div>
-                    <div style={{ fontSize: 42, marginBottom: 10 }}>🏠</div>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 6 }}>Arrastra tu foto aquí</div>
-                    <div style={{ fontSize: 13, color: "#7A6858", marginBottom: 18 }}>JPG, PNG, WEBP</div>
-                    <label style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "14px 24px", borderRadius: 12, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer" }}>📁 Seleccionar<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} /></label>
-                  </div>
-                ) : (
-                  <div style={{ width: "100%" }}>
-                    <img src={vizImage} alt="Vista cargada" style={{ width: "100%", maxHeight: 300, objectFit: "contain", borderRadius: 14, border: "1px solid #E7DDD0", background: "white" }} />
-                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginTop: 14 }}>
-                      <label style={{ padding: "11px 16px", borderRadius: 10, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer" }}>Cambiar foto<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} /></label>
-                      <button onClick={() => { setVizImage(null); setRes(null); }} style={{ padding: "11px 16px", borderRadius: 10, background: "white", color: C.text, border: "1px solid #D8CEC0", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>Quitar foto</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <button disabled={!vizImage || !selectedVizProduct || busy} onClick={run} style={{ padding: "13px", background: (!vizImage || !selectedVizProduct || busy) ? "#E0D8D0" : C.dark, color: (!vizImage || !selectedVizProduct || busy) ? "#A09488" : "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (!vizImage || !selectedVizProduct || busy) ? "not-allowed" : "pointer", fontFamily: "inherit" }}>
-                {busy ? "⏳ Procesando..." : !vizImage ? "Sube una foto" : !selectedVizProduct ? "Elige un material" : "✨ Visualizar con IA"}
-              </button>
-              {busy && !res && (
-                <div style={{ height: 80, display: "flex", alignItems: "center", justifyContent: "center", gap: 12, background: "#F5F0EA", borderRadius: 10 }}>
-                  <div style={{ width: 28, height: 28, border: "3px solid #E0D8D0", borderTopColor: "#8B6B4A", borderRadius: "50%", animation: "spin .7s linear infinite" }} />
-                  <div><div style={{ fontSize: 13, color: "#8A7868", fontWeight: 600 }}>Generando imagen con IA...</div><div style={{ fontSize: 11, color: "#A09488", marginTop: 3 }}>Puede tomar 15–30 segundos</div></div>
-                </div>
-              )}
-              {res && (
-                <>
-                  <div style={{ borderRadius: 10, overflow: "hidden", position: "relative", border: "1px solid #E0D8D0" }}>
-                    <img src={res} style={{ width: "100%", display: "block" }} alt="Resultado" />
-                    <div style={{ position: "absolute", bottom: 8, left: 8, background: "rgba(44,36,32,0.82)", color: "white", fontSize: 10, padding: "4px 10px", borderRadius: 20, fontWeight: 700 }}>✦ {selectedVizProduct?.name}</div>
-                  </div>
-                  {txt && <div style={{ background: "#F5EDE4", borderLeft: "3px solid #8B6B4A", padding: "12px 14px", borderRadius: "0 8px 8px 0", fontSize: 13, lineHeight: 1.8 }}>{txt}</div>}
-                </>
-              )}
-            </div>
-          )}
-          {(!sm || panel === "catalogo") && (
-            <div style={{ width: sm ? "100%" : 268, borderLeft: sm ? "none" : "1px solid #EDE8E0", background: "white", display: "flex", flexDirection: "column", overflow: "hidden", flexShrink: 0 }}>
-              <div style={{ padding: "10px", borderBottom: "1px solid #EDE8E0", display: "flex", gap: 4, flexWrap: "wrap", flexShrink: 0 }}>
-                {vizCats.map((c) => <button key={c.key} onClick={() => setVizFilterCat(c.key)} style={{ padding: "4px 9px", border: `1px solid ${vizFilterCat === c.key ? "#8B6B4A" : "#E0D8D0"}`, borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer", background: vizFilterCat === c.key ? "#8B6B4A" : "white", color: vizFilterCat === c.key ? "white" : "#8A7868", fontFamily: "inherit" }}>{c.label}</button>)}
-              </div>
-              <div style={{ flex: 1, overflowY: "auto", padding: 8, display: "flex", flexDirection: "column", gap: 6 }}>
-                {vizFiltered.length === 0 && <div style={{ textAlign: "center", padding: "40px 16px", color: "#8A7868", fontSize: 13 }}>No hay productos en esta categoría.</div>}
-                {vizFiltered.map((p) => {
-                  const selected = vizSelected?.id === p.id;
-                  return (
-                    <div key={p.id} onClick={() => { setVizSelected(p); if (sm) setPanel("foto"); }} style={{ display: "flex", gap: 10, alignItems: "center", padding: "8px 10px", borderRadius: 8, border: `2px solid ${selected ? "#8B6B4A" : "transparent"}`, background: selected ? "#FDF5EE" : "white", cursor: "pointer", transition: "all .15s" }}
-                      onMouseEnter={(e) => { if (!selected) e.currentTarget.style.background = "#FAF7F4"; }}
-                      onMouseLeave={(e) => { if (!selected) e.currentTarget.style.background = "white"; }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}><Thumb tk={p.tk} customImg={p.customImg || null} w={44} h={44} /></div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                        <div style={{ fontSize: 10, color: "#8A7868" }}>{p.code}</div>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: "#7A5B3A" }}>{$$(p.price)}</div>
-                      </div>
-                      {selected && <div style={{ width: 18, height: 18, background: "#8B6B4A", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", fontWeight: 800, flexShrink: 0 }}>✓</div>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+
+        {/* Cuerpo */}
+        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+          {(!sm || panel === "foto") && renderMain()}
+          {(!sm || panel === "catalogo") && renderCatalogo()}
         </div>
       </div>
     </div>
@@ -857,7 +1048,7 @@ export default function App() {
         {editMode && <label style={{ position: "absolute", top: 16, right: 16, zIndex: 10, background: "#F5A623", color: "white", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>📷 {content.heroImage ? "Cambiar fondo" : "Agregar imagen"}<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => set("heroImage", ev.target.result); r.readAsDataURL(f); }} /></label>}
         {editMode && content.heroImage && <button onClick={() => set("heroImage", null)} style={{ position: "absolute", top: 16, right: sm ? 16 : 220, zIndex: 10, background: "#FEE2E2", color: "#C45A5A", border: "none", padding: "8px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>🗑 Quitar imagen</button>}
         <div style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "0 auto", padding: `0 ${sm ? 20 : 32}px`, animation: "fadeUp .8s ease both" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(244,128,109,0.15)", border: "1px solid rgba(244,128,109,0.35)", borderRadius: 20, padding: "5px 14px", marginBottom: sm ? 20 : 28 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(244,128,109,0.15)", border: "1px solid rgba(244,128,109,0.35)", borderRadius: 20, padding: "5px 14px", marginBottom: sm ? 20 : 28 }}>
             <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#F4806D" }} />
             <span style={{ fontSize: 10, color: "#F4806D", letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>{E("heroTag", "Etiqueta hero", <span>{content.heroTag}</span>)}</span>
           </div>
@@ -933,8 +1124,6 @@ export default function App() {
                   onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = expanded === p.id ? "0 10px 30px rgba(139,107,74,0.12)" : "0 4px 18px rgba(0,0,0,0.06)"; }}>
                   {editMode && <button onClick={(e) => { e.stopPropagation(); setProductEditor(p); }} style={{ position: "absolute", top: 10, right: 10, zIndex: 10, background: "#F5A623", color: "white", border: "none", borderRadius: 8, padding: "6px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>✏️ Editar</button>}
                   <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "46% 54%", minHeight: sm ? "auto" : 320 }} onClick={() => !editMode && setExpanded(expanded === p.id ? null : p.id)}>
-
-                    {/* ── IMAGEN con carrusel ── */}
                     <div style={{ background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", minHeight: sm ? 220 : 320, borderBottom: sm ? "1px solid #F0EAE2" : "none", borderRight: sm ? "none" : "1px solid #F0EAE2", position: "relative", overflow: "hidden" }}>
                       {carouselImgs.length > 0 ? (
                         <div style={{ width: "100%", height: sm ? 220 : 320, position: "relative" }}>
@@ -946,8 +1135,6 @@ export default function App() {
                         </div>
                       )}
                     </div>
-
-                    {/* INFO */}
                     <div style={{ padding: sm ? "18px 18px 20px" : "26px 24px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                       <div style={{ fontSize: 11, color: C.warm, letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 700, marginBottom: 12 }}>{CAT_L[p.cat] || p.cat}</div>
                       <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: sm ? 18 : 22, lineHeight: 1.15, fontWeight: 700, color: C.text, marginBottom: 10 }}>{p.name}</div>
@@ -1127,7 +1314,8 @@ export default function App() {
         </div>
       )}
 
-      {vizOpen && <VisualizerModal prods={prods} onClose={() => setVizOpen(false)} C={C} $$={$$} />}
+      {/* MODALES */}
+      {vizOpen && <VisualizerModal prods={prods} onClose={() => setVizOpen(false)} C={C} $$={$$} waNumber={content.waNumber} />}
       {quoteOpen && <QuotationModal cart={cart} total={total} content={content} $$={$$} onClose={() => setQuoteOpen(false)} />}
       {productEditor && <ProductEditor product={productEditor} onSave={saveProds} onDelete={deleteProds} onClose={() => setProductEditor(null)} />}
       {flujoCajaOpen && <FlujoCaja onClose={() => setFlujoCajaOpen(false)} />}
