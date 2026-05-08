@@ -1,8 +1,8 @@
 // api/generate-visualization.js
-// Versión CommonJS — compatible con Vercel serverless sin configuración extra
- 
-const https = require("https");
- 
+// Versión ESM — compatible con proyectos Vite que tienen "type":"module"
+
+import https from "https";
+
 function postToOpenAI(boundary, body, apiKey) {
   return new Promise((resolve, reject) => {
     const options = {
@@ -28,12 +28,11 @@ function postToOpenAI(boundary, body, apiKey) {
     req.end();
   });
 }
- 
+
 function buildMultipart(boundary, fields, imageBuffer) {
   const CRLF = "\r\n";
   const parts = [];
- 
-  // Campos de texto
+
   for (const [name, value] of Object.entries(fields)) {
     parts.push(
       `--${boundary}${CRLF}` +
@@ -41,43 +40,45 @@ function buildMultipart(boundary, fields, imageBuffer) {
       `${value}${CRLF}`
     );
   }
- 
-  // Imagen
+
   parts.push(
     `--${boundary}${CRLF}` +
     `Content-Disposition: form-data; name="image"; filename="room.jpg"${CRLF}` +
     `Content-Type: image/jpeg${CRLF}${CRLF}`
   );
- 
+
   const textPart = Buffer.from(parts.join(""), "utf8");
   const closing = Buffer.from(`${CRLF}--${boundary}--${CRLF}`, "utf8");
- 
+
   return Buffer.concat([textPart, imageBuffer, closing]);
 }
- 
-module.exports = async function handler(req, res) {
-  // CORS
+
+export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
- 
+
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido" });
- 
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Método no permitido" });
+  }
+
   const { imageBase64, productName, productDesc, surface, largo, alto } = req.body;
- 
+
   if (!imageBase64 || !productName) {
     return res.status(400).json({ error: "Faltan datos requeridos." });
   }
- 
+
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
   if (!OPENAI_KEY) {
     return res.status(500).json({ error: "API Key no configurada.", fallback: true });
   }
- 
+
   const zoneEN = surface === "cielo" ? "ceiling" : "wall";
-  const dimsText = largo && alto ? ` The ${zoneEN} measures ${largo}m wide by ${alto}m high.` : "";
- 
+  const dimsText = largo && alto
+    ? ` The ${zoneEN} measures ${largo}m wide by ${alto}m high.`
+    : "";
+
   const prompt =
     `Edit this uploaded interior photo to create a hyperrealistic architectural visualization. ` +
     `Apply the selected wall covering "${productName}"${productDesc ? ` (${productDesc})` : ""} only to the main visible ${zoneEN} surface.${dimsText} ` +
@@ -87,11 +88,11 @@ module.exports = async function handler(req, res) {
     `Respect realistic shadows, depth, texture scale and lighting. ` +
     `Do not redesign the room. Do not remove existing elements. Keep the environment recognizable. ` +
     `Final result must look premium, photorealistic and commercially attractive.`;
- 
+
   try {
     const imageBuffer = Buffer.from(imageBase64, "base64");
-    const boundary = "----VercelBoundary" + Date.now();
- 
+    const boundary = "VercelBoundary" + Date.now();
+
     const body = buildMultipart(boundary, {
       model: "dall-e-2",
       prompt,
@@ -99,26 +100,25 @@ module.exports = async function handler(req, res) {
       size: "1024x1024",
       response_format: "url",
     }, imageBuffer);
- 
+
     const result = await postToOpenAI(boundary, body, OPENAI_KEY);
- 
+
     if (result.status !== 200) {
-      console.error("OpenAI error:", result.body);
+      console.error("OpenAI error:", JSON.stringify(result.body));
       return res.status(502).json({
         error: result.body?.error?.message || "Error al llamar a OpenAI.",
         fallback: true,
       });
     }
- 
+
     const imageData = result.body?.data?.[0];
     if (imageData?.url) return res.json({ imageUrl: imageData.url });
     if (imageData?.b64_json) return res.json({ imageUrl: `data:image/png;base64,${imageData.b64_json}` });
- 
+
     return res.status(502).json({ error: "OpenAI no devolvió imagen.", fallback: true });
- 
+
   } catch (err) {
-    console.error("Error interno:", err);
+    console.error("Error interno:", err.message);
     return res.status(500).json({ error: "Error interno: " + err.message, fallback: true });
   }
-};
- 
+}
