@@ -198,22 +198,99 @@ const WZ_ESTILOS = [
   { id: "mediterraneo", label: "Mediterráneo",     icon: "🌞" },
   { id: "premium",      label: "Premium",          icon: "✦"  },
   { id: "rustico",      label: "Rústico Moderno",  icon: "🪵" },
+  { id: "clasico",      label: "Clásico",          icon: "🏛️" },
 ];
-const WZ_MATS = [
-  { id: "piedra",   label: "Tipo piedra" },
-  { id: "madera",   label: "Tipo madera" },
-  { id: "marmol",   label: "Mármol PVC" },
-  { id: "wpc",      label: "WPC" },
-  { id: "porcel",   label: "Porcelanato" },
-  { id: "panel",    label: "Panel decorativo interior" },
-  { id: "fachada",  label: "Fachada ventilada" },
-  { id: "cubierta", label: "Cubierta metálica" },
+
+// ─── MATERIALIDADES AGRUPADAS ─────────────────────────────────────────────────
+const WZ_MAT_PISO = [
+  { id: "piso_radier",    label: "Radier" },
+  { id: "piso_recub",     label: "Recubrimiento piso" },
+  { id: "piso_flotante",  label: "Piso flotante" },
+  { id: "piso_porcel",    label: "Porcelanato" },
+  { id: "piso_ceramica",  label: "Cerámica" },
+  { id: "piso_otro",      label: "Otro" },
 ];
+const WZ_MAT_REV_EXT = [
+  { id: "ext_siding",  label: "Siding metálico imitación madera" },
+  { id: "ext_zinc",    label: "Zinc 5V" },
+  { id: "ext_fibro",   label: "Fibrocemento" },
+  { id: "ext_otro",    label: "Otro" },
+];
+const WZ_MAT_TABIQUE = [
+  { id: "tab_madera", label: "Madera" },
+  { id: "tab_metal",  label: "Metalcom" },
+  { id: "tab_ladr",   label: "Ladrillo" },
+  { id: "tab_estmet", label: "Estructura metálica" },
+];
+const WZ_MAT_AISLACION = [
+  { id: "ais_fibra",  label: "Fibra de vidrio" },
+  { id: "ais_poli",   label: "Poliestireno" },
+  { id: "ais_otro",   label: "Otro" },
+];
+const WZ_MAT_INT_LIVING   = [{ id:"int_liv_wpc",label:"WPC"},{id:"int_liv_pvc",label:"PVC UV"},{id:"int_liv_otro",label:"Otro"}];
+const WZ_MAT_INT_COCINA   = [{ id:"int_coc_pvc",label:"PVC UV"},{id:"int_coc_fibro",label:"Fibrocemento"},{id:"int_coc_otro",label:"Otro"}];
+const WZ_MAT_INT_DORM     = [{ id:"int_dor_yeso",label:"Yeso cartón"},{id:"int_dor_wpc",label:"WPC"},{id:"int_dor_otro",label:"Otro"}];
+const WZ_MAT_INT_BANO     = [{ id:"int_ban_fibro",label:"Fibrocemento"},{id:"int_ban_pvc",label:"PVC UV"},{id:"int_ban_otro",label:"Otro"}];
+
+// Estado inicial de materialidades estructurado
+const WZ_MATS_INIT = {
+  piso:                 "",
+  revestimientoExterior:"",
+  tabique:              "",
+  aislacion:            "",
+  intLiving:            "",
+  intCocina:            "",
+  intDormitorio:        "",
+  intBano:              "",
+};
+
+// Lookup: busca el label legible de un id en un array de opciones
+function matLabel(id, arr) {
+  if (!id) return "";
+  return arr.find(x => x.id === id)?.label ?? id;
+}
+
+// Helper: construye texto legible de materialidades para resumen/WA
+function buildMatsText(m) {
+  if (!m || typeof m !== "object") return "No especificado";
+  const entries = [
+    ["Piso",              matLabel(m.piso,                 WZ_MAT_PISO)],
+    ["Rev. Exterior",     matLabel(m.revestimientoExterior, WZ_MAT_REV_EXT)],
+    ["Tabique/Estructura",matLabel(m.tabique,               WZ_MAT_TABIQUE)],
+    ["Aislación",         matLabel(m.aislacion,             WZ_MAT_AISLACION)],
+    ["Int. Living",       matLabel(m.intLiving,             WZ_MAT_INT_LIVING)],
+    ["Int. Cocina",       matLabel(m.intCocina,             WZ_MAT_INT_COCINA)],
+    ["Int. Dormitorio",   matLabel(m.intDormitorio,         WZ_MAT_INT_DORM)],
+    ["Int. Baño",         matLabel(m.intBano,               WZ_MAT_INT_BANO)],
+  ].filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`);
+  return entries.length ? entries.join(" · ") : "No especificado";
+}
+
+// Helper: devuelve label legible de un campo de mats
+function getMLabel(id, key) {
+  const map = {
+    piso:                 WZ_MAT_PISO,
+    revestimientoExterior:WZ_MAT_REV_EXT,
+    tabique:              WZ_MAT_TABIQUE,
+    aislacion:            WZ_MAT_AISLACION,
+    intLiving:            WZ_MAT_INT_LIVING,
+    intCocina:            WZ_MAT_INT_COCINA,
+    intDormitorio:        WZ_MAT_INT_DORM,
+    intBano:              WZ_MAT_INT_BANO,
+  };
+  return map[key] ? matLabel(id, map[key]) : id;
+}
+
+// WZ_MATS mantenido para compatibilidad (resumen antiguo)
+const WZ_MATS = [];
+
 const WZ_INIT = {
   tipo: "", nombre: "", ubicacion: "", terreno: "",
   superficie: "", presupuesto: "",
   agua: "", alcantarillado: "",
-  programa: [], estilo: "", materiales: [],
+  programa: [], estilo: "",
+  materiales: [],           // legacy, no usado en paso 4 nuevo
+  mats: { ...WZ_MATS_INIT },// ← nueva estructura agrupada
 };
 
 function wzLabel(id, arr) {
@@ -223,7 +300,7 @@ function wzLabel(id, arr) {
 // ─── WIZARD: MENSAJE WHATSAPP ─────────────────────────────────────────────────
 function buildWizardWA(d, waNumber) {
   const prog = d.programa.map(id => wzLabel(id, WZ_PROGRAMA)).join(", ") || "No especificado";
-  const mats = d.materiales.map(id => wzLabel(id, WZ_MATS)).join(", ") || "No especificado";
+  const mats = buildMatsText(d.mats);
   return `https://wa.me/${waNumber}?text=${encodeURIComponent(
     `Hola, soy ${d.nombre || "un cliente"}. Quiero cotizar una cabaña en Casa Estudio 1016.\n\n` +
     `Tipo de cabaña:\n${wzLabel(d.tipo, WZ_TIPOS)}\n\n` +
@@ -589,13 +666,75 @@ function WzPaso3({ d, setD, C, sm }) {
   );
 }
 
+// ─── PASO 4: helpers de materialidades ───────────────────────────────────────
+function MatGroup({ title, options, value, onChange, C, multi = false }) {
+  // single: onChange(string) | multi: onChange([...strings])
+  const isSelected = (id) => multi ? (Array.isArray(value) && value.includes(id)) : value === id;
+  const handleClick = (id) => {
+    if (multi) {
+      const arr = Array.isArray(value) ? value : [];
+      onChange(arr.includes(id) ? arr.filter(x => x !== id) : [...arr, id]);
+    } else {
+      onChange(value === id ? "" : id);
+    }
+  };
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6,
+        color: "#8A7868", marginBottom: 8, fontFamily: "'HWYGothic', sans-serif" }}>{title}</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+        {options.map(o => (
+          <button key={o.id} type="button" onClick={() => handleClick(o.id)} style={{
+            padding: "7px 13px", border: `1.5px solid ${isSelected(o.id) ? "#4A6741" : "#E0D8D0"}`,
+            borderRadius: 7, cursor: "pointer", fontSize: 12, fontWeight: 600,
+            background: isSelected(o.id) ? "#EEF3E8" : "white",
+            color: isSelected(o.id) ? "#2A3528" : "#6B7B6A",
+            fontFamily: "'HWYGothic', sans-serif", transition: "all 0.18s",
+          }}>{o.label}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function IntZoneGroup({ zone, label, options, value, onChange, C }) {
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "11px 14px",
+      background: "white", border: "1px solid #E8E0D4", borderRadius: 8, marginBottom: 8 }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: "#4A6741", minWidth: 86,
+        paddingTop: 3, fontFamily: "'HWYGothic', sans-serif", flexShrink: 0 }}>{label}</span>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {options.map(o => {
+          const sel = value === o.id;
+          return (
+            <button key={o.id} type="button" onClick={() => onChange(zone, value === o.id ? "" : o.id)} style={{
+              padding: "5px 11px", border: `1.5px solid ${sel ? "#4A6741" : "#E0D8D0"}`,
+              borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600,
+              background: sel ? "#EEF3E8" : "#FAFAF8",
+              color: sel ? "#2A3528" : "#6B7B6A",
+              fontFamily: "'HWYGothic', sans-serif", transition: "all 0.18s",
+            }}>{o.label}</button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function WzPaso4({ d, setD, error, C, sm }) {
-  const toggleMat = (id) => setD(prev => ({
-    ...prev,
-    materiales: prev.materiales.includes(id)
-      ? prev.materiales.filter(x => x !== id)
-      : [...prev.materiales, id],
-  }));
+  // Helper: setea un campo de d.mats
+  const setMat = (key, val) => setD(p => ({ ...p, mats: { ...(p.mats || WZ_MATS_INIT), [key]: val } }));
+  // Helper: setea zona interior
+  const setInt = (zone, val) => setMat(zone, val);
+
+  const mats = d.mats || WZ_MATS_INIT;
+
+  const SectionTitle = ({ children }) => (
+    <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6,
+      color: "#4A6741", marginBottom: 10, fontFamily: "'HWYGothic', sans-serif",
+      borderBottom: "1.5px solid #D0E0C8", paddingBottom: 5 }}>{children}</p>
+  );
+
   return (
     <div>
       <h3 style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: sm ? 20 : 24, fontWeight: 400, color: "#2A3528", marginBottom: 4 }}>
@@ -604,8 +743,11 @@ function WzPaso4({ d, setD, error, C, sm }) {
       <p style={{ fontSize: 13, color: "#6B7B6A", marginBottom: 22, lineHeight: 1.7, fontFamily: "'HWYGothic', sans-serif" }}>
         Define la estética y los materiales de revestimiento que prefieres.
       </p>
-      <div style={{ marginBottom: 22 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: "#8A7868", marginBottom: 10, fontFamily: "'HWYGothic', sans-serif" }}>
+
+      {/* ── Estilo arquitectónico ── */}
+      <div style={{ marginBottom: 24 }}>
+        <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6,
+          color: "#8A7868", marginBottom: 10, fontFamily: "'HWYGothic', sans-serif" }}>
           Estilo arquitectónico <span style={{ color: C.warm }}>*</span>
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px,1fr))", gap: 9 }}>
@@ -617,24 +759,49 @@ function WzPaso4({ d, setD, error, C, sm }) {
         </div>
         <WzErr msg={error} />
       </div>
-      <div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: "#8A7868", fontFamily: "'HWYGothic', sans-serif" }}>
-            Materialidad preferida
-          </p>
-          <span style={{ fontSize: 10, color: "#9A8A7A", background: "#F0EBE4", padding: "2px 10px", borderRadius: 20, fontFamily: "'HWYGothic', sans-serif" }}>
-            Selección múltiple
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 7, background: "#F0F7F0", border: "1px solid #B8D8B0", borderRadius: 8, padding: "9px 12px", marginBottom: 12, fontSize: 11, color: "#3A6B3A", lineHeight: 1.6, fontFamily: "'HWYGothic', sans-serif" }}>
-          🧱 Los revestimientos están disponibles en nuestro catálogo en Santa Bárbara.
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-          {WZ_MATS.map(m => (
-            <WzChip key={m.id} label={m.label}
-              selected={d.materiales.includes(m.id)} onClick={() => toggleMat(m.id)} C={C} />
-          ))}
-        </div>
+
+      {/* ── Materialidades agrupadas ── */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 7, background: "#F0F7F0",
+        border: "1px solid #B8D8B0", borderRadius: 8, padding: "9px 12px", marginBottom: 18,
+        fontSize: 11, color: "#3A6B3A", lineHeight: 1.6, fontFamily: "'HWYGothic', sans-serif" }}>
+        🧱 Los revestimientos están disponibles en nuestro catálogo en Santa Bárbara.
+      </div>
+
+      {/* Piso */}
+      <div style={{ background: "#FAFAF8", border: "1px solid #E8E0D4", borderRadius: 10, padding: "14px 16px", marginBottom: 12 }}>
+        <SectionTitle>Ítem piso</SectionTitle>
+        <MatGroup options={WZ_MAT_PISO} value={mats.piso}
+          onChange={v => setMat("piso", v)} C={C} />
+      </div>
+
+      {/* Revestimiento exterior */}
+      <div style={{ background: "#FAFAF8", border: "1px solid #E8E0D4", borderRadius: 10, padding: "14px 16px", marginBottom: 12 }}>
+        <SectionTitle>Ítem revestimiento exterior</SectionTitle>
+        <MatGroup options={WZ_MAT_REV_EXT} value={mats.revestimientoExterior}
+          onChange={v => setMat("revestimientoExterior", v)} C={C} />
+      </div>
+
+      {/* Tabique / estructura de muros */}
+      <div style={{ background: "#FAFAF8", border: "1px solid #E8E0D4", borderRadius: 10, padding: "14px 16px", marginBottom: 12 }}>
+        <SectionTitle>Ítem tabique / estructura de muros</SectionTitle>
+        <MatGroup options={WZ_MAT_TABIQUE} value={mats.tabique}
+          onChange={v => setMat("tabique", v)} C={C} />
+      </div>
+
+      {/* Aislación */}
+      <div style={{ background: "#FAFAF8", border: "1px solid #E8E0D4", borderRadius: 10, padding: "14px 16px", marginBottom: 12 }}>
+        <SectionTitle>Ítem aislación</SectionTitle>
+        <MatGroup options={WZ_MAT_AISLACION} value={mats.aislacion}
+          onChange={v => setMat("aislacion", v)} C={C} />
+      </div>
+
+      {/* Revestimiento interior por zona */}
+      <div style={{ background: "#FAFAF8", border: "1px solid #E8E0D4", borderRadius: 10, padding: "14px 16px", marginBottom: 4 }}>
+        <SectionTitle>Ítem revestimiento interior por zona</SectionTitle>
+        <IntZoneGroup zone="intLiving"     label="Living"      options={WZ_MAT_INT_LIVING}  value={mats.intLiving}     onChange={setInt} C={C} />
+        <IntZoneGroup zone="intCocina"     label="Cocina"      options={WZ_MAT_INT_COCINA}  value={mats.intCocina}     onChange={setInt} C={C} />
+        <IntZoneGroup zone="intDormitorio" label="Dormitorio"  options={WZ_MAT_INT_DORM}    value={mats.intDormitorio} onChange={setInt} C={C} />
+        <IntZoneGroup zone="intBano"       label="Baño"        options={WZ_MAT_INT_BANO}    value={mats.intBano}       onChange={setInt} C={C} />
       </div>
     </div>
   );
@@ -660,7 +827,7 @@ function CabañaCotizacionModal({ data, C, waNumber, onClose }) {
   const validUntil = new Date(today); validUntil.setDate(validUntil.getDate() + 15);
 
   const prog = data.programa.map(id => wzLabel(id, WZ_PROGRAMA)).join(", ") || "No especificado";
-  const mats = data.materiales.map(id => wzLabel(id, WZ_MATS)).join(", ") || "No especificado";
+  const mats = buildMatsText(data.mats);
 
   const GREEN  = C.dark || "#4A6741";
   const ORANGE = C.warm || "#F4806D";
@@ -672,32 +839,104 @@ function CabañaCotizacionModal({ data, C, waNumber, onClose }) {
 
   // ── Imprimir como PDF: abre ventana nueva con SOLO la tarjeta ───────────────
   // ── Genera y descarga el PDF ─────────────────────────────────────────────────
-  const handlePDF = () => {
+  // ── Genera el HTML del PDF con estilos incrustados (responsive) ─────────────
+  const buildPDFHtml = () => {
     const el = document.getElementById("cab-cot-card");
-    if (!el) return;
-    const w = window.open("", "_blank", "width=580,height=920");
-    w.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="utf-8"/>
-      <title>${cotNum} · Casa-Estudio 1016</title>
-      <style>
-        @font-face { font-family: 'HWYGothic'; src: url('/src/assets/fonts/HWYGOTH.TTF'); }
-        @font-face { font-family: 'HWYGWide';  src: url('/src/assets/fonts/HWYGWDE.TTF'); }
-        * { box-sizing: border-box; margin: 0; padding: 0;
-            -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        body { background: #1E1E1E; display: flex; justify-content: center;
-               padding: 24px; font-family: 'HWYGothic', Arial, sans-serif; }
-        @page { margin: 10mm; size: A5 portrait; }
-      </style>
-    </head><body>${el.outerHTML}</body></html>`);
-    w.document.close();
-    setTimeout(() => { w.print(); }, 700);
+    if (!el) return null;
+    // Clonar el nodo para limpiar scripts/eventos
+    const clone = el.cloneNode(true);
+    return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>${cotNum} · Casa-Estudio 1016</title>
+  <style>
+    @font-face { font-family:'HWYGothic'; src:url('/src/assets/fonts/HWYGOTH.TTF'); }
+    @font-face { font-family:'HWYGWide';  src:url('/src/assets/fonts/HWYGWDE.TTF'); }
+    *, *::before, *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    html, body {
+      font-family: 'HWYGothic', Arial, sans-serif;
+      background: #1a1a1a;
+      min-height: 100vh;
+      display: flex; justify-content: center; align-items: flex-start;
+      padding: 20px;
+    }
+    /* Tarjeta principal */
+    #cab-cot-card {
+      width: 100%; max-width: 560px;
+      border-radius: 16px; overflow: hidden;
+    }
+    /* Responsive: móvil */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      #cab-cot-card { border-radius: 12px; }
+    }
+    /* Print */
+    @media print {
+      html, body {
+        background: #1a1a1a !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      @page { margin: 0; size: A5 portrait; }
+      #cab-cot-card { max-width: 100%; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  ${clone.outerHTML}
+</body>
+</html>`;
   };
 
-  // ── Enviar PDF por WhatsApp: descarga el PDF y abre WhatsApp con aviso ───────
+  // ── Descarga directa del PDF (sin diálogo de impresión) ──────────────────────
+  const handlePDF = () => {
+    const html = buildPDFHtml();
+    if (!html) return;
+    // Crear blob y descargar directamente
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `${cotNum}-Casa-Estudio-1016.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // Abrir también en ventana para imprimir como PDF desde el navegador
+    const w = window.open(url, "_blank", "width=620,height=900,noopener");
+    if (w) {
+      w.addEventListener("load", () => {
+        setTimeout(() => {
+          w.print();
+          setTimeout(() => URL.revokeObjectURL(url), 3000);
+        }, 500);
+      });
+    } else {
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+  };
+
+  // ── Enviar PDF por WhatsApp: descarga el archivo y abre WhatsApp ─────────────
   const handlePDFWhatsApp = () => {
-    // Paso 1: descarga el PDF
-    handlePDF();
-    // Paso 2: abre WhatsApp con mensaje que indica adjuntar el PDF descargado
+    // Paso 1: descarga el archivo directamente
+    const html = buildPDFHtml();
+    if (html) {
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `${cotNum}-Casa-Estudio-1016.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+    }
+    // Paso 2: abre WhatsApp con aviso de adjunto (300ms después)
     const msgConPDF = encodeURIComponent(
       `Hola, soy ${data.nombre || "un cliente"}. Adjunto la cotización n° ${cotNum} de cabaña descargada desde casaestudio.cl.\n\n` +
       `Tipo: ${wzLabel(data.tipo, WZ_TIPOS)}\n` +
@@ -710,11 +949,11 @@ function CabañaCotizacionModal({ data, C, waNumber, onClose }) {
       `Estilo: ${wzLabel(data.estilo, WZ_ESTILOS)}\n` +
       `Materialidad: ${mats}\n` +
       `Presupuesto: ${wzLabel(data.presupuesto, WZ_PRESUPUESTO)}\n\n` +
-      `📎 Adjunto el PDF de la cotización. Quedo atento a contacto. ¡Gracias!`
+      `📎 El archivo de cotización ya fue descargado. Puedes adjuntarlo a este chat. ¡Gracias!`
     );
     setTimeout(() => {
       window.open(`https://wa.me/${waNumber}?text=${msgConPDF}`, "_blank");
-    }, 900);
+    }, 400);
   };
 
   // ── Mensaje WhatsApp ────────────────────────────────────────────────────────
@@ -728,7 +967,7 @@ function CabañaCotizacionModal({ data, C, waNumber, onClose }) {
     `Aguas servidas: ${wzLabel(data.alcantarillado, WZ_ALCANTARILLADO)}\n` +
     `Programa: ${prog}\n` +
     `Estilo: ${wzLabel(data.estilo, WZ_ESTILOS)}\n` +
-    `Materialidad: ${mats}\n` +
+    `Materialidad: ${buildMatsText(data.mats)}\n` +
     `Presupuesto: ${wzLabel(data.presupuesto, WZ_PRESUPUESTO)}\n\n` +
     `Quedo atento a contacto. ¡Gracias!`
   );
@@ -878,12 +1117,20 @@ function CabañaCotizacionModal({ data, C, waNumber, onClose }) {
             <Row label="Aguas servidas"  value={wzLabel(data.alcantarillado, WZ_ALCANTARILLADO)} />
             <Row label="Programa"        value={prog} />
             <Row label="Estilo"          value={wzLabel(data.estilo, WZ_ESTILOS)} />
-            <Row label="Materialidad"    value={mats !== "No especificado" ? mats : null} />
+            {/* Materialidades desglosadas */}
+            {data.mats?.piso                  && <Row label="Piso"              value={getMLabel(data.mats.piso,                  "piso")} />}
+            {data.mats?.revestimientoExterior && <Row label="Rev. exterior"      value={getMLabel(data.mats.revestimientoExterior,  "revestimientoExterior")} />}
+            {data.mats?.tabique               && <Row label="Tabique/Estructura" value={getMLabel(data.mats.tabique,                "tabique")} />}
+            {data.mats?.aislacion             && <Row label="Aislación"          value={getMLabel(data.mats.aislacion,              "aislacion")} />}
+            {data.mats?.intLiving             && <Row label="Int. Living"        value={getMLabel(data.mats.intLiving,              "intLiving")} />}
+            {data.mats?.intCocina             && <Row label="Int. Cocina"        value={getMLabel(data.mats.intCocina,              "intCocina")} />}
+            {data.mats?.intDormitorio         && <Row label="Int. Dormitorio"    value={getMLabel(data.mats.intDormitorio,          "intDormitorio")} />}
+            {data.mats?.intBano               && <Row label="Int. Baño"          value={getMLabel(data.mats.intBano,                "intBano")} />}
             <Row label="Presupuesto"     value={wzLabel(data.presupuesto, WZ_PRESUPUESTO)} />
           </div>
 
           {/* ── Nota de materiales CE-1016 ── */}
-          {data.materiales.length > 0 && (
+          {buildMatsText(data.mats) !== "No especificado" && (
             <div style={{ margin: "12px 12px 0", padding: "10px 14px", background: `${ORANGE}20`, border: `1px solid ${ORANGE}35`, borderRadius: 8 }}>
               <p style={{ fontSize: 11, color: "#E8B090", lineHeight: 1.65, fontFamily: "'HWYGothic', Arial, sans-serif" }}>
                 🧱 Los materiales de revestimiento seleccionados están disponibles en el catálogo de importación de Casa-Estudio 1016, Santa Bárbara, Biobío.
@@ -913,7 +1160,7 @@ function CabañaCotizacionModal({ data, C, waNumber, onClose }) {
 // ─── PASO 5 DEL WIZARD ────────────────────────────────────────────────────────
 function WzPaso5({ d, C, sm, waNumber, onCotizar }) {
   const prog = d.programa.map(id => wzLabel(id, WZ_PROGRAMA)).join(", ") || "No especificado";
-  const mats = d.materiales.map(id => wzLabel(id, WZ_MATS)).join(", ") || "No especificado";
+  const mats = buildMatsText(d.mats);
   const waHref = buildWizardWA(d, waNumber);
 
   const Row = ({ label, value }) => (
@@ -952,10 +1199,18 @@ function WzPaso5({ d, C, sm, waNumber, onCotizar }) {
           <Row label="Aguas servidas" value={wzLabel(d.alcantarillado, WZ_ALCANTARILLADO)} />
           <Row label="Programa"       value={prog} />
           <Row label="Estilo"         value={wzLabel(d.estilo, WZ_ESTILOS)} />
-          <Row label="Materialidad"   value={mats} />
+          {/* Materialidades desglosadas por categoría */}
+          {d.mats?.piso                  && <Row label="Piso"              value={getMLabel(d.mats.piso,                 "piso")} />}
+          {d.mats?.revestimientoExterior && <Row label="Rev. exterior"     value={getMLabel(d.mats.revestimientoExterior, "revestimientoExterior")} />}
+          {d.mats?.tabique               && <Row label="Tabique/Estructura" value={getMLabel(d.mats.tabique,               "tabique")} />}
+          {d.mats?.aislacion             && <Row label="Aislación"          value={getMLabel(d.mats.aislacion,             "aislacion")} />}
+          {d.mats?.intLiving             && <Row label="Int. Living"        value={getMLabel(d.mats.intLiving,             "intLiving")} />}
+          {d.mats?.intCocina             && <Row label="Int. Cocina"        value={getMLabel(d.mats.intCocina,             "intCocina")} />}
+          {d.mats?.intDormitorio         && <Row label="Int. Dormitorio"    value={getMLabel(d.mats.intDormitorio,         "intDormitorio")} />}
+          {d.mats?.intBano               && <Row label="Int. Baño"          value={getMLabel(d.mats.intBano,               "intBano")} />}
           <Row label="Presupuesto"    value={wzLabel(d.presupuesto, WZ_PRESUPUESTO)} />
         </div>
-        {d.materiales.length > 0 && (
+        {buildMatsText(d.mats) !== "No especificado" && (
           <div style={{ margin: "10px 10px 0", padding: "9px 13px", background: `${C.warm}20`, border: `1px solid ${C.warm}40`, borderRadius: 8 }}>
             <p style={{ fontSize: 11, color: "#E8B090", lineHeight: 1.6, fontFamily: "'HWYGothic',sans-serif" }}>🧱 Materiales disponibles en catálogo CE-1016, Santa Bárbara, Biobío.</p>
           </div>
