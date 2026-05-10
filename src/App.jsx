@@ -475,20 +475,50 @@ function VisualizerModal({ prods, onClose, C, $$, waNumber }) {
     if (!vizImage || !selectedVizProduct) return;
     if (!(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0)) return;
     setBusy(true); setResultImg(null); setResultTxt(""); setResultOriginal(vizImage);
+
+    const imageBase64 = vizImage.includes(",") ? vizImage.split(",")[1] : vizImage;
+    let productImageBase64 = null;
+    if (selectedVizProduct.customImg) {
+      productImageBase64 = selectedVizProduct.customImg.includes(",")
+        ? selectedVizProduct.customImg.split(",")[1]
+        : selectedVizProduct.customImg;
+    } else if (selectedVizProduct.image && typeof selectedVizProduct.image === "string" && selectedVizProduct.image.startsWith("data:")) {
+      productImageBase64 = selectedVizProduct.image.split(",")[1];
+    }
+
     try {
-      // ── FALLBACK LOCAL: simulación con applyTexture ──────────────
-      // Reemplaza este bloque cuando tengas el endpoint de IA listo.
-      const fallback = await applyTexture(
-        vizImage,
-        selectedVizProduct.tk,
-        vizSurface,
-        selectedVizProduct.customImg || null
-      );
-      setResultImg(fallback);
-      setResultTxt("Simulación local de textura. Conecta el backend IA para resultados hiperrealistas.");
-      // ── FIN FALLBACK ─────────────────────────────────────────────
-    } catch {
-      setResultTxt("Error al procesar la imagen. Intenta con otra foto.");
+      const response = await fetch("/api/generate-visualization", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageBase64,
+          productName: selectedVizProduct.name,
+          productDesc: selectedVizProduct.desc || "",
+          productImageBase64,
+          surface: vizSurface,
+          largo: parseFloat(wallLength),
+          alto: parseFloat(wallHeight),
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.imageUrl) {
+        setResultImg(data.imageUrl);
+        setResultTxt(`✦ Visualización hiperrealista generada con IA — ${selectedVizProduct.name} aplicado en ${vizSurface}.`);
+      } else if (data.fallback) {
+        const fallback = await applyTexture(vizImage, selectedVizProduct.tk, vizSurface, selectedVizProduct.customImg || null);
+        setResultImg(fallback);
+        setResultTxt(`Simulación local (IA no disponible: ${data.error || "error"}). Visítanos en Arturo Prat 1016 para asesoría personalizada.`);
+      } else {
+        throw new Error(data.error || "Error desconocido.");
+      }
+    } catch (err) {
+      try {
+        const fallback = await applyTexture(vizImage, selectedVizProduct.tk, vizSurface, selectedVizProduct.customImg || null);
+        setResultImg(fallback);
+        setResultTxt("Simulación local de textura. Backend IA en proceso de conexión.");
+      } catch {
+        setResultTxt("Error al procesar la imagen. Intenta con otra foto.");
+      }
     }
     setBusy(false);
   }
