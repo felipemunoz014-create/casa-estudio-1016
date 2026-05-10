@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  Casa-Estudio 1016 · App.jsx
+//  Integración: sección "Diseña tu proyecto en 5 pasos"
+//  insertada entre SERVICES y CTA, usando los tokens C del sitio,
+//  fuentes HWYGothic / HWYGWide y arquitectura de componentes existente.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import QuotationModal from "./QuotationModal";
 import FlujoCaja from "./FlujoCaja";
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -41,12 +48,12 @@ import marmolBlancoMedida from "./assets/PvcUVmarmol.png";
 import marmolGrisMedida from "./assets/PvcUVgris.png";
 import marmolNegroMedida from "./assets/PvcUVnegro.png";
 
+// ─── EMAIL ────────────────────────────────────────────────────────────────────
 const EJS = {
   serviceId: "service_aycesln",
   templateId: "template_zkd4qaq",
   publicKey: "HNVJqgrwRpicOZjCJ",
 };
-
 async function sendEmail(fields) {
   const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
     method: "POST",
@@ -61,6 +68,7 @@ async function sendEmail(fields) {
   return res.ok;
 }
 
+// ─── HOOKS ────────────────────────────────────────────────────────────────────
 function useW() {
   const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 375);
   useEffect(() => {
@@ -71,30 +79,17 @@ function useW() {
   return w;
 }
 
-// ─── FUNCIÓN AUXILIAR: cobertura m² por unidad ───────────────────────────────
-// Lee la propiedad dims del producto (ej: "122×244cm", "16×290cm")
-// Soporta separadores: × x X
-// Retorna m² por unidad. Si no puede calcularlo, retorna 1.
+// ─── CUBICACIÓN ───────────────────────────────────────────────────────────────
 function getCoverageM2(product) {
   if (!product || !product.dims) return 1;
   const match = product.dims.match(/([\d.]+)\s*[×xX]\s*([\d.]+)/);
   if (!match) return 1;
-  const a = parseFloat(match[1]) / 100; // cm → m
+  const a = parseFloat(match[1]) / 100;
   const b = parseFloat(match[2]) / 100;
   const result = a * b;
   return result > 0 ? result : 1;
 }
-
-// ─── FUNCIÓN AUXILIAR: cubicación completa ───────────────────────────────────
-// Calcula m² brutos, netos, con merma, unidades y precio total.
-function calcularCubicacion({
-  largo,
-  alto,
-  merma,
-  descuentoVanos,
-  coberturaM2PorUnidad,
-  precioUnitario,
-}) {
+function calcularCubicacion({ largo, alto, merma, descuentoVanos, coberturaM2PorUnidad, precioUnitario }) {
   const m2Bruto = largo * alto;
   const m2Neto = Math.max(m2Bruto - descuentoVanos, 0);
   const m2ConMerma = m2Neto * (1 + merma / 100);
@@ -103,6 +98,7 @@ function calcularCubicacion({
   return { m2Bruto, m2Neto, m2ConMerma, unidades, precioTotal };
 }
 
+// ─── TEXTURAS SVG ─────────────────────────────────────────────────────────────
 const TX = {
   marble_gray: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#9BA5A8"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#B8C2C5"/><stop offset="40%" stop-color="#8A9599"/><stop offset="100%" stop-color="#7A8588"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M0,80 Q100,60 200,100 T400,80" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/><path d="M50,0 Q80,100 60,200 T80,400" stroke="rgba(255,255,255,0.35)" stroke-width="2" fill="none"/><path d="M200,0 Q230,150 210,250 T230,400" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none"/></svg>`,
   marble_white: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#E8E4DC"/><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0EDE8"/><stop offset="50%" stop-color="#E0DBD2"/><stop offset="100%" stop-color="#EAE6DE"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><path d="M0,100 Q100,80 200,120 T400,100" stroke="rgba(160,150,140,0.5)" stroke-width="1.5" fill="none"/><path d="M80,0 Q100,100 90,200 T100,400" stroke="rgba(160,150,140,0.4)" stroke-width="1.5" fill="none"/></svg>`,
@@ -117,6 +113,7 @@ const TX = {
   silver: `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D0D0D0"/><stop offset="50%" stop-color="#909090"/><stop offset="100%" stop-color="#B8B8B8"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/></svg>`,
 };
 
+// ─── PRODUCTOS ────────────────────────────────────────────────────────────────
 const DEFAULT_PRODS = [
   { id: 1, name: "PVC Mármol Gris", dims: "122×244cm", cat: "muro", code: "KL8235", price: 18700, unit: "c/u", tk: "marble_gray", image: marmolGris, images: [marmolGris, marmolGrisMedida, marmolGris], desc: "Elegancia mineral con venas sutiles." },
   { id: 2, name: "PVC Mármol Blanco", dims: "122×244cm", cat: "muro", code: "KL8263", price: 18700, unit: "c/u", tk: "marble_white", image: marmolBlanco, images: [marmolBlanco, marmolBlancoMedida, marmolBlanco], desc: "Pureza y luminosidad. Amplía cualquier espacio." },
@@ -142,6 +139,1168 @@ const $$ = (n) => `$${Number(n).toLocaleString("es-CL")}`;
 const CATS = ["todos", "muro", "cielo", "exterior", "accesorio"];
 const CAT_L = { todos: "Todos", muro: "Muros", cielo: "Cielos", exterior: "Exterior", accesorio: "Accesorios" };
 
+// ─── WIZARD DATA (enfocado en cabañas) ────────────────────────────────────────
+const WZ_TIPOS = [
+  { id: "cabaña_1p",   label: "Cabaña 1 piso",         icon: "🏕️" },
+  { id: "cabaña_2p",   label: "Cabaña 2 pisos",         icon: "🏔️" },
+  { id: "cabaña_mod",  label: "Cabaña modular",          icon: "📦" },
+  { id: "refugio",     label: "Refugio / Tiny house",    icon: "🌲" },
+  { id: "quincho",     label: "Quincho + cabaña",        icon: "🔥" },
+  { id: "conjunto",    label: "Conjunto de cabañas",     icon: "🏘️" },
+];
+const WZ_TERRENO = [
+  { id: "si",      label: "Sí, tengo terreno" },
+  { id: "no",      label: "No tengo aún" },
+  { id: "proceso", label: "En proceso" },
+];
+// Agua potable
+const WZ_AGUA = [
+  { id: "ap_red",   label: "Red de agua potable", icon: "🚰", desc: "Conectado a red pública" },
+  { id: "ap_pozo",  label: "Pozo propio",          icon: "💧", desc: "Pozo o noria en el terreno" },
+  { id: "ap_rural", label: "APR / Rural",           icon: "🌊", desc: "Agua potable rural (APR)" },
+  { id: "ap_nd",    label: "No determinado",        icon: "❓", desc: "Aún no se ha definido" },
+];
+// Alcantarillado / aguas servidas
+const WZ_ALCANTARILLADO = [
+  { id: "alc_red",    label: "Red de alcantarillado", icon: "🏙️", desc: "Conectado a red pública" },
+  { id: "alc_fosa",   label: "Fosa séptica",           icon: "🪣",  desc: "Fosa tradicional" },
+  { id: "alc_planta", label: "Planta de tratamiento",  icon: "♻️",  desc: "Sistema de tratamiento" },
+  { id: "alc_nd",     label: "No determinado",          icon: "❓",  desc: "Aún no se ha definido" },
+];
+const WZ_PRESUPUESTO = [
+  { id: "bajo",      label: "Bajo",      sub: "Hasta $20M" },
+  { id: "medio",     label: "Medio",     sub: "$20M – $60M" },
+  { id: "alto",      label: "Alto",      sub: "$60M+" },
+  { id: "a_definir", label: "A definir", sub: "Aún no lo sé" },
+];
+const WZ_PROGRAMA = [
+  { id: "d1", label: "1 Dormitorio",       icon: "🛏", group: "dorm" },
+  { id: "d2", label: "2 Dormitorios",      icon: "🛏", group: "dorm" },
+  { id: "d3", label: "3 Dormitorios",      icon: "🛏", group: "dorm" },
+  { id: "d4", label: "4+ Dormitorios",     icon: "🛏", group: "dorm" },
+  { id: "b1", label: "1 Baño",             icon: "🚿", group: "baño" },
+  { id: "b2", label: "2 Baños",            icon: "🚿", group: "baño" },
+  { id: "b3", label: "3+ Baños",           icon: "🚿", group: "baño" },
+  { id: "co", label: "Cocina integrada",   icon: "🍳", group: "extra" },
+  { id: "lv", label: "Living / Comedor",   icon: "🛋", group: "extra" },
+  { id: "te", label: "Terraza",            icon: "☀️", group: "extra" },
+  { id: "bo", label: "Bodega",             icon: "📦", group: "extra" },
+  { id: "es", label: "Estacionamiento",    icon: "🚗", group: "extra" },
+  { id: "2p", label: "Segundo piso",       icon: "⬆️", group: "extra" },
+  { id: "qu", label: "Espacio quincho",    icon: "🔥", group: "extra" },
+  { id: "rd", label: "Revestimiento deco.",icon: "🪨", group: "extra" },
+];
+const WZ_ESTILOS = [
+  { id: "moderno",      label: "Moderno",         icon: "◻️" },
+  { id: "bosque",       label: "Bosque / Natural", icon: "🌲" },
+  { id: "minimalista",  label: "Minimalista",      icon: "⬜" },
+  { id: "industrial",   label: "Industrial",       icon: "⚙️" },
+  { id: "mediterraneo", label: "Mediterráneo",     icon: "🌞" },
+  { id: "premium",      label: "Premium",          icon: "✦"  },
+  { id: "rustico",      label: "Rústico Moderno",  icon: "🪵" },
+];
+const WZ_MATS = [
+  { id: "piedra",   label: "Tipo piedra" },
+  { id: "madera",   label: "Tipo madera" },
+  { id: "marmol",   label: "Mármol PVC" },
+  { id: "wpc",      label: "WPC" },
+  { id: "porcel",   label: "Porcelanato" },
+  { id: "panel",    label: "Panel decorativo interior" },
+  { id: "fachada",  label: "Fachada ventilada" },
+  { id: "cubierta", label: "Cubierta metálica" },
+];
+const WZ_INIT = {
+  tipo: "", nombre: "", ubicacion: "", terreno: "",
+  superficie: "", presupuesto: "",
+  agua: "", alcantarillado: "",
+  programa: [], estilo: "", materiales: [],
+};
+
+function wzLabel(id, arr) {
+  return arr.find(x => x.id === id)?.label ?? id;
+}
+
+// ─── WIZARD: MENSAJE WHATSAPP ─────────────────────────────────────────────────
+function buildWizardWA(d, waNumber) {
+  const prog = d.programa.map(id => wzLabel(id, WZ_PROGRAMA)).join(", ") || "No especificado";
+  const mats = d.materiales.map(id => wzLabel(id, WZ_MATS)).join(", ") || "No especificado";
+  return `https://wa.me/${waNumber}?text=${encodeURIComponent(
+    `Hola, soy ${d.nombre || "un cliente"}. Quiero cotizar una cabaña en Casa Estudio 1016.\n\n` +
+    `Tipo de cabaña:\n${wzLabel(d.tipo, WZ_TIPOS)}\n\n` +
+    `Ubicación:\n${d.ubicacion || "No indicada"}\n\n` +
+    `¿Tiene terreno?: ${wzLabel(d.terreno, WZ_TERRENO)}\n\n` +
+    `Superficie aproximada:\n${d.superficie || "No indicada"} m²\n\n` +
+    `Agua potable:\n${wzLabel(d.agua, WZ_AGUA)}\n\n` +
+    `Aguas servidas:\n${wzLabel(d.alcantarillado, WZ_ALCANTARILLADO)}\n\n` +
+    `Programa:\n${prog}\n\n` +
+    `Estilo:\n${wzLabel(d.estilo, WZ_ESTILOS)}\n\n` +
+    `Materialidades:\n${mats}\n\n` +
+    `Presupuesto estimado:\n${wzLabel(d.presupuesto, WZ_PRESUPUESTO)}\n\n` +
+    `Quedo atento a orientación y cotización. ¡Gracias!`
+  )}`;
+}
+
+// ─── WIZARD: BARRA DE PROGRESO ────────────────────────────────────────────────
+function WzProgressBar({ step, C }) {
+  const labels = ["Tipo", "Datos", "Programa", "Estilo", "Resumen"];
+  const pct = (step / 4) * 100;
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 10 }}>
+        {labels.map((l, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "flex-start", flex: 1 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <div style={{
+                width: 30, height: 30, borderRadius: "50%", display: "flex",
+                alignItems: "center", justifyContent: "center",
+                fontSize: 12, fontWeight: 700, flexShrink: 0,
+                border: `2px solid ${i < step ? C.warm : i === step ? C.dark : "#E0D8D0"}`,
+                background: i < step ? C.warm : i === step ? C.dark : "white",
+                color: i < step || i === step ? "white" : "#8A7868",
+                transition: "all 0.3s",
+              }}>
+                {i < step ? "✓" : i + 1}
+              </div>
+              <span style={{
+                fontSize: 9, fontWeight: i === step ? 700 : 400, textAlign: "center",
+                color: i === step ? C.dark : i < step ? C.warm : "#9E9890",
+                letterSpacing: 0.3,
+              }}>{l}</span>
+            </div>
+            {i < 4 && (
+              <div style={{
+                flex: 1, height: 2, marginTop: 14, marginLeft: 3, marginRight: 3,
+                background: i < step ? C.warm : "#E0D8D0",
+                transition: "background 0.4s",
+              }} />
+            )}
+          </div>
+        ))}
+      </div>
+      <div style={{ height: 2, background: "#E0D8D0", borderRadius: 4, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: C.dark, borderRadius: 4, transition: "width 0.5s ease" }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── WIZARD: TARJETA SELECCIONABLE ────────────────────────────────────────────
+function WzCard({ label, icon, selected, onClick, C, small }) {
+  return (
+    <button type="button" onClick={onClick} style={{
+      position: "relative", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      gap: small ? 5 : 8, padding: small ? "10px 6px" : "14px 8px",
+      border: `2px solid ${selected ? C.warm : "#E0D8D0"}`,
+      borderRadius: 10, cursor: "pointer", textAlign: "center", width: "100%",
+      background: selected ? `${C.warm}12` : "white",
+      transition: "all 0.18s", fontFamily: "inherit",
+    }}>
+      {icon && <span style={{ fontSize: small ? 18 : 22, lineHeight: 1 }}>{icon}</span>}
+      <span style={{
+        fontSize: small ? 11 : 12, fontWeight: 700, lineHeight: 1.3,
+        color: selected ? C.dark : "#6B6560",
+        fontFamily: "'HWYGothic', sans-serif",
+      }}>{label}</span>
+      {selected && (
+        <div style={{
+          position: "absolute", top: 5, right: 5,
+          width: 14, height: 14, borderRadius: "50%",
+          background: C.warm, display: "flex", alignItems: "center",
+          justifyContent: "center", fontSize: 8, color: "white", fontWeight: 800,
+        }}>✓</div>
+      )}
+    </button>
+  );
+}
+
+// ─── WIZARD: CHIP MULTI ───────────────────────────────────────────────────────
+function WzChip({ label, icon, selected, onClick, C }) {
+  return (
+    <button type="button" onClick={onClick} style={{
+      display: "inline-flex", alignItems: "center", gap: 6,
+      padding: "7px 13px",
+      border: `1.5px solid ${selected ? C.warm : "#E0D8D0"}`,
+      borderRadius: 7, cursor: "pointer",
+      background: selected ? `${C.warm}15` : "white",
+      fontSize: 12, fontWeight: 600,
+      color: selected ? C.dark : "#6B6560",
+      transition: "all 0.18s", fontFamily: "'HWYGothic', sans-serif",
+    }}>
+      {icon && <span style={{ fontSize: 13 }}>{icon}</span>}
+      {label}
+    </button>
+  );
+}
+
+// ─── WIZARD: CAMPO DE TEXTO ───────────────────────────────────────────────────
+function WzField({ label, placeholder, value, onChange, type = "text", required, C }) {
+  const [focus, setFocus] = useState(false);
+  return (
+    <div>
+      <label style={{
+        display: "block", fontSize: 10, fontWeight: 700,
+        textTransform: "uppercase", letterSpacing: 0.6,
+        color: "#8A7868", marginBottom: 5,
+        fontFamily: "'HWYGothic', sans-serif",
+      }}>
+        {label} {required && <span style={{ color: C.warm }}>*</span>}
+      </label>
+      <input
+        type={type} value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        onFocus={() => setFocus(true)}
+        onBlur={() => setFocus(false)}
+        style={{
+          width: "100%", padding: "10px 13px",
+          border: `1.5px solid ${focus ? C.warm : "#E0D8D0"}`,
+          borderRadius: 8, fontSize: 13,
+          fontFamily: "'HWYGothic', sans-serif",
+          background: "#FAFAF8", color: "#2A3528", outline: "none",
+          transition: "border-color 0.2s",
+        }}
+      />
+    </div>
+  );
+}
+
+// ─── WIZARD: ERROR INLINE ─────────────────────────────────────────────────────
+function WzErr({ msg }) {
+  if (!msg) return null;
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 6,
+      fontSize: 12, color: "#b91c1c", background: "#fef2f2",
+      border: "1px solid #fecaca", borderRadius: 7,
+      padding: "7px 12px", marginTop: 8,
+      fontFamily: "'HWYGothic', sans-serif",
+    }}>
+      ⚠ {msg}
+    </div>
+  );
+}
+
+// ─── WIZARD PASOS ─────────────────────────────────────────────────────────────
+function WzPaso1({ d, setD, error, C, sm }) {
+  return (
+    <div>
+      {/* Badge "Cabañas" */}
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `${C.dark}10`, border: `1px solid ${C.dark}25`, borderRadius: 20, padding: "4px 12px", marginBottom: 14 }}>
+        <span style={{ fontSize: 14 }}>🏕️</span>
+        <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, color: C.dark, fontFamily: "'HWYGothic',sans-serif" }}>Configurador de cabañas</span>
+      </div>
+      <h3 style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: sm ? 20 : 24, fontWeight: 400, color: "#2A3528", marginBottom: 6, lineHeight: 1.2 }}>
+        ¿Qué tipo de cabaña buscas?
+      </h3>
+      <p style={{ fontSize: 13, color: "#6B7B6A", marginBottom: 22, lineHeight: 1.7, fontFamily: "'HWYGothic', sans-serif" }}>
+        Selecciona la tipología que mejor describe tu idea. Podemos adaptar cualquier diseño a tu terreno y contexto.
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10 }}>
+        {WZ_TIPOS.map(t => (
+          <WzCard key={t.id} label={t.label} icon={t.icon}
+            selected={d.tipo === t.id} onClick={() => setD(p => ({ ...p, tipo: t.id }))} C={C} />
+        ))}
+      </div>
+      <WzErr msg={error} />
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "#F5F7F3", border: "1px solid #C8D8B8", borderRadius: 8, padding: "10px 14px", marginTop: 18, fontSize: 12, color: "#4A6741", lineHeight: 1.65, fontFamily: "'HWYGothic',sans-serif" }}>
+        <span style={{ flexShrink: 0, marginTop: 1 }}>💡</span>
+        <span>Todos nuestros diseños de cabañas contemplan revestimientos de nuestro catálogo propio: Siding Metálico, Wall Panel Madera y PVC Mármol, disponibles en Santa Bárbara.</span>
+      </div>
+    </div>
+  );
+}
+
+function WzPaso2({ d, setD, errors, C, sm }) {
+  // Sub-label reutilizable
+  const SubLabel = ({ children, required }) => (
+    <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: "#8A7868", marginBottom: 10, fontFamily: "'HWYGothic',sans-serif" }}>
+      {children}{required && <span style={{ color: C.warm }}> *</span>}
+    </p>
+  );
+
+  // Card de infraestructura (agua / alcantarillado)
+  const InfraCard = ({ item, selected, onClick }) => (
+    <button type="button" onClick={onClick} style={{
+      display: "flex", flexDirection: "column", gap: 3,
+      padding: "12px 11px", borderRadius: 9, textAlign: "left", width: "100%",
+      border: `2px solid ${selected ? C.dark : "#E0D8D0"}`,
+      background: selected ? `${C.dark}0D` : "white",
+      cursor: "pointer", fontFamily: "'HWYGothic',sans-serif",
+      transition: "all 0.18s", position: "relative",
+    }}>
+      {selected && (
+        <div style={{ position: "absolute", top: 7, right: 8, width: 16, height: 16, borderRadius: "50%", background: C.warm, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "white", fontWeight: 800 }}>✓</div>
+      )}
+      <span style={{ fontSize: 18, lineHeight: 1, marginBottom: 2 }}>{item.icon}</span>
+      <span style={{ fontSize: 12, fontWeight: 700, color: selected ? C.dark : "#2A3528", lineHeight: 1.3 }}>{item.label}</span>
+      <span style={{ fontSize: 10, color: "#9A8A7A", lineHeight: 1.4 }}>{item.desc}</span>
+    </button>
+  );
+
+  return (
+    <div>
+      <h3 style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: sm ? 20 : 24, fontWeight: 400, color: "#2A3528", marginBottom: 4, lineHeight: 1.2 }}>
+        Datos generales del terreno
+      </h3>
+      <p style={{ fontSize: 13, color: "#6B7B6A", marginBottom: 22, lineHeight: 1.7, fontFamily: "'HWYGothic',sans-serif" }}>
+        Esta información es clave para dimensionar correctamente tu cabaña y sus instalaciones.
+      </p>
+
+      {/* Nombre + Ubicación */}
+      <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "1fr 1fr", gap: 14, marginBottom: 18 }}>
+        <div>
+          <WzField label="Tu nombre" placeholder="Ej: María González"
+            value={d.nombre} onChange={v => setD(p => ({ ...p, nombre: v }))} required C={C} />
+          <WzErr msg={errors?.nombre} />
+        </div>
+        <div>
+          <WzField label="Comuna o ubicación" placeholder="Ej: Pucón, Los Ríos"
+            value={d.ubicacion} onChange={v => setD(p => ({ ...p, ubicacion: v }))} required C={C} />
+          <WzErr msg={errors?.ubicacion} />
+        </div>
+        <WzField label="Superficie aprox. de la cabaña (m²)" placeholder="Ej: 65"
+          type="number" value={d.superficie} onChange={v => setD(p => ({ ...p, superficie: v }))} C={C} />
+      </div>
+
+      {/* Terreno */}
+      <div style={{ marginBottom: 18 }}>
+        <SubLabel required>¿Cuenta con terreno?</SubLabel>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 9 }}>
+          {WZ_TERRENO.map(t => (
+            <button key={t.id} type="button" onClick={() => setD(p => ({ ...p, terreno: t.id }))} style={{
+              padding: "11px 6px", borderRadius: 9,
+              border: `2px solid ${d.terreno === t.id ? C.warm : "#E0D8D0"}`,
+              background: d.terreno === t.id ? `${C.warm}12` : "white",
+              color: d.terreno === t.id ? C.dark : "#6B7B6A",
+              fontSize: 12, fontWeight: 700, cursor: "pointer",
+              fontFamily: "'HWYGothic',sans-serif", transition: "all 0.18s",
+            }}>📍 {t.label}</button>
+          ))}
+        </div>
+        <WzErr msg={errors?.terreno} />
+      </div>
+
+      {/* ── AGUA POTABLE ── */}
+      <div style={{ marginBottom: 18 }}>
+        <SubLabel>Factibilidad de agua potable</SubLabel>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 9 }}>
+          {WZ_AGUA.map(a => (
+            <InfraCard key={a.id} item={a}
+              selected={d.agua === a.id}
+              onClick={() => setD(p => ({ ...p, agua: a.id }))} />
+          ))}
+        </div>
+      </div>
+
+      {/* ── ALCANTARILLADO / AGUAS SERVIDAS ── */}
+      <div style={{ marginBottom: 18 }}>
+        <SubLabel>Sistema de aguas servidas</SubLabel>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 9 }}>
+          {WZ_ALCANTARILLADO.map(a => (
+            <InfraCard key={a.id} item={a}
+              selected={d.alcantarillado === a.id}
+              onClick={() => setD(p => ({ ...p, alcantarillado: a.id }))} />
+          ))}
+        </div>
+      </div>
+
+      {/* Nota informativa */}
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "#FFF8F2", border: "1px solid #F0D8C0", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "#7A5530", lineHeight: 1.65, fontFamily: "'HWYGothic',sans-serif" }}>
+        <span style={{ flexShrink: 0, marginTop: 1 }}>⚠️</span>
+        <span>La factibilidad de agua y alcantarillado influye directamente en el costo y viabilidad del proyecto. Si aún no lo tienes definido, te asesoramos en el proceso.</span>
+      </div>
+
+      {/* Presupuesto */}
+      <div style={{ marginTop: 18 }}>
+        <SubLabel>Presupuesto estimado</SubLabel>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px,1fr))", gap: 9 }}>
+          {WZ_PRESUPUESTO.map(p => (
+            <button key={p.id} type="button" onClick={() => setD(prev => ({ ...prev, presupuesto: p.id }))} style={{
+              display: "flex", flexDirection: "column", alignItems: "flex-start",
+              gap: 2, padding: "12px 11px", borderRadius: 9,
+              border: `2px solid ${d.presupuesto === p.id ? C.warm : "#E0D8D0"}`,
+              background: d.presupuesto === p.id ? `${C.warm}12` : "white",
+              cursor: "pointer", fontFamily: "'HWYGothic',sans-serif", transition: "all 0.18s",
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: d.presupuesto === p.id ? C.dark : "#2A3528" }}>{p.label}</span>
+              <span style={{ fontSize: 11, color: "#9A8A7A" }}>{p.sub}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WzPaso3({ d, setD, C, sm }) {
+  const toggle = (id) => {
+    const item = WZ_PROGRAMA.find(x => x.id === id);
+    setD(prev => {
+      let next = [...prev.programa];
+      if (item.group === "dorm" || item.group === "baño") {
+        next = next.filter(x => WZ_PROGRAMA.find(o => o.id === x)?.group !== item.group);
+        if (!prev.programa.includes(id)) next.push(id);
+      } else {
+        next = next.includes(id) ? next.filter(x => x !== id) : [...next, id];
+      }
+      return { ...prev, programa: next };
+    });
+  };
+  const subLabel = (t) => (
+    <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: "#9A8A7A", marginBottom: 9, fontFamily: "'HWYGothic', sans-serif" }}>{t}</p>
+  );
+  return (
+    <div>
+      <h3 style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: sm ? 20 : 24, fontWeight: 400, color: "#2A3528", marginBottom: 4 }}>
+        Programa y necesidades
+      </h3>
+      <p style={{ fontSize: 13, color: "#6B7B6A", marginBottom: 22, lineHeight: 1.7, fontFamily: "'HWYGothic', sans-serif" }}>
+        Selecciona los espacios que necesitas. Puedes elegir múltiples opciones.
+      </p>
+      <div style={{ marginBottom: 16 }}>
+        {subLabel("Dormitorios")}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+          {WZ_PROGRAMA.filter(x => x.group === "dorm").map(o => (
+            <WzCard key={o.id} label={o.label} icon={o.icon}
+              selected={d.programa.includes(o.id)} onClick={() => toggle(o.id)} C={C} small />
+          ))}
+        </div>
+      </div>
+      <div style={{ marginBottom: 16 }}>
+        {subLabel("Baños")}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+          {WZ_PROGRAMA.filter(x => x.group === "baño").map(o => (
+            <WzCard key={o.id} label={o.label} icon={o.icon}
+              selected={d.programa.includes(o.id)} onClick={() => toggle(o.id)} C={C} small />
+          ))}
+        </div>
+      </div>
+      <div>
+        {subLabel("Espacios adicionales")}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          {WZ_PROGRAMA.filter(x => x.group === "extra").map(o => (
+            <WzChip key={o.id} label={o.label} icon={o.icon}
+              selected={d.programa.includes(o.id)} onClick={() => toggle(o.id)} C={C} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WzPaso4({ d, setD, error, C, sm }) {
+  const toggleMat = (id) => setD(prev => ({
+    ...prev,
+    materiales: prev.materiales.includes(id)
+      ? prev.materiales.filter(x => x !== id)
+      : [...prev.materiales, id],
+  }));
+  return (
+    <div>
+      <h3 style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: sm ? 20 : 24, fontWeight: 400, color: "#2A3528", marginBottom: 4 }}>
+        Estilo y materialidad
+      </h3>
+      <p style={{ fontSize: 13, color: "#6B7B6A", marginBottom: 22, lineHeight: 1.7, fontFamily: "'HWYGothic', sans-serif" }}>
+        Define la estética y los materiales de revestimiento que prefieres.
+      </p>
+      <div style={{ marginBottom: 22 }}>
+        <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: "#8A7868", marginBottom: 10, fontFamily: "'HWYGothic', sans-serif" }}>
+          Estilo arquitectónico <span style={{ color: C.warm }}>*</span>
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px,1fr))", gap: 9 }}>
+          {WZ_ESTILOS.map(e => (
+            <WzCard key={e.id} label={e.label} icon={e.icon}
+              selected={d.estilo === e.id}
+              onClick={() => setD(p => ({ ...p, estilo: e.id }))} C={C} />
+          ))}
+        </div>
+        <WzErr msg={error} />
+      </div>
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: "#8A7868", fontFamily: "'HWYGothic', sans-serif" }}>
+            Materialidad preferida
+          </p>
+          <span style={{ fontSize: 10, color: "#9A8A7A", background: "#F0EBE4", padding: "2px 10px", borderRadius: 20, fontFamily: "'HWYGothic', sans-serif" }}>
+            Selección múltiple
+          </span>
+        </div>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 7, background: "#F0F7F0", border: "1px solid #B8D8B0", borderRadius: 8, padding: "9px 12px", marginBottom: 12, fontSize: 11, color: "#3A6B3A", lineHeight: 1.6, fontFamily: "'HWYGothic', sans-serif" }}>
+          🧱 Los revestimientos están disponibles en nuestro catálogo en Santa Bárbara.
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          {WZ_MATS.map(m => (
+            <WzChip key={m.id} label={m.label}
+              selected={d.materiales.includes(m.id)} onClick={() => toggleMat(m.id)} C={C} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── COTIZACIÓN CABAÑA: número correlativo ────────────────────────────────────
+function getCotNum() {
+  const stored = parseInt(localStorage.getItem("ce1016_cab_cot") || "1010", 10);
+  const next = stored + 1;
+  localStorage.setItem("ce1016_cab_cot", String(next));
+  return `COT-${next}`;
+}
+
+// ─── COTIZACIÓN CABAÑA MODAL ─────────────────────────────────────────────────
+// Genera un PDF con el mismo look de la tarjeta oscura del Paso 5:
+// fondo verde, header con logo, título grande, filas label/valor,
+// nota de materiales, número de cotización y condiciones.
+function CabañaCotizacionModal({ data, C, waNumber, onClose }) {
+  const [cotNum] = useState(() => getCotNum());
+
+  const today     = new Date();
+  const fmtDate   = (d) => d.toLocaleDateString("es-CL", { day:"2-digit", month:"2-digit", year:"numeric" });
+  const validUntil = new Date(today); validUntil.setDate(validUntil.getDate() + 15);
+
+  const prog = data.programa.map(id => wzLabel(id, WZ_PROGRAMA)).join(", ") || "No especificado";
+  const mats = data.materiales.map(id => wzLabel(id, WZ_MATS)).join(", ") || "No especificado";
+
+  const GREEN  = C.dark || "#4A6741";
+  const ORANGE = C.warm || "#F4806D";
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  // ── Imprimir como PDF: abre ventana nueva con SOLO la tarjeta ───────────────
+  // ── Genera y descarga el PDF ─────────────────────────────────────────────────
+  const handlePDF = () => {
+    const el = document.getElementById("cab-cot-card");
+    if (!el) return;
+    const w = window.open("", "_blank", "width=580,height=920");
+    w.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="utf-8"/>
+      <title>${cotNum} · Casa-Estudio 1016</title>
+      <style>
+        @font-face { font-family: 'HWYGothic'; src: url('/src/assets/fonts/HWYGOTH.TTF'); }
+        @font-face { font-family: 'HWYGWide';  src: url('/src/assets/fonts/HWYGWDE.TTF'); }
+        * { box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { background: #1E1E1E; display: flex; justify-content: center;
+               padding: 24px; font-family: 'HWYGothic', Arial, sans-serif; }
+        @page { margin: 10mm; size: A5 portrait; }
+      </style>
+    </head><body>${el.outerHTML}</body></html>`);
+    w.document.close();
+    setTimeout(() => { w.print(); }, 700);
+  };
+
+  // ── Enviar PDF por WhatsApp: descarga el PDF y abre WhatsApp con aviso ───────
+  const handlePDFWhatsApp = () => {
+    // Paso 1: descarga el PDF
+    handlePDF();
+    // Paso 2: abre WhatsApp con mensaje que indica adjuntar el PDF descargado
+    const msgConPDF = encodeURIComponent(
+      `Hola, soy ${data.nombre || "un cliente"}. Adjunto la cotización n° ${cotNum} de cabaña descargada desde casaestudio.cl.\n\n` +
+      `Tipo: ${wzLabel(data.tipo, WZ_TIPOS)}\n` +
+      `Ubicación: ${data.ubicacion || "No indicada"}\n` +
+      `Superficie: ${data.superficie || "A definir"} m²\n` +
+      `Terreno: ${wzLabel(data.terreno, WZ_TERRENO)}\n` +
+      `Agua potable: ${wzLabel(data.agua, WZ_AGUA)}\n` +
+      `Aguas servidas: ${wzLabel(data.alcantarillado, WZ_ALCANTARILLADO)}\n` +
+      `Programa: ${prog}\n` +
+      `Estilo: ${wzLabel(data.estilo, WZ_ESTILOS)}\n` +
+      `Materialidad: ${mats}\n` +
+      `Presupuesto: ${wzLabel(data.presupuesto, WZ_PRESUPUESTO)}\n\n` +
+      `📎 Adjunto el PDF de la cotización. Quedo atento a contacto. ¡Gracias!`
+    );
+    setTimeout(() => {
+      window.open(`https://wa.me/${waNumber}?text=${msgConPDF}`, "_blank");
+    }, 900);
+  };
+
+  // ── Mensaje WhatsApp ────────────────────────────────────────────────────────
+  const waMsg = encodeURIComponent(
+    `Hola, soy ${data.nombre || "un cliente"}. Solicito cotización n° ${cotNum} para una cabaña en Casa Estudio 1016.\n\n` +
+    `Tipo: ${wzLabel(data.tipo, WZ_TIPOS)}\n` +
+    `Ubicación: ${data.ubicacion || "No indicada"}\n` +
+    `Superficie: ${data.superficie || "A definir"} m²\n` +
+    `Terreno: ${wzLabel(data.terreno, WZ_TERRENO)}\n` +
+    `Agua potable: ${wzLabel(data.agua, WZ_AGUA)}\n` +
+    `Aguas servidas: ${wzLabel(data.alcantarillado, WZ_ALCANTARILLADO)}\n` +
+    `Programa: ${prog}\n` +
+    `Estilo: ${wzLabel(data.estilo, WZ_ESTILOS)}\n` +
+    `Materialidad: ${mats}\n` +
+    `Presupuesto: ${wzLabel(data.presupuesto, WZ_PRESUPUESTO)}\n\n` +
+    `Quedo atento a contacto. ¡Gracias!`
+  );
+
+  // ── Fila de datos ────────────────────────────────────────────────────────────
+  const Row = ({ label, value }) => {
+    if (!value || value === "—") return null;
+    return (
+      <div style={{
+        display: "flex", gap: 12, padding: "10px 16px",
+        borderBottom: "1px solid rgba(255,255,255,0.07)",
+      }}>
+        <span style={{
+          fontSize: 10, fontWeight: 700, textTransform: "uppercase",
+          letterSpacing: 0.7, color: "rgba(245,240,232,0.45)",
+          minWidth: 120, flexShrink: 0, paddingTop: 1,
+          fontFamily: "'HWYGothic', Arial, sans-serif",
+        }}>{label}</span>
+        <span style={{
+          fontSize: 13, color: "#EDE5D8", lineHeight: 1.5, flex: 1,
+          fontFamily: "'HWYGothic', Arial, sans-serif", fontWeight: 500,
+        }}>{value}</span>
+      </div>
+    );
+  };
+
+  return createPortal(
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(10,8,6,0.92)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(8px)" }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ width: "100%", maxWidth: 560, maxHeight: "94vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 0 }}
+      >
+        {/* ── Toolbar (no se imprime) ── */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "12px 16px", background: "rgba(255,255,255,0.06)",
+          borderRadius: "12px 12px 0 0", backdropFilter: "blur(4px)",
+          border: "1px solid rgba(255,255,255,0.1)", borderBottom: "none",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 14 }}>📄</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'HWYGWide', Arial, sans-serif" }}>{cotNum}</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Arial, sans-serif" }}>· Cotización de cabaña</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            {/* Enviar resumen por WhatsApp (solo texto) */}
+            <a
+              href={`https://wa.me/${waNumber}?text=${waMsg}`}
+              target="_blank" rel="noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#25D366", color: "white", borderRadius: 7, padding: "8px 13px", fontSize: 12, fontWeight: 700, textDecoration: "none", fontFamily: "Arial, sans-serif" }}
+              title="Enviar resumen por WhatsApp"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              Enviar por WhatsApp
+            </a>
+            {/* Enviar PDF por WhatsApp: descarga PDF y abre WA */}
+            <button
+              onClick={handlePDFWhatsApp}
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#128C7E", color: "white", border: "none", borderRadius: 7, padding: "8px 13px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Arial, sans-serif" }}
+              title="Descarga el PDF y abre WhatsApp para adjuntarlo"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              📎 Enviar PDF por WhatsApp
+            </button>
+            {/* Descargar PDF */}
+            <button
+              onClick={handlePDF}
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, background: GREEN, color: "white", border: "none", borderRadius: 7, padding: "8px 13px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "Arial, sans-serif" }}
+            >
+              📥 Descargar PDF
+            </button>
+            <button
+              onClick={onClose}
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 7, padding: "8px 12px", fontSize: 16, cursor: "pointer", color: "rgba(255,255,255,0.7)", lineHeight: 1 }}
+            >×</button>
+          </div>
+        </div>
+
+        {/* ── TARJETA OSCURA — este div es el que se imprime ── */}
+        <div
+          id="cab-cot-card"
+          style={{
+            background: GREEN,
+            borderRadius: "0 0 16px 16px",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          {/* Glow decorativo */}
+          <div style={{ position: "absolute", top: 0, right: 0, width: 220, height: 220, borderRadius: "50%", background: `${ORANGE}18`, filter: "blur(50px)", pointerEvents: "none" }} />
+
+          {/* ── Header: logo + número cotización ── */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "20px 20px 16px", borderBottom: "1px solid rgba(255,255,255,0.1)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{
+                width: 36, height: 36, background: ORANGE, borderRadius: 7,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, fontWeight: 800, color: "white",
+                fontFamily: "'HWYGWide', Arial, sans-serif", flexShrink: 0,
+              }}>1016</div>
+              <div>
+                <div style={{ fontFamily: "'HWYGWide', Arial, sans-serif", fontSize: 15, fontWeight: 700, color: "white", lineHeight: 1 }}>
+                  Casa-Estudio <span style={{ color: ORANGE }}>1016</span>
+                </div>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 1.5, marginTop: 3 }}>
+                  Cotización de cabaña · casaestudio.cl
+                </div>
+              </div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: 1 }}>N° cotización</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "white", marginTop: 2 }}>{cotNum}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+                Válida hasta {fmtDate(validUntil)}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Título del proyecto ── */}
+          <div style={{ padding: "18px 20px 14px" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.5, color: "rgba(255,255,255,0.4)", marginBottom: 6, fontFamily: "'HWYGothic', Arial, sans-serif" }}>
+              {data.nombre ? `Proyecto de ${data.nombre}` : "Proyecto de cabaña"}
+            </div>
+            <div style={{ fontFamily: "'HWYGWide', Arial, sans-serif", fontSize: 28, fontWeight: 700, color: "white", lineHeight: 1.1 }}>
+              {wzLabel(data.tipo, WZ_TIPOS) || "Cabaña"}
+              {data.superficie && (
+                <em style={{ color: ORANGE, fontStyle: "italic", fontSize: "0.65em", marginLeft: 8 }}>
+                  · {data.superficie} m²
+                </em>
+              )}
+            </div>
+          </div>
+
+          {/* ── Filas de datos ── */}
+          <div style={{ background: "rgba(0,0,0,0.22)", margin: "0 12px", borderRadius: 10, overflow: "hidden" }}>
+            <Row label="Tipo de cabaña"  value={wzLabel(data.tipo, WZ_TIPOS)} />
+            <Row label="Ubicación"       value={data.ubicacion} />
+            <Row label="Terreno"         value={wzLabel(data.terreno, WZ_TERRENO)} />
+            <Row label="Superficie"      value={data.superficie ? `${data.superficie} m²` : null} />
+            <Row label="Agua potable"    value={wzLabel(data.agua, WZ_AGUA)} />
+            <Row label="Aguas servidas"  value={wzLabel(data.alcantarillado, WZ_ALCANTARILLADO)} />
+            <Row label="Programa"        value={prog} />
+            <Row label="Estilo"          value={wzLabel(data.estilo, WZ_ESTILOS)} />
+            <Row label="Materialidad"    value={mats !== "No especificado" ? mats : null} />
+            <Row label="Presupuesto"     value={wzLabel(data.presupuesto, WZ_PRESUPUESTO)} />
+          </div>
+
+          {/* ── Nota de materiales CE-1016 ── */}
+          {data.materiales.length > 0 && (
+            <div style={{ margin: "12px 12px 0", padding: "10px 14px", background: `${ORANGE}20`, border: `1px solid ${ORANGE}35`, borderRadius: 8 }}>
+              <p style={{ fontSize: 11, color: "#E8B090", lineHeight: 1.65, fontFamily: "'HWYGothic', Arial, sans-serif" }}>
+                🧱 Los materiales de revestimiento seleccionados están disponibles en el catálogo de importación de Casa-Estudio 1016, Santa Bárbara, Biobío.
+              </p>
+            </div>
+          )}
+
+          {/* ── Separador y datos de emisión ── */}
+          <div style={{ padding: "14px 20px", borderTop: "1px solid rgba(255,255,255,0.08)", marginTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "'HWYGothic', Arial, sans-serif", lineHeight: 1.7 }}>
+              <div>Emitido el {fmtDate(today)}</div>
+              <div>Arturo Prat 1016, Santa Bárbara · casaestudio.cl</div>
+            </div>
+            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", fontFamily: "'HWYGothic', Arial, sans-serif", textAlign: "right", lineHeight: 1.6 }}>
+              <div>Cotización referencial · No vinculante</div>
+              <div>Válida por 15 días · IVA incluido</div>
+            </div>
+          </div>
+        </div>
+        {/* /tarjeta */}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ─── PASO 5 DEL WIZARD ────────────────────────────────────────────────────────
+function WzPaso5({ d, C, sm, waNumber, onCotizar }) {
+  const prog = d.programa.map(id => wzLabel(id, WZ_PROGRAMA)).join(", ") || "No especificado";
+  const mats = d.materiales.map(id => wzLabel(id, WZ_MATS)).join(", ") || "No especificado";
+  const waHref = buildWizardWA(d, waNumber);
+
+  const Row = ({ label, value }) => (
+    <div style={{ display: "flex", gap: 12, padding: "9px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.6, color: "rgba(245,240,232,0.4)", minWidth: 110, flexShrink: 0, paddingTop: 1, fontFamily: "'HWYGothic',sans-serif" }}>{label}</span>
+      <span style={{ fontSize: 12, color: "#EDE5D8", lineHeight: 1.5, flex: 1, fontFamily: "'HWYGothic',sans-serif" }}>{value || "—"}</span>
+    </div>
+  );
+
+  return (
+    <div>
+      <h3 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: sm ? 20 : 24, fontWeight: 400, color: "#2A3528", marginBottom: 4 }}>Resumen de tu cabaña</h3>
+      <p style={{ fontSize: 13, color: "#6B7B6A", marginBottom: 18, lineHeight: 1.7, fontFamily: "'HWYGothic',sans-serif" }}>
+        Todo listo. Descarga tu cotización en PDF o envíala por WhatsApp.
+      </p>
+
+      <div style={{ background: C.dark, borderRadius: 14, overflow: "hidden", marginBottom: 14, position: "relative" }}>
+        <div style={{ position: "absolute", top: 0, right: 0, width: 180, height: 180, borderRadius: "50%", background: `${C.warm}20`, filter: "blur(40px)", pointerEvents: "none" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "16px 18px 14px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ width: 28, height: 28, borderRadius: 5, background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "white", fontFamily: "'HWYGWide',sans-serif", flexShrink: 0 }}>1016</div>
+          <div>
+            <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 13, fontWeight: 700, color: "white", lineHeight: 1 }}>Casa-Estudio <span style={{ color: C.warm }}>1016</span></div>
+            <div style={{ fontSize: 9, color: "rgba(245,240,232,0.4)", textTransform: "uppercase", letterSpacing: 1 }}>Cotización preliminar de cabaña</div>
+          </div>
+        </div>
+        <div style={{ padding: "14px 18px 10px", fontFamily: "'HWYGothic',sans-serif", fontSize: sm ? 22 : 26, fontWeight: 800, color: "white", lineHeight: 1.15 }}>
+          {wzLabel(d.tipo, WZ_TIPOS) || "Cabaña"}
+          {d.superficie && <em style={{ color: C.warm, fontStyle: "italic", fontSize: "0.75em" }}> · {d.superficie} m²</em>}
+        </div>
+        <div style={{ background: "rgba(0,0,0,0.2)", margin: "0 10px", borderRadius: 9, overflow: "hidden" }}>
+          <Row label="Tipo"           value={wzLabel(d.tipo, WZ_TIPOS)} />
+          <Row label="Ubicación"      value={d.ubicacion} />
+          <Row label="Terreno"        value={wzLabel(d.terreno, WZ_TERRENO)} />
+          <Row label="Superficie"     value={d.superficie ? `${d.superficie} m²` : null} />
+          <Row label="Agua potable"   value={wzLabel(d.agua, WZ_AGUA)} />
+          <Row label="Aguas servidas" value={wzLabel(d.alcantarillado, WZ_ALCANTARILLADO)} />
+          <Row label="Programa"       value={prog} />
+          <Row label="Estilo"         value={wzLabel(d.estilo, WZ_ESTILOS)} />
+          <Row label="Materialidad"   value={mats} />
+          <Row label="Presupuesto"    value={wzLabel(d.presupuesto, WZ_PRESUPUESTO)} />
+        </div>
+        {d.materiales.length > 0 && (
+          <div style={{ margin: "10px 10px 0", padding: "9px 13px", background: `${C.warm}20`, border: `1px solid ${C.warm}40`, borderRadius: 8 }}>
+            <p style={{ fontSize: 11, color: "#E8B090", lineHeight: 1.6, fontFamily: "'HWYGothic',sans-serif" }}>🧱 Materiales disponibles en catálogo CE-1016, Santa Bárbara, Biobío.</p>
+          </div>
+        )}
+        <div style={{ height: 14 }} />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 9 }}>
+        <a href={waHref} target="_blank" rel="noreferrer"
+          style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", justifyContent: "center", gap: 9, background: "#25D366", color: "white", padding: "14px", borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "'HWYGothic',sans-serif" }}>
+          💬 Enviar solicitud por WhatsApp
+        </a>
+        <button type="button" onClick={onCotizar} style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+          padding: "12px", borderRadius: 9, border: "none",
+          background: C.dark, color: "white", fontSize: 13, fontWeight: 700,
+          cursor: "pointer", fontFamily: "'HWYGothic',sans-serif",
+        }}>
+          📄 Descargar cotización PDF
+        </button>
+        <button type="button" style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+          padding: "12px", borderRadius: 9, background: "white", color: "#2A3528",
+          border: "1.5px solid #E0D8D0", fontSize: 13, fontWeight: 600,
+          cursor: "pointer", fontFamily: "'HWYGothic',sans-serif",
+        }}>
+          ✏ Volver a editar
+        </button>
+      </div>
+      <p style={{ textAlign: "center", fontSize: 11, color: "#9A8A7A", lineHeight: 1.7, fontFamily: "'HWYGothic',sans-serif" }}>
+        Respuesta en 24–48 horas hábiles con orientación y presupuesto referencial.
+      </p>
+    </div>
+  );
+}
+
+// ─── WIZARD MODAL ─────────────────────────────────────────────────────────────
+function WizardModal({ onClose, C, waNumber, sm }) {
+  const [step,           setStep]           = useState(0);
+  const [data,           setData]           = useState(WZ_INIT);
+  const [errors,         setErrors]         = useState({});
+  const [cotizacionOpen, setCotizacionOpen] = useState(false);
+
+  const validar = useCallback(() => {
+    const e = {};
+    if (step === 0 && !data.tipo)           e.tipo      = "Selecciona un tipo de cabaña para continuar.";
+    if (step === 1) {
+      if (!data.nombre.trim())              e.nombre    = "Por favor ingresa tu nombre.";
+      if (!data.ubicacion.trim())           e.ubicacion = "Por favor indica tu ubicación.";
+      if (!data.terreno)                    e.terreno   = "Indica si cuentas con terreno.";
+    }
+    if (step === 3 && !data.estilo)         e.estilo    = "Selecciona un estilo arquitectónico.";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }, [step, data]);
+
+  const next = () => { if (validar()) { setStep(s => Math.min(4, s + 1)); setErrors({}); } };
+  const prev = () => { setStep(s => Math.max(0, s - 1)); setErrors({}); };
+
+  const PASOS = [
+    <WzPaso1 key="p1" d={data} setD={setData} error={errors.tipo}   C={C} sm={sm} />,
+    <WzPaso2 key="p2" d={data} setD={setData} errors={errors}       C={C} sm={sm} />,
+    <WzPaso3 key="p3" d={data} setD={setData}                       C={C} sm={sm} />,
+    <WzPaso4 key="p4" d={data} setD={setData} error={errors.estilo} C={C} sm={sm} />,
+    <WzPaso5 key="p5" d={data} C={C} sm={sm} waNumber={waNumber} onCotizar={() => setCotizacionOpen(true)} />,
+  ];
+
+  // Bloquear scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  const wizardPortal = createPortal(
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 1001, background: "rgba(15,12,10,0.88)", display: "flex", alignItems: "center", justifyContent: "center", padding: sm ? 0 : 16, backdropFilter: "blur(5px)" }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "#FAF8F4", width: "100%", maxWidth: 680,
+          height: sm ? "100%" : "auto", maxHeight: sm ? "100%" : "92vh",
+          borderRadius: sm ? 0 : 16, overflowY: "auto",
+          display: "flex", flexDirection: "column",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.4)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid #E8E0D4", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 32, height: 32, background: C.dark, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'HWYGWide',sans-serif", fontSize: 11, fontWeight: 700, color: "white" }}>
+              1016
+            </div>
+            <div>
+              <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 15, fontWeight: 700, color: "#2A3528", lineHeight: 1 }}>
+                Casa-Estudio <span style={{ color: C.warm }}>1016</span>
+              </div>
+              <div style={{ fontSize: 9, color: "#8A7868", letterSpacing: 1, textTransform: "uppercase" }}>
+                Configura tu cabaña · Paso {step + 1} de 5
+              </div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "1px solid #E0D8D0", borderRadius: 7, padding: "6px 12px", cursor: "pointer", fontSize: 13, color: "#8A7868", fontFamily: "'HWYGothic',sans-serif", display: "flex", alignItems: "center", gap: 5 }}>
+            × Cerrar
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: "auto", padding: sm ? "20px 16px" : "24px 28px" }}>
+          <WzProgressBar step={step} C={C} />
+          <div key={step} style={{ animation: "fadeUp 0.3s ease both" }}>
+            {PASOS[step]}
+          </div>
+        </div>
+
+        {/* Nav footer */}
+        {step < 4 && (
+          <div style={{ padding: "14px 20px", borderTop: "1px solid #E8E0D4", background: "white", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+            <button
+              type="button" onClick={prev} disabled={step === 0}
+              style={{
+                display: "flex", alignItems: "center", gap: 5,
+                padding: "10px 18px", borderRadius: 8,
+                border: "1.5px solid #E0D8D0", background: "white",
+                fontSize: 13, fontWeight: 600, cursor: step === 0 ? "not-allowed" : "pointer",
+                color: step === 0 ? "#C0BDB7" : "#2A3528", opacity: step === 0 ? 0.4 : 1,
+                fontFamily: "'HWYGothic',sans-serif", transition: "all 0.18s",
+              }}>
+              ← Anterior
+            </button>
+            <span style={{ fontSize: 11, color: "#9A8A7A", fontFamily: "'HWYGothic',sans-serif" }}>
+              {step + 1} / 5
+            </span>
+            <button
+              type="button" onClick={next}
+              style={{
+                display: "flex", alignItems: "center", gap: 5,
+                padding: "10px 22px", borderRadius: 8, border: "none",
+                background: C.dark, color: "white",
+                fontSize: 13, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'HWYGothic',sans-serif", transition: "background 0.2s",
+                boxShadow: `0 3px 12px ${C.dark}40`,
+              }}
+              onMouseOver={e => e.currentTarget.style.background = C.warm}
+              onMouseOut={e => e.currentTarget.style.background = C.dark}
+            >
+              {step === 3 ? "Ver resumen" : "Continuar"} →
+            </button>
+          </div>
+        )}
+
+        <p style={{ textAlign: "center", fontSize: 10, color: "#B0ADA8", padding: "8px 16px 14px", fontFamily: "'HWYGothic',sans-serif" }}>
+          🔒 Tu información se usa únicamente para preparar tu cotización · casaestudio.cl
+        </p>
+      </div>
+    </div>,
+    document.body
+  );
+
+  // Modal de cotización PDF — se abre sobre el wizard
+  return (
+    <>
+      {wizardPortal}
+      {cotizacionOpen && (
+        <CabañaCotizacionModal
+          data={data}
+          C={C}
+          waNumber={waNumber}
+          onClose={() => setCotizacionOpen(false)}
+        />
+      )}
+    </>
+  );
+}
+
+// ─── SECCIÓN DISEÑA TU PROYECTO (hero de entrada) ─────────────────────────────
+function SeccionDiseñaProyecto({ C, sm, onAbrir }) {
+  const PASOS = [
+    { n: 1, t: "Tipo de cabaña",      d: "1 piso, 2 pisos, modular, refugio, conjunto…",     e: "🏕️" },
+    { n: 2, t: "Terreno e infraestructura", d: "Agua potable, aguas servidas, superficie.",   e: "💧" },
+    { n: 3, t: "Programa interior",   d: "Dormitorios, baños, living, terraza y más.",         e: "🛏" },
+    { n: 4, t: "Estilo y materiales", d: "Estética arquitectónica y revestimientos.",           e: "🎨" },
+    { n: 5, t: "Resumen y envío",     d: "Recibe tu propuesta por WhatsApp en 24–48 hrs.",     e: "💬" },
+  ];
+
+  return (
+    <section
+      id="diseña-tu-proyecto"
+      style={{ background: C.dark, position: "relative", overflow: "hidden" }}
+    >
+      {/* ── Franja superior: texto + CTA ── */}
+      <div style={{
+        padding: sm ? "52px 20px 40px" : "72px 32px 56px",
+        borderBottom: "1px solid rgba(255,255,255,0.07)",
+        position: "relative",
+      }}>
+        {/* Glow decorativo */}
+        <div style={{ position: "absolute", top: -80, right: "10%", width: 500, height: 500, borderRadius: "50%", background: `${C.warm}18`, filter: "blur(80px)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: 1400, margin: "0 auto", position: "relative" }}>
+          {/* Eyebrow */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 20, padding: "5px 16px", marginBottom: 24,
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.warm }} />
+            <span style={{ fontSize: 10, color: "rgba(196,180,154,0.8)", letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 600, fontFamily: "'HWYGothic',sans-serif" }}>
+              Herramienta exclusiva · Casa-Estudio 1016
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "1fr auto", gap: sm ? 28 : 48, alignItems: "flex-end" }}>
+            <div>
+              <h2 style={{
+                fontFamily: "'HWYGWide',sans-serif",
+                fontSize: sm ? "clamp(30px,8vw,44px)" : "clamp(36px,4vw,58px)",
+                fontWeight: 400, color: "white", lineHeight: 1.1, marginBottom: 16,
+              }}>
+                Diseña tu <em style={{ fontStyle: "italic", color: C.warm }}>cabaña</em>{" "}en 5 pasos
+              </h2>
+              <p style={{
+                fontSize: sm ? 14 : 16, color: "rgba(255,255,255,0.48)",
+                lineHeight: 1.8, maxWidth: 560,
+                fontFamily: "'HWYGothic',sans-serif", fontWeight: 300,
+              }}>
+                Configura tu cabaña paso a paso: tipología, terreno, infraestructura, programa, estilo y materialidad. Recibe una orientación inicial para cotizar. Sin compromiso, solo 3 minutos.
+              </p>
+            </div>
+
+            {/* CTA block */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: sm ? "flex-start" : "flex-end", gap: 12, flexShrink: 0 }}>
+              <button
+                onClick={onAbrir}
+                style={{
+                  background: "white", color: C.dark, border: "none",
+                  borderRadius: 8, padding: "16px 36px",
+                  fontSize: 15, fontWeight: 700, cursor: "pointer",
+                  fontFamily: "'HWYGothic',sans-serif",
+                  display: "inline-flex", alignItems: "center", gap: 10,
+                  whiteSpace: "nowrap", transition: "all 0.2s",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = C.warm; e.currentTarget.style.color = "white"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseOut={e  => { e.currentTarget.style.background = "white";  e.currentTarget.style.color = C.dark;  e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                <span style={{ fontSize: 18 }}>+</span> Comenzar diseño
+              </button>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "'HWYGothic',sans-serif", textAlign: sm ? "left" : "right" }}>
+                Sin compromiso · Respuesta en 24–48 hrs
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Franja inferior: pasos en fila horizontal ── */}
+      <div style={{ maxWidth: 1400, margin: "0 auto", padding: sm ? "0 20px 52px" : "0 32px 60px" }}>
+        {/* Línea conectora + números (desktop) */}
+        {!sm && (
+          <div style={{ position: "relative", display: "flex", alignItems: "flex-start", paddingTop: 40 }}>
+            {/* Línea horizontal de fondo */}
+            <div style={{
+              position: "absolute", top: 59, left: 28, right: 28,
+              height: 1, background: "rgba(255,255,255,0.1)",
+            }} />
+
+            {PASOS.map((p, i) => (
+              <div key={p.n} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative", cursor: "pointer" }}
+                onClick={onAbrir}
+              >
+                {/* Círculo numerado */}
+                <div style={{
+                  width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: i === 4 ? C.warm : "rgba(255,255,255,0.08)",
+                  border: `1.5px solid ${i === 4 ? C.warm : "rgba(255,255,255,0.2)"}`,
+                  fontSize: 15, fontWeight: 800, color: "white",
+                  fontFamily: "'HWYGWide',sans-serif",
+                  marginBottom: 20, zIndex: 1,
+                  transition: "all 0.2s",
+                  boxShadow: i === 4 ? `0 0 0 6px ${C.warm}25` : "none",
+                }}>
+                  {i === 4 ? "→" : p.n}
+                </div>
+
+                {/* Card del paso */}
+                <div style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.09)",
+                  borderTop: `2px solid ${i === 4 ? C.warm : "rgba(255,255,255,0.15)"}`,
+                  borderRadius: 10, padding: "20px 16px",
+                  width: "calc(100% - 16px)", textAlign: "center",
+                  transition: "all 0.2s",
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderTopColor = C.warm; }}
+                onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderTopColor = i === 4 ? C.warm : "rgba(255,255,255,0.15)"; }}
+                >
+                  <div style={{ fontSize: 26, marginBottom: 10, lineHeight: 1 }}>{p.e}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 8, fontFamily: "'HWYGWide',sans-serif", lineHeight: 1.3 }}>{p.t}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "'HWYGothic',sans-serif", lineHeight: 1.65 }}>{p.d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Pasos móvil: lista vertical */}
+        {sm && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 0, paddingTop: 36 }}>
+            {PASOS.map((p, i) => (
+              <div key={p.n} onClick={onAbrir} style={{ display: "flex", gap: 16, alignItems: "flex-start", cursor: "pointer", paddingBottom: i < 4 ? 24 : 0, position: "relative" }}>
+                {/* Línea vertical */}
+                {i < 4 && (
+                  <div style={{ position: "absolute", left: 18, top: 44, bottom: 0, width: 1, background: "rgba(255,255,255,0.1)" }} />
+                )}
+                {/* Círculo */}
+                <div style={{
+                  width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: i === 4 ? C.warm : "rgba(255,255,255,0.08)",
+                  border: `1.5px solid ${i === 4 ? C.warm : "rgba(255,255,255,0.2)"}`,
+                  fontSize: 13, fontWeight: 800, color: "white",
+                  fontFamily: "'HWYGWide',sans-serif", zIndex: 1,
+                }}>
+                  {i === 4 ? "→" : p.n}
+                </div>
+                <div style={{ flex: 1, paddingTop: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 16 }}>{p.e}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'HWYGWide',sans-serif" }}>{p.t}</span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'HWYGothic',sans-serif", lineHeight: 1.6 }}>{p.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── COMPONENTES EXISTENTES (sin cambios) ──────────────────────────────────────
 function Thumb({ tk, customImg, w = 120, h = 80 }) {
   const ref = useRef();
   useEffect(() => {
@@ -232,28 +1391,22 @@ function ImgUpload({ onImage, children, style = {} }) {
   );
 }
 
-// ─── ProductCarousel ──────────────────────────────────────────────────────────
 function ProductCarousel({ images, productName }) {
   const [current, setCurrent] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
   const intervalRef = useRef(null);
   const imgs = images && images.length > 0 ? images : [];
-
   useEffect(() => {
     if (imgs.length <= 1) return;
-    intervalRef.current = setInterval(() => {
-      setCurrent((c) => (c + 1) % imgs.length);
-    }, 3000);
+    intervalRef.current = setInterval(() => { setCurrent((c) => (c + 1) % imgs.length); }, 3000);
     return () => clearInterval(intervalRef.current);
   }, [imgs.length]);
-
   useEffect(() => {
     if (lightboxOpen) { document.body.style.overflow = "hidden"; }
     else { document.body.style.overflow = ""; }
     return () => { document.body.style.overflow = ""; };
   }, [lightboxOpen]);
-
   useEffect(() => {
     if (!lightboxOpen) return;
     const handler = (e) => {
@@ -264,45 +1417,27 @@ function ProductCarousel({ images, productName }) {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxOpen, imgs.length]);
-
   const openLightbox = (e) => { e.stopPropagation(); setLightboxIdx(current); setLightboxOpen(true); };
-
   if (imgs.length === 0) return null;
-
   const lightbox = lightboxOpen ? createPortal(
     <div onClick={() => setLightboxOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.93)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "clamp(10px,2vh,20px)", padding: "clamp(12px,3vw,32px)" }}>
       <button onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }} style={{ position: "fixed", top: 14, right: 14, background: "rgba(255,255,255,0.15)", border: "none", color: "white", fontSize: "clamp(20px,4vw,28px)", cursor: "pointer", width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100000, backdropFilter: "blur(4px)" }}>×</button>
       <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "clamp(10px,1.5vw,13px)", fontWeight: 600, letterSpacing: 2, textTransform: "uppercase", textAlign: "center", maxWidth: "80vw" }}>{productName}</div>
-      {imgs.length > 1 && (
-        <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i - 1 + imgs.length) % imgs.length); }} style={{ position: "fixed", left: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", color: "white", fontSize: "clamp(22px,4vw,36px)", cursor: "pointer", padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)", borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)" }}>‹</button>
-      )}
+      {imgs.length > 1 && (<button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i - 1 + imgs.length) % imgs.length); }} style={{ position: "fixed", left: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", color: "white", fontSize: "clamp(22px,4vw,36px)", cursor: "pointer", padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)", borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)" }}>‹</button>)}
       <img src={imgs[lightboxIdx]} alt={`${productName} vista ${lightboxIdx + 1}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: "min(90vw, 900px)", maxHeight: "clamp(200px, 55vh, 600px)", objectFit: "contain", borderRadius: "clamp(8px,1.5vw,16px)", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", display: "block" }} />
       <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", gap: "clamp(8px,1.5vw,14px)", flexWrap: "wrap", justifyContent: "center", maxWidth: "90vw" }}>
-        {imgs.map((src, i) => (
-          <div key={i} onClick={(e) => { e.stopPropagation(); setLightboxIdx(i); }} style={{ width: "clamp(56px,10vw,80px)", height: "clamp(56px,10vw,80px)", borderRadius: "clamp(6px,1vw,10px)", overflow: "hidden", cursor: "pointer", flexShrink: 0, border: `${i === lightboxIdx ? 3 : 1.5}px solid ${i === lightboxIdx ? "white" : "rgba(255,255,255,0.25)"}`, opacity: i === lightboxIdx ? 1 : 0.5, transition: "all 0.2s" }}>
-            <img src={src} alt={`Vista ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-          </div>
-        ))}
+        {imgs.map((src, i) => (<div key={i} onClick={(e) => { e.stopPropagation(); setLightboxIdx(i); }} style={{ width: "clamp(56px,10vw,80px)", height: "clamp(56px,10vw,80px)", borderRadius: "clamp(6px,1vw,10px)", overflow: "hidden", cursor: "pointer", flexShrink: 0, border: `${i === lightboxIdx ? 3 : 1.5}px solid ${i === lightboxIdx ? "white" : "rgba(255,255,255,0.25)"}`, opacity: i === lightboxIdx ? 1 : 0.5, transition: "all 0.2s" }}><img src={src} alt={`Vista ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>))}
       </div>
       <div style={{ color: "rgba(255,255,255,0.35)", fontSize: "clamp(11px,1.5vw,13px)" }}>{lightboxIdx + 1} / {imgs.length}</div>
-      {imgs.length > 1 && (
-        <button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i + 1) % imgs.length); }} style={{ position: "fixed", right: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", color: "white", fontSize: "clamp(22px,4vw,36px)", cursor: "pointer", padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)", borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)" }}>›</button>
-      )}
+      {imgs.length > 1 && (<button onClick={(e) => { e.stopPropagation(); setLightboxIdx((i) => (i + 1) % imgs.length); }} style={{ position: "fixed", right: "clamp(6px,2vw,16px)", top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.12)", border: "none", color: "white", fontSize: "clamp(22px,4vw,36px)", cursor: "pointer", padding: "clamp(6px,1.5vw,12px) clamp(10px,2vw,18px)", borderRadius: 10, zIndex: 100000, backdropFilter: "blur(4px)" }}>›</button>)}
     </div>,
     document.body
   ) : null;
-
   return (
     <>
       <div onClick={openLightbox} style={{ position: "relative", width: "100%", height: "100%", cursor: "zoom-in", overflow: "hidden" }}>
         <img src={imgs[current]} alt={productName} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", transition: "opacity 0.35s ease" }} />
-        {imgs.length > 1 && (
-          <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, zIndex: 2 }}>
-            {imgs.map((_, i) => (
-              <div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: i === current ? "white" : "rgba(255,255,255,0.4)", boxShadow: "0 1px 4px rgba(0,0,0,0.5)", transition: "background 0.2s" }} />
-            ))}
-          </div>
-        )}
+        {imgs.length > 1 && (<div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, zIndex: 2 }}>{imgs.map((_, i) => (<div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: i === current ? "white" : "rgba(255,255,255,0.4)", boxShadow: "0 1px 4px rgba(0,0,0,0.5)", transition: "background 0.2s" }} />))}</div>)}
         <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.42)", color: "white", fontSize: 10, padding: "3px 8px", borderRadius: 5, fontWeight: 600, zIndex: 2, pointerEvents: "none" }}>🔍 ver</div>
       </div>
       {lightbox}
@@ -343,16 +1478,10 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
             <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => set("customImg", ev.target.result); r.readAsDataURL(f); }} />
           </label>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <div style={{ flex: 1, height: 1, background: "#E0D8D0" }} />
-            <span style={{ fontSize: 11, color: "#AAA", fontWeight: 600 }}>O elige una textura generada</span>
-            <div style={{ flex: 1, height: 1, background: "#E0D8D0" }} />
+            <div style={{ flex: 1, height: 1, background: "#E0D8D0" }} /><span style={{ fontSize: 11, color: "#AAA", fontWeight: 600 }}>O elige una textura generada</span><div style={{ flex: 1, height: 1, background: "#E0D8D0" }} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 5 }}>
-            {Object.keys(TX).map((k) => (
-              <div key={k} onClick={() => { set("tk", k); set("customImg", null); }} style={{ borderRadius: 6, overflow: "hidden", cursor: "pointer", border: `2px solid ${!p.customImg && p.tk === k ? "#F5A623" : "transparent"}`, height: 44, opacity: p.customImg ? 0.4 : 1, transition: "opacity .15s" }} title={k}>
-                <Thumb tk={k} w={80} h={44} />
-              </div>
-            ))}
+            {Object.keys(TX).map((k) => (<div key={k} onClick={() => { set("tk", k); set("customImg", null); }} style={{ borderRadius: 6, overflow: "hidden", cursor: "pointer", border: `2px solid ${!p.customImg && p.tk === k ? "#F5A623" : "transparent"}`, height: 44, opacity: p.customImg ? 0.4 : 1, transition: "opacity .15s" }} title={k}><Thumb tk={k} w={80} h={44} /></div>))}
           </div>
         </div>
         <div style={{ marginBottom: 16 }}>
@@ -368,220 +1497,81 @@ function ProductEditor({ product, onSave, onDelete, onClose }) {
   );
 }
 
-// ─── VisualizerModal ──────────────────────────────────────────────────────────
 function VisualizerModal({ prods, onClose, C, $$, waNumber }) {
   const w = useW();
   const sm = w < 640;
-
-  // ── Superficie / catálogo
   const [vizSurface, setVizSurface] = useState("muro");
   const [vizFilterCat, setVizFilterCat] = useState("todos");
   const [vizSelected, setVizSelected] = useState(null);
   const [panel, setPanel] = useState("foto");
-
-  // ── Foto
   const [vizImage, setVizImage] = useState(null);
   const [vizDragging, setVizDragging] = useState(false);
-
-  // ── Medidas
   const [wallLength, setWallLength] = useState("");
   const [wallHeight, setWallHeight] = useState("");
   const [wastePercent, setWastePercent] = useState(10);
   const [openingsM2, setOpeningsM2] = useState(0);
-
-  // ── Resultado
   const [busy, setBusy] = useState(false);
   const [resultOriginal, setResultOriginal] = useState(null);
   const [resultImg, setResultImg] = useState(null);
   const [resultTxt, setResultTxt] = useState("");
-
-  // Bloquear scroll
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, []);
-
-  // Reset filtro al cambiar superficie
+  useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
   useEffect(() => { setVizFilterCat("todos"); setVizSelected(null); }, [vizSurface]);
-
-  // ── Producto activo
   const selectedVizProduct = vizSelected || null;
-
-  // ── Cubicación en vivo
   const coverage = selectedVizProduct ? getCoverageM2(selectedVizProduct) : 1;
-  const cubiResult =
-    selectedVizProduct &&
-    parseFloat(wallLength) > 0 &&
-    parseFloat(wallHeight) > 0
-      ? calcularCubicacion({
-          largo: parseFloat(wallLength),
-          alto: parseFloat(wallHeight),
-          merma: parseFloat(wastePercent) || 0,
-          descuentoVanos: parseFloat(openingsM2) || 0,
-          coberturaM2PorUnidad: coverage,
-          precioUnitario: selectedVizProduct.price,
-        })
-      : null;
-
-  // ── Filtros catálogo
+  const cubiResult = selectedVizProduct && parseFloat(wallLength) > 0 && parseFloat(wallHeight) > 0
+    ? calcularCubicacion({ largo: parseFloat(wallLength), alto: parseFloat(wallHeight), merma: parseFloat(wastePercent) || 0, descuentoVanos: parseFloat(openingsM2) || 0, coberturaM2PorUnidad: coverage, precioUnitario: selectedVizProduct.price })
+    : null;
   const vizCats = vizSurface === "muro"
     ? [{ key: "todos", label: "Todos" }, { key: "muro", label: "Muros int." }, { key: "exterior", label: "Muros ext." }]
     : [{ key: "todos", label: "Todos" }, { key: "cielo", label: "Cielos" }];
-
   const vizFiltered = prods.filter((p) => {
     if (vizSurface === "muro" && !(p.cat === "muro" || p.cat === "exterior")) return false;
     if (vizSurface === "cielo" && p.cat !== "cielo") return false;
     if (vizFilterCat !== "todos" && p.cat !== vizFilterCat) return false;
     return true;
   });
-
-  // ── Foto handler
   const handleVizFile = useCallback((file) => {
     if (!file || !file.type.startsWith("image/")) return;
     const reader = new FileReader();
     reader.onload = (e) => setVizImage(e.target.result);
     reader.readAsDataURL(file);
   }, []);
-
-  // ── Prompt preparado para futura integración IA
-  // CONEXIÓN IA: cuando tengas el backend listo, envía aiPrompt en el body del
-  // POST a /api/generate-visualization junto con la imagen y datos del producto.
-  // NUNCA expongas la API key en el frontend.
-  const aiPrompt = selectedVizProduct
-    ? `Toma la foto del muro subida por el usuario y aplica únicamente sobre la superficie principal del ${vizSurface} el revestimiento seleccionado: ${selectedVizProduct.name}. Usa la textura o imagen del producto como referencia visual. Mantén la perspectiva original, iluminación real, sombras, proporciones y entorno. No modifiques muebles, objetos, ventanas ni puertas. Genera una visualización hiperrealista, creíble y comercial, como una foto profesional de interiorismo.`
-    : "";
-
-  // ── Generación visualización
-  // CONEXIÓN IA: reemplaza el bloque "FALLBACK LOCAL" por:
-  //
-  //   const response = await fetch("/api/generate-visualization", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       imageBase64: vizImage,
-  //       productName: selectedVizProduct.name,
-  //       productImage: selectedVizProduct.customImg || selectedVizProduct.image || null,
-  //       surface: vizSurface,
-  //       largo: parseFloat(wallLength),
-  //       alto: parseFloat(wallHeight),
-  //       prompt: aiPrompt,
-  //     }),
-  //   });
-  //   const data = await response.json();
-  //   setResultImg(data.imageUrl);
-  //
-  // Desde el backend puedes conectar: OpenAI DALL-E 3, Replicate, Stability AI, etc.
+  function buildWAMessage() {
+    if (!selectedVizProduct || !cubiResult) return "";
+    return encodeURIComponent(`Hola, quiero cotizar este revestimiento:\n\nProducto:\n${selectedVizProduct.name}\nCódigo:\n${selectedVizProduct.code}\n\nDimensiones del muro:\nLargo: ${wallLength} m\nAlto: ${wallHeight} m\n\nSuperficie:\nm² brutos: ${cubiResult.m2Bruto.toFixed(2)}\nm² netos: ${cubiResult.m2Neto.toFixed(2)}\nm² con merma: ${cubiResult.m2ConMerma.toFixed(2)}\n\nCantidad estimada:\n${cubiResult.unidades} ${selectedVizProduct.unit}\n\nPrecio unitario:\n${$$(selectedVizProduct.price)}\n\nPrecio total estimado:\n${$$(cubiResult.precioTotal)}\n\nAdjunto o envío la imagen de referencia para revisar factibilidad.`);
+  }
   async function generarVisualizacionIA() {
     if (!vizImage || !selectedVizProduct) return;
     if (!(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0)) return;
     setBusy(true); setResultImg(null); setResultTxt(""); setResultOriginal(vizImage);
-
     const imageBase64 = vizImage.includes(",") ? vizImage.split(",")[1] : vizImage;
     let productImageBase64 = null;
-    if (selectedVizProduct.customImg) {
-      productImageBase64 = selectedVizProduct.customImg.includes(",")
-        ? selectedVizProduct.customImg.split(",")[1]
-        : selectedVizProduct.customImg;
-    } else if (selectedVizProduct.image && typeof selectedVizProduct.image === "string" && selectedVizProduct.image.startsWith("data:")) {
-      productImageBase64 = selectedVizProduct.image.split(",")[1];
-    }
-
+    if (selectedVizProduct.customImg) { productImageBase64 = selectedVizProduct.customImg.includes(",") ? selectedVizProduct.customImg.split(",")[1] : selectedVizProduct.customImg; }
+    else if (selectedVizProduct.image && typeof selectedVizProduct.image === "string" && selectedVizProduct.image.startsWith("data:")) { productImageBase64 = selectedVizProduct.image.split(",")[1]; }
     try {
-      const response = await fetch("/api/generate-visualization", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageBase64,
-          productName: selectedVizProduct.name,
-          productDesc: selectedVizProduct.desc || "",
-          productImageBase64,
-          surface: vizSurface,
-          largo: parseFloat(wallLength),
-          alto: parseFloat(wallHeight),
-        }),
-      });
+      const response = await fetch("/api/generate-visualization", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageBase64, productName: selectedVizProduct.name, productDesc: selectedVizProduct.desc || "", productImageBase64, surface: vizSurface, largo: parseFloat(wallLength), alto: parseFloat(wallHeight) }) });
       const data = await response.json();
-      if (response.ok && data.imageUrl) {
-        setResultImg(data.imageUrl);
-        setResultTxt(`✦ Visualización hiperrealista generada con IA — ${selectedVizProduct.name} aplicado en ${vizSurface}.`);
-      } else if (data.fallback) {
-        const fallback = await applyTexture(vizImage, selectedVizProduct.tk, vizSurface, selectedVizProduct.customImg || null);
-        setResultImg(fallback);
-        setResultTxt(`Simulación local (IA no disponible: ${data.error || "error"}). Visítanos en Arturo Prat 1016 para asesoría personalizada.`);
-      } else {
-        throw new Error(data.error || "Error desconocido.");
-      }
-    } catch (err) {
-      try {
-        const fallback = await applyTexture(vizImage, selectedVizProduct.tk, vizSurface, selectedVizProduct.customImg || null);
-        setResultImg(fallback);
-        setResultTxt("Simulación local de textura. Backend IA en proceso de conexión.");
-      } catch {
-        setResultTxt("Error al procesar la imagen. Intenta con otra foto.");
-      }
+      if (response.ok && data.imageUrl) { setResultImg(data.imageUrl); setResultTxt(`✦ Visualización generada con IA — ${selectedVizProduct.name} aplicado en ${vizSurface}.`); }
+      else if (data.fallback) { const fallback = await applyTexture(vizImage, selectedVizProduct.tk, vizSurface, selectedVizProduct.customImg || null); setResultImg(fallback); setResultTxt(`Simulación local (IA no disponible: ${data.error || "error"}). Visítanos en Arturo Prat 1016 para asesoría personalizada.`); }
+      else { throw new Error(data.error || "Error desconocido."); }
+    } catch {
+      try { const fallback = await applyTexture(vizImage, selectedVizProduct.tk, vizSurface, selectedVizProduct.customImg || null); setResultImg(fallback); setResultTxt("Simulación local de textura. Backend IA en proceso de conexión."); }
+      catch { setResultTxt("Error al procesar la imagen. Intenta con otra foto."); }
     }
     setBusy(false);
   }
-
-  // ── WhatsApp
-  function buildWAMessage() {
-    if (!selectedVizProduct || !cubiResult) return "";
-    return encodeURIComponent(
-      `Hola, quiero cotizar este revestimiento:\n\n` +
-      `Producto:\n${selectedVizProduct.name}\n` +
-      `Código:\n${selectedVizProduct.code}\n\n` +
-      `Dimensiones del muro:\n` +
-      `Largo: ${wallLength} m\n` +
-      `Alto: ${wallHeight} m\n\n` +
-      `Superficie:\n` +
-      `m² brutos: ${cubiResult.m2Bruto.toFixed(2)}\n` +
-      `m² netos: ${cubiResult.m2Neto.toFixed(2)}\n` +
-      `m² con merma: ${cubiResult.m2ConMerma.toFixed(2)}\n\n` +
-      `Cantidad estimada:\n${cubiResult.unidades} ${selectedVizProduct.unit}\n\n` +
-      `Precio unitario:\n${$$(selectedVizProduct.price)}\n\n` +
-      `Precio total estimado:\n${$$(cubiResult.precioTotal)}\n\n` +
-      `Adjunto o envío la imagen de referencia para revisar factibilidad.`
-    );
-  }
-
-  // ── Estilos reutilizables
-  const inputSt = {
-    width: "100%", padding: "9px 11px", border: "1px solid #D8CEC0",
-    borderRadius: 7, fontSize: 13, fontFamily: "inherit", outline: "none",
-    background: "#FAFAF8", color: C.text,
-  };
-  const labelSt = {
-    display: "block", fontSize: 10, fontWeight: 700, color: "#8A7868",
-    textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 4,
-  };
-  const cardSt = {
-    background: "white", border: "1px solid #EDE8E0",
-    borderRadius: 12, padding: sm ? 14 : 16,
-  };
-  const secTitle = {
-    fontFamily: "'HWYGWide', sans-serif", fontSize: 11, fontWeight: 700,
-    color: C.dark, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5,
-  };
-
-  // ── Panel catálogo (derecho)
+  const inputSt = { width: "100%", padding: "9px 11px", border: "1px solid #D8CEC0", borderRadius: 7, fontSize: 13, fontFamily: "inherit", outline: "none", background: "#FAFAF8", color: C.text };
+  const labelSt = { display: "block", fontSize: 10, fontWeight: 700, color: "#8A7868", textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 4 };
+  const cardSt = { background: "white", border: "1px solid #EDE8E0", borderRadius: 12, padding: sm ? 14 : 16 };
+  const secTitle = { fontFamily: "'HWYGWide', sans-serif", fontSize: 11, fontWeight: 700, color: C.dark, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 };
   const renderCatalogo = () => (
     <div style={{ width: sm ? "100%" : 260, background: "white", borderLeft: sm ? "none" : "1px solid #EDE8E0", display: "flex", flexDirection: "column", overflow: "hidden", flexShrink: 0 }}>
       <div style={{ padding: "10px 10px 6px", borderBottom: "1px solid #EDE8E0", flexShrink: 0 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 8 }}>
-          {[{ k: "muro", icon: "🧱", l: "Muros" }, { k: "cielo", icon: "☁️", l: "Cielos" }].map((s) => (
-            <button key={s.k} onClick={() => setVizSurface(s.k)}
-              style={{ padding: "8px 4px", borderRadius: 8, border: `2px solid ${vizSurface === s.k ? C.warm : "#E0D8D0"}`, background: vizSurface === s.k ? "#FFF4F0" : "white", color: vizSurface === s.k ? C.warm : C.mid, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-              {s.icon} {s.l}
-            </button>
-          ))}
+          {[{ k: "muro", icon: "🧱", l: "Muros" }, { k: "cielo", icon: "☁️", l: "Cielos" }].map((s) => (<button key={s.k} onClick={() => setVizSurface(s.k)} style={{ padding: "8px 4px", borderRadius: 8, border: `2px solid ${vizSurface === s.k ? C.warm : "#E0D8D0"}`, background: vizSurface === s.k ? "#FFF4F0" : "white", color: vizSurface === s.k ? C.warm : C.mid, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>{s.icon} {s.l}</button>))}
         </div>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-          {vizCats.map((c) => (
-            <button key={c.key} onClick={() => setVizFilterCat(c.key)}
-              style={{ padding: "3px 9px", border: `1px solid ${vizFilterCat === c.key ? C.warm : "#E0D8D0"}`, borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer", background: vizFilterCat === c.key ? C.warm : "white", color: vizFilterCat === c.key ? "white" : "#8A7868", fontFamily: "inherit" }}>
-              {c.label}
-            </button>
-          ))}
+          {vizCats.map((c) => (<button key={c.key} onClick={() => setVizFilterCat(c.key)} style={{ padding: "3px 9px", border: `1px solid ${vizFilterCat === c.key ? C.warm : "#E0D8D0"}`, borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: "pointer", background: vizFilterCat === c.key ? C.warm : "white", color: vizFilterCat === c.key ? "white" : "#8A7868", fontFamily: "inherit" }}>{c.label}</button>))}
         </div>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: 8, display: "flex", flexDirection: "column", gap: 5 }}>
@@ -590,14 +1580,11 @@ function VisualizerModal({ prods, onClose, C, $$, waNumber }) {
           const sel = vizSelected?.id === p.id;
           const cov = getCoverageM2(p);
           return (
-            <div key={p.id} onClick={() => { setVizSelected(p); if (sm) setPanel("foto"); }}
-              style={{ display: "flex", gap: 8, alignItems: "center", padding: "8px 9px", borderRadius: 8, border: `2px solid ${sel ? C.warm : "transparent"}`, background: sel ? "#FFF4F0" : "#FAFAF8", cursor: "pointer", transition: "all .15s" }}
+            <div key={p.id} onClick={() => { setVizSelected(p); if (sm) setPanel("foto"); }} style={{ display: "flex", gap: 8, alignItems: "center", padding: "8px 9px", borderRadius: 8, border: `2px solid ${sel ? C.warm : "transparent"}`, background: sel ? "#FFF4F0" : "#FAFAF8", cursor: "pointer", transition: "all .15s" }}
               onMouseEnter={(e) => { if (!sel) e.currentTarget.style.background = "#F5F0EA"; }}
               onMouseLeave={(e) => { if (!sel) e.currentTarget.style.background = "#FAFAF8"; }}>
               <div style={{ width: 44, height: 44, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-                {p.image
-                  ? <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  : <Thumb tk={p.tk} customImg={p.customImg || null} w={44} h={44} />}
+                {p.image ? <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Thumb tk={p.tk} customImg={p.customImg || null} w={44} h={44} />}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
@@ -611,229 +1598,57 @@ function VisualizerModal({ prods, onClose, C, $$, waNumber }) {
       </div>
     </div>
   );
-
-  // ── Panel principal (izquierdo)
   const renderMain = () => (
     <div style={{ flex: 1, overflowY: "auto", padding: sm ? 14 : 18, display: "flex", flexDirection: "column", gap: 14 }}>
-
-      {/* BLOQUE 1: Foto */}
       <div style={cardSt}>
         <div style={secTitle}>📷 Foto del espacio</div>
-        <div
-          onDragOver={(e) => { e.preventDefault(); setVizDragging(true); }}
-          onDragLeave={() => setVizDragging(false)}
-          onDrop={(e) => { e.preventDefault(); setVizDragging(false); handleVizFile(e.dataTransfer.files?.[0]); }}
-          style={{ border: vizDragging ? `2px solid ${C.warm}` : "2px dashed #D8CEC0", background: vizDragging ? "#FFF4F0" : "#F7F3EE", borderRadius: 10, overflow: "hidden" }}>
+        <div onDragOver={(e) => { e.preventDefault(); setVizDragging(true); }} onDragLeave={() => setVizDragging(false)} onDrop={(e) => { e.preventDefault(); setVizDragging(false); handleVizFile(e.dataTransfer.files?.[0]); }} style={{ border: vizDragging ? `2px solid ${C.warm}` : "2px dashed #D8CEC0", background: vizDragging ? "#FFF4F0" : "#F7F3EE", borderRadius: 10, overflow: "hidden" }}>
           {!vizImage ? (
             <div style={{ padding: 24, textAlign: "center" }}>
               <div style={{ fontSize: 36, marginBottom: 8 }}>🏠</div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>Sube una foto clara del muro o espacio que quieres revestir</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 4 }}>Sube una foto del muro o espacio que quieres revestir</div>
               <div style={{ fontSize: 11, color: "#8A7868", marginBottom: 14 }}>JPG, PNG o WEBP</div>
               <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", borderRadius: 8, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
-                📁 Seleccionar foto
-                <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} />
+                📁 Seleccionar foto<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} />
               </label>
             </div>
           ) : (
             <div>
               <img src={vizImage} alt="Espacio cargado" style={{ width: "100%", maxHeight: 220, objectFit: "contain", display: "block" }} />
               <div style={{ display: "flex", gap: 8, padding: "10px 12px", justifyContent: "flex-end" }}>
-                <label style={{ padding: "7px 12px", borderRadius: 7, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer", fontSize: 11, fontFamily: "inherit" }}>
-                  Cambiar foto
-                  <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} />
-                </label>
-                <button onClick={() => { setVizImage(null); setResultImg(null); setResultOriginal(null); }}
-                  style={{ padding: "7px 12px", borderRadius: 7, background: "white", color: C.text, border: "1px solid #D8CEC0", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 11 }}>
-                  Quitar foto
-                </button>
+                <label style={{ padding: "7px 12px", borderRadius: 7, background: C.dark, color: "white", fontWeight: 700, cursor: "pointer", fontSize: 11, fontFamily: "inherit" }}>Cambiar foto<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleVizFile(e.target.files?.[0])} /></label>
+                <button onClick={() => { setVizImage(null); setResultImg(null); setResultOriginal(null); }} style={{ padding: "7px 12px", borderRadius: 7, background: "white", color: C.text, border: "1px solid #D8CEC0", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", fontSize: 11 }}>Quitar foto</button>
               </div>
             </div>
           )}
         </div>
       </div>
-
-      {/* BLOQUE 2: Producto seleccionado */}
-      {selectedVizProduct && (
-        <div style={cardSt}>
-          <div style={secTitle}>🧱 Producto seleccionado</div>
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <div style={{ width: 58, height: 58, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: "1px solid #EDE8E0" }}>
-              {selectedVizProduct.image
-                ? <img src={selectedVizProduct.image} alt={selectedVizProduct.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                : <Thumb tk={selectedVizProduct.tk} customImg={selectedVizProduct.customImg || null} w={58} h={58} />}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 2 }}>{selectedVizProduct.name}</div>
-              <div style={{ fontSize: 11, color: "#8A7868", marginBottom: 2 }}>Código: {selectedVizProduct.code} · {selectedVizProduct.dims}</div>
-              <div style={{ fontSize: 11, color: "#8A7868", marginBottom: 4 }}>Cobertura: <strong>{getCoverageM2(selectedVizProduct).toFixed(4)} m²/unidad</strong></div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: C.dark }}>{$$(selectedVizProduct.price)} <span style={{ fontSize: 11, fontWeight: 400, color: "#8A7868" }}>{selectedVizProduct.unit}</span></div>
-            </div>
-          </div>
-          {sm && (
-            <button onClick={() => setPanel("catalogo")}
-              style={{ marginTop: 10, width: "100%", padding: "8px", borderRadius: 7, border: `1px solid ${C.warm}`, background: "white", color: C.warm, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-              Cambiar material →
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* BLOQUE 3: Medidas */}
+      {selectedVizProduct && (<div style={cardSt}><div style={secTitle}>🧱 Producto seleccionado</div><div style={{ display: "flex", gap: 12, alignItems: "center" }}><div style={{ width: 58, height: 58, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: "1px solid #EDE8E0" }}>{selectedVizProduct.image ? <img src={selectedVizProduct.image} alt={selectedVizProduct.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Thumb tk={selectedVizProduct.tk} customImg={selectedVizProduct.customImg || null} w={58} h={58} />}</div><div style={{ flex: 1 }}><div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 2 }}>{selectedVizProduct.name}</div><div style={{ fontSize: 11, color: "#8A7868", marginBottom: 2 }}>Código: {selectedVizProduct.code} · {selectedVizProduct.dims}</div><div style={{ fontSize: 11, color: "#8A7868", marginBottom: 4 }}>Cobertura: <strong>{getCoverageM2(selectedVizProduct).toFixed(4)} m²/unidad</strong></div><div style={{ fontSize: 15, fontWeight: 800, color: C.dark }}>{$$(selectedVizProduct.price)} <span style={{ fontSize: 11, fontWeight: 400, color: "#8A7868" }}>{selectedVizProduct.unit}</span></div></div></div>{sm && (<button onClick={() => setPanel("catalogo")} style={{ marginTop: 10, width: "100%", padding: "8px", borderRadius: 7, border: `1px solid ${C.warm}`, background: "white", color: C.warm, fontWeight: 700, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Cambiar material →</button>)}</div>)}
       <div style={cardSt}>
         <div style={secTitle}>📐 Medidas del muro</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
-          <div>
-            <label style={labelSt}>Largo (m)</label>
-            <input type="number" min="0" step="0.01" value={wallLength} onChange={(e) => setWallLength(e.target.value)} placeholder="ej: 4.20" style={inputSt}
-              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
-          </div>
-          <div>
-            <label style={labelSt}>Alto (m)</label>
-            <input type="number" min="0" step="0.01" value={wallHeight} onChange={(e) => setWallHeight(e.target.value)} placeholder="ej: 2.40" style={inputSt}
-              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
-          </div>
-          <div>
-            <label style={labelSt}>Merma (%)</label>
-            <input type="number" min="0" max="50" step="1" value={wastePercent} onChange={(e) => setWastePercent(e.target.value)} style={inputSt}
-              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
-          </div>
-          <div>
-            <label style={labelSt}>Descuento vanos (m²)</label>
-            <input type="number" min="0" step="0.01" value={openingsM2} onChange={(e) => setOpeningsM2(e.target.value)} placeholder="ej: 1.80" style={inputSt}
-              onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} />
-          </div>
+          <div><label style={labelSt}>Largo (m)</label><input type="number" min="0" step="0.01" value={wallLength} onChange={(e) => setWallLength(e.target.value)} placeholder="ej: 4.20" style={inputSt} onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} /></div>
+          <div><label style={labelSt}>Alto (m)</label><input type="number" min="0" step="0.01" value={wallHeight} onChange={(e) => setWallHeight(e.target.value)} placeholder="ej: 2.40" style={inputSt} onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} /></div>
+          <div><label style={labelSt}>Merma (%)</label><input type="number" min="0" max="50" step="1" value={wastePercent} onChange={(e) => setWastePercent(e.target.value)} style={inputSt} onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} /></div>
+          <div><label style={labelSt}>Descuento vanos (m²)</label><input type="number" min="0" step="0.01" value={openingsM2} onChange={(e) => setOpeningsM2(e.target.value)} placeholder="ej: 1.80" style={inputSt} onFocus={(e) => e.target.style.borderColor = C.warm} onBlur={(e) => e.target.style.borderColor = "#D8CEC0"} /></div>
         </div>
         <div style={{ fontSize: 10, color: "#A09488", lineHeight: 1.6 }}>Los vanos son superficies a descontar: puertas, ventanas, etc.</div>
       </div>
-
-      {/* BLOQUE 4: Cubicación */}
-      {cubiResult && selectedVizProduct && (
-        <div style={{ ...cardSt, background: "#F0F7F0", border: "1px solid #B8D8B0" }}>
-          <div style={{ ...secTitle, color: "#2A6A2A" }}>📦 Resumen de cubicación</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
-            {[
-              ["m² brutos", cubiResult.m2Bruto.toFixed(2) + " m²"],
-              ["m² netos", cubiResult.m2Neto.toFixed(2) + " m²"],
-              ["m² con merma", cubiResult.m2ConMerma.toFixed(2) + " m²"],
-              ["Cobertura/ud", getCoverageM2(selectedVizProduct).toFixed(4) + " m²"],
-              ["Unidades a comprar", cubiResult.unidades + " " + selectedVizProduct.unit],
-              ["Precio unitario", $$(selectedVizProduct.price)],
-            ].map(([l, v]) => (
-              <div key={l} style={{ background: "white", borderRadius: 7, padding: "8px 10px", border: "1px solid #C8E0C0" }}>
-                <div style={{ fontSize: 9, color: "#5A8A5A", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 2 }}>{l}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#1A4A1A" }}>{v}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ background: C.dark, borderRadius: 8, padding: "11px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 12, color: "rgba(255,255,255,.7)", fontWeight: 600 }}>Total estimado</span>
-            <span style={{ fontSize: 20, fontWeight: 800, color: "white" }}>{$$(cubiResult.precioTotal)}</span>
-          </div>
-          <div style={{ fontSize: 10, color: "#5A8A5A", marginTop: 8 }}>* Referencial. No incluye instalación ni despacho.</div>
-        </div>
-      )}
-
-      {/* BLOQUE 5: Botón generar */}
-      <button
-        disabled={!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy}
-        onClick={generarVisualizacionIA}
-        style={{
-          padding: "14px", borderRadius: 10, border: "none",
-          background: (!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy) ? "#D8CEC0" : C.dark,
-          color: (!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy) ? "#A09488" : "white",
-          fontSize: 14, fontWeight: 700,
-          cursor: (!vizImage || !selectedVizProduct || busy) ? "not-allowed" : "pointer",
-          fontFamily: "inherit", transition: "background .2s",
-        }}>
-        {busy ? "⏳ Procesando visualización..." :
-          !vizImage ? "Sube una foto para comenzar" :
-          !selectedVizProduct ? "Elige un material del catálogo" :
-          !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) ? "Ingresa las medidas del muro" :
-          "✨ Generar visualización"}
-      </button>
-
-      {/* Loading */}
-      {busy && (
-        <div style={{ display: "flex", alignItems: "center", gap: 12, background: "#F5F0EA", borderRadius: 10, padding: "14px 16px" }}>
-          <div style={{ width: 26, height: 26, border: "3px solid #E0D8D0", borderTopColor: C.dark, borderRadius: "50%", animation: "spin .7s linear infinite", flexShrink: 0 }} />
-          <div>
-            <div style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>Generando visualización...</div>
-            <div style={{ fontSize: 11, color: "#8A7868", marginTop: 2 }}>Aplicando textura a tu imagen</div>
-          </div>
-        </div>
-      )}
-
-      {/* Resultado: Antes / Después */}
-      {resultImg && resultOriginal && !busy && (
-        <div style={cardSt}>
-          <div style={secTitle}>✦ Resultado</div>
-          <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 12 }}>
-            <div>
-              <div style={{ fontSize: 10, color: "#8A7868", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>Antes</div>
-              <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #EDE8E0" }}>
-                <img src={resultOriginal} alt="Antes" style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "cover" }} />
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: 10, color: C.warm, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>Después</div>
-              <div style={{ borderRadius: 8, overflow: "hidden", border: `1px solid ${C.warm}`, position: "relative" }}>
-                <img src={resultImg} alt="Después" style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "cover" }} />
-                <div style={{ position: "absolute", bottom: 6, left: 6, background: "rgba(44,36,32,.85)", color: "white", fontSize: 10, padding: "3px 9px", borderRadius: 12, fontWeight: 700 }}>
-                  ✦ {selectedVizProduct?.name}
-                </div>
-              </div>
-            </div>
-          </div>
-          {resultTxt && (
-            <div style={{ background: "#F5EDE4", borderLeft: "3px solid #8B6B4A", padding: "10px 12px", borderRadius: "0 7px 7px 0", fontSize: 12, color: "#5A4A3C", lineHeight: 1.7, marginBottom: 12 }}>
-              {resultTxt}
-            </div>
-          )}
-          {cubiResult && selectedVizProduct && (
-            <a href={`https://wa.me/${waNumber}?text=${buildWAMessage()}`} target="_blank" rel="noreferrer"
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "white", padding: "13px", borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>
-              💬 Solicitar cotización por WhatsApp
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* WhatsApp sin resultado de imagen (solo con cubicación lista) */}
-      {!resultImg && cubiResult && selectedVizProduct && (
-        <a href={`https://wa.me/${waNumber}?text=${buildWAMessage()}`} target="_blank" rel="noreferrer"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "white", padding: "13px", borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>
-          💬 Cotizar por WhatsApp (sin visualización)
-        </a>
-      )}
+      {cubiResult && selectedVizProduct && (<div style={{ ...cardSt, background: "#F0F7F0", border: "1px solid #B8D8B0" }}><div style={{ ...secTitle, color: "#2A6A2A" }}>📦 Resumen de cubicación</div><div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>{[["m² brutos", cubiResult.m2Bruto.toFixed(2) + " m²"], ["m² netos", cubiResult.m2Neto.toFixed(2) + " m²"], ["m² con merma", cubiResult.m2ConMerma.toFixed(2) + " m²"], ["Cobertura/ud", getCoverageM2(selectedVizProduct).toFixed(4) + " m²"], ["Unidades a comprar", cubiResult.unidades + " " + selectedVizProduct.unit], ["Precio unitario", $$(selectedVizProduct.price)]].map(([l, v]) => (<div key={l} style={{ background: "white", borderRadius: 7, padding: "8px 10px", border: "1px solid #C8E0C0" }}><div style={{ fontSize: 9, color: "#5A8A5A", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 2 }}>{l}</div><div style={{ fontSize: 14, fontWeight: 700, color: "#1A4A1A" }}>{v}</div></div>))}</div><div style={{ background: C.dark, borderRadius: 8, padding: "11px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}><span style={{ fontSize: 12, color: "rgba(255,255,255,.7)", fontWeight: 600 }}>Total estimado</span><span style={{ fontSize: 20, fontWeight: 800, color: "white" }}>{$$(cubiResult.precioTotal)}</span></div><div style={{ fontSize: 10, color: "#5A8A5A", marginTop: 8 }}>* Referencial. No incluye instalación ni despacho.</div></div>)}
+      <button disabled={!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy} onClick={generarVisualizacionIA} style={{ padding: "14px", borderRadius: 10, border: "none", background: (!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy) ? "#D8CEC0" : C.dark, color: (!vizImage || !selectedVizProduct || !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) || busy) ? "#A09488" : "white", fontSize: 14, fontWeight: 700, cursor: (!vizImage || !selectedVizProduct || busy) ? "not-allowed" : "pointer", fontFamily: "inherit", transition: "background .2s" }}>{busy ? "⏳ Procesando visualización..." : !vizImage ? "Sube una foto para comenzar" : !selectedVizProduct ? "Elige un material del catálogo" : !(parseFloat(wallLength) > 0) || !(parseFloat(wallHeight) > 0) ? "Ingresa las medidas del muro" : "✨ Generar visualización"}</button>
+      {busy && (<div style={{ display: "flex", alignItems: "center", gap: 12, background: "#F5F0EA", borderRadius: 10, padding: "14px 16px" }}><div style={{ width: 26, height: 26, border: "3px solid #E0D8D0", borderTopColor: C.dark, borderRadius: "50%", animation: "spin .7s linear infinite", flexShrink: 0 }} /><div><div style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>Generando visualización...</div><div style={{ fontSize: 11, color: "#8A7868", marginTop: 2 }}>Aplicando textura a tu imagen</div></div></div>)}
+      {resultImg && resultOriginal && !busy && (<div style={cardSt}><div style={secTitle}>✦ Resultado</div><div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "1fr 1fr", gap: 10, marginBottom: 12 }}><div><div style={{ fontSize: 10, color: "#8A7868", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>Antes</div><div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #EDE8E0" }}><img src={resultOriginal} alt="Antes" style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "cover" }} /></div></div><div><div style={{ fontSize: 10, color: C.warm, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>Después</div><div style={{ borderRadius: 8, overflow: "hidden", border: `1px solid ${C.warm}`, position: "relative" }}><img src={resultImg} alt="Después" style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "cover" }} /><div style={{ position: "absolute", bottom: 6, left: 6, background: "rgba(44,36,32,.85)", color: "white", fontSize: 10, padding: "3px 9px", borderRadius: 12, fontWeight: 700 }}>✦ {selectedVizProduct?.name}</div></div></div></div>{resultTxt && (<div style={{ background: "#F5EDE4", borderLeft: "3px solid #8B6B4A", padding: "10px 12px", borderRadius: "0 7px 7px 0", fontSize: 12, color: "#5A4A3C", lineHeight: 1.7, marginBottom: 12 }}>{resultTxt}</div>)}{cubiResult && selectedVizProduct && (<a href={`https://wa.me/${waNumber}?text=${buildWAMessage()}`} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "white", padding: "13px", borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>💬 Solicitar cotización por WhatsApp</a>)}</div>)}
+      {!resultImg && cubiResult && selectedVizProduct && (<a href={`https://wa.me/${waNumber}?text=${buildWAMessage()}`} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "white", padding: "13px", borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>💬 Cotizar por WhatsApp (sin visualización)</a>)}
     </div>
   );
-
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(15,12,10,0.88)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: sm ? 0 : 20, backdropFilter: "blur(6px)" }} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: "#FAF8F4", borderRadius: sm ? 0 : 16, width: "100%", maxWidth: 940, height: sm ? "100%" : "92vh", maxHeight: sm ? "100%" : "92vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
-
-        {/* Header */}
         <div style={{ padding: "12px 18px", borderBottom: "1px solid #EDE8E0", display: "flex", alignItems: "center", justifyContent: "space-between", background: "white", flexShrink: 0 }}>
-          <div>
-            <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 16, fontWeight: 700, color: C.text }}>✦ Visualizador IA</div>
-            <div style={{ fontSize: 11, color: "#8A7868", marginTop: 1 }}>Aplica texturas reales y calcula materiales</div>
-          </div>
+          <div><div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 16, fontWeight: 700, color: C.text }}>✦ Visualizador IA</div><div style={{ fontSize: 11, color: "#8A7868", marginTop: 1 }}>Aplica texturas reales y calcula materiales</div></div>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid #E0D8D0", background: "white", cursor: "pointer", fontSize: 20, color: "#8A7868", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
         </div>
-
-        {/* Tabs móvil */}
-        {sm && (
-          <div style={{ display: "flex", borderBottom: "2px solid #EDE8E0", flexShrink: 0 }}>
-            {[["foto", "📷 Mi espacio"], ["catalogo", "🧱 Materiales"]].map(([id, l]) => (
-              <button key={id} onClick={() => setPanel(id)}
-                style={{ flex: 1, padding: "11px 4px", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit", background: panel === id ? "#FAF8F4" : "white", color: panel === id ? C.dark : "#8A7868", borderBottom: `2px solid ${panel === id ? C.dark : "transparent"}`, marginBottom: -2 }}>
-                {l}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Cuerpo */}
+        {sm && (<div style={{ display: "flex", borderBottom: "2px solid #EDE8E0", flexShrink: 0 }}>{[["foto", "📷 Mi espacio"], ["catalogo", "🧱 Materiales"]].map(([id, l]) => (<button key={id} onClick={() => setPanel(id)} style={{ flex: 1, padding: "11px 4px", fontSize: 12, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit", background: panel === id ? "#FAF8F4" : "white", color: panel === id ? C.dark : "#8A7868", borderBottom: `2px solid ${panel === id ? C.dark : "transparent"}`, marginBottom: -2 }}>{l}</button>))}</div>)}
         <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
           {(!sm || panel === "foto") && renderMain()}
           {(!sm || panel === "catalogo") && renderCatalogo()}
@@ -843,6 +1658,7 @@ function VisualizerModal({ prods, onClose, C, $$, waNumber }) {
   );
 }
 
+// ─── APP PRINCIPAL ─────────────────────────────────────────────────────────────
 export default function App() {
   const w = useW();
   const sm = w < 640;
@@ -876,6 +1692,9 @@ export default function App() {
   const [form, setForm] = useState({ nombre: "", tel: "", email: "", msg: "" });
   const [vizOpen, setVizOpen] = useState(false);
   const [flujoCajaOpen, setFlujoCajaOpen] = useState(false);
+
+  // ← NUEVO: estado del wizard de proyectos
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   const DEFAULT_CONTENT = {
     brandName: "Casa-Estudio", brandNum: "1016", brandSub: "Revestimientos · Santa Bárbara",
@@ -1022,7 +1841,7 @@ export default function App() {
       `}</style>
       <ColorPanel />
 
-      {/* NAV */}
+      {/* ── NAV ──────────────────────────────────────────────────────────────── */}
       <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 500, background: "white", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
         <div style={{ background: C.dark, color: "#F5D5CF", textAlign: "center", padding: "7px 16px", fontSize: 11, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 600 }}>
           {E("promoText", "Promo", <span>{content.promoText}</span>)}
@@ -1037,8 +1856,10 @@ export default function App() {
           </div>
           {!md && (
             <div style={{ display: "flex", gap: 28 }}>
-              {["inicio", "catalogo", "servicios", "contacto"].map((id) => (
-                <button key={id} onClick={() => scrollTo(id)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 500, color: C.mid, textTransform: "capitalize", letterSpacing: 0.5 }}>{id.charAt(0).toUpperCase() + id.slice(1)}</button>
+              {["inicio", "catalogo", "servicios", "diseña-tu-proyecto", "contacto"].map((id) => (
+                <button key={id} onClick={() => scrollTo(id)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 500, color: C.mid, textTransform: "capitalize", letterSpacing: 0.5 }}>
+                  {id === "diseña-tu-proyecto" ? "Diseña tu proyecto" : id.charAt(0).toUpperCase() + id.slice(1)}
+                </button>
               ))}
             </div>
           )}
@@ -1050,10 +1871,15 @@ export default function App() {
                 <button onClick={logout} title="Cerrar sesión admin" style={{ padding: "7px 10px", background: "none", border: "1px solid #E0D8D0", borderRadius: 6, fontSize: 13, cursor: "pointer", color: "#AAA" }}>🔓</button>
               </div>
             )}
+            {/* ← NUEVO: botón "Diseña tu proyecto" en nav desktop */}
+            {!sm && (
+              <button onClick={() => setWizardOpen(true)} style={{ background: C.warm, color: "white", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5, textTransform: "uppercase" }}>
+                + Diseña tu proyecto
+              </button>
+            )}
             {!sm && <button onClick={() => setVizOpen(true)} style={{ background: C.dark, color: "white", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", letterSpacing: 0.5, textTransform: "uppercase" }}>✦ Visualizador</button>}
             <button onClick={() => setCartOpen(true)} style={{ position: "relative", background: "none", border: "1px solid #E8E0D4", borderRadius: 6, padding: "7px 12px", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: C.text }}>
-              🛒
-              {cartCount > 0 && <span style={{ position: "absolute", top: -6, right: -6, minWidth: 18, height: 18, background: C.warm, borderRadius: "50%", fontSize: 10, color: "white", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{cartCount}</span>}
+              🛒{cartCount > 0 && <span style={{ position: "absolute", top: -6, right: -6, minWidth: 18, height: 18, background: C.warm, borderRadius: "50%", fontSize: 10, color: "white", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{cartCount}</span>}
             </button>
             {md && <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "1px solid #E8E0D4", borderRadius: 6, padding: "7px 11px", cursor: "pointer", fontSize: 16, color: C.text }}>{menuOpen ? "×" : "☰"}</button>}
           </div>
@@ -1063,13 +1889,15 @@ export default function App() {
             {["inicio", "catalogo", "servicios", "contacto"].map((id) => (
               <button key={id} onClick={() => scrollTo(id)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 500, color: C.mid, padding: "8px 0", textAlign: "left", textTransform: "capitalize" }}>{id.charAt(0).toUpperCase() + id.slice(1)}</button>
             ))}
-            <button onClick={() => { setVizOpen(true); setMenuOpen(false); }} style={{ background: C.dark, color: "white", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginTop: 8 }}>✦ Visualizador IA</button>
+            {/* ← NUEVO: botón en menú móvil */}
+            <button onClick={() => { setWizardOpen(true); setMenuOpen(false); }} style={{ background: C.warm, color: "white", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginTop: 4 }}>+ Diseña tu proyecto</button>
+            <button onClick={() => { setVizOpen(true); setMenuOpen(false); }} style={{ background: C.dark, color: "white", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginTop: 4 }}>✦ Visualizador IA</button>
           </div>
         )}
       </div>
       <div style={{ height: 94 }} />
 
-      {/* HERO */}
+      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section id="inicio" style={{ minHeight: sm ? "85vh" : "92vh", background: "#2A2A2A", position: "relative", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: `0 0 ${sm ? 52 : 80}px` }}>
         <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
           {content.heroImage && <img src={content.heroImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 }} />}
@@ -1091,6 +1919,8 @@ export default function App() {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <button onClick={() => scrollTo("catalogo")} style={{ background: "white", color: C.text, border: "none", borderRadius: 8, padding: sm ? "13px 22px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{E("heroBtnPrimary", "Botón primario", <span>{content.heroBtnPrimary}</span>)}</button>
             <button onClick={() => scrollTo("contacto")} style={{ background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 8, padding: sm ? "13px 22px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>{E("heroBtnSecondary", "Botón secundario", <span>{content.heroBtnSecondary}</span>)}</button>
+            {/* ← NUEVO: botón hero */}
+            <button onClick={() => setWizardOpen(true)} style={{ background: C.warm, color: "white", border: "none", borderRadius: 8, padding: sm ? "13px 22px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>+ Diseña tu proyecto</button>
           </div>
         </div>
         {!sm && (
@@ -1105,7 +1935,7 @@ export default function App() {
         )}
       </section>
 
-      {/* ABOUT */}
+      {/* ── ABOUT ────────────────────────────────────────────────────────────── */}
       <section style={{ background: "white", padding: `${sm ? 52 : 72}px ${sm ? 20 : 32}px` }}>
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: md ? "1fr" : "1fr 1fr", gap: md ? 40 : 64, alignItems: "center" }}>
           <div>
@@ -1130,7 +1960,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* CATALOG */}
+      {/* ── CATÁLOGO ─────────────────────────────────────────────────────────── */}
       <section id="catalogo" style={{ padding: `${sm ? 52 : 80}px ${sm ? 16 : 32}px`, background: C.bg }}>
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: sm ? "flex-start" : "flex-end", justifyContent: "space-between", marginBottom: sm ? 24 : 36, flexWrap: "wrap", gap: 16, flexDirection: sm ? "column" : "row" }}>
@@ -1155,15 +1985,7 @@ export default function App() {
                   {editMode && <button onClick={(e) => { e.stopPropagation(); setProductEditor(p); }} style={{ position: "absolute", top: 10, right: 10, zIndex: 10, background: "#F5A623", color: "white", border: "none", borderRadius: 8, padding: "6px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>✏️ Editar</button>}
                   <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "46% 54%", minHeight: sm ? "auto" : 320 }} onClick={() => !editMode && setExpanded(expanded === p.id ? null : p.id)}>
                     <div style={{ background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", minHeight: sm ? 220 : 320, borderBottom: sm ? "1px solid #F0EAE2" : "none", borderRight: sm ? "none" : "1px solid #F0EAE2", position: "relative", overflow: "hidden" }}>
-                      {carouselImgs.length > 0 ? (
-                        <div style={{ width: "100%", height: sm ? 220 : 320, position: "relative" }}>
-                          <ProductCarousel images={carouselImgs} productName={p.name} />
-                        </div>
-                      ) : (
-                        <div style={{ width: "100%", height: sm ? 220 : 260 }}>
-                          <Thumb tk={p.tk} customImg={p.customImg || null} w={420} h={260} />
-                        </div>
-                      )}
+                      {carouselImgs.length > 0 ? (<div style={{ width: "100%", height: sm ? 220 : 320, position: "relative" }}><ProductCarousel images={carouselImgs} productName={p.name} /></div>) : (<div style={{ width: "100%", height: sm ? 220 : 260 }}><Thumb tk={p.tk} customImg={p.customImg || null} w={420} h={260} /></div>)}
                     </div>
                     <div style={{ padding: sm ? "18px 18px 20px" : "26px 24px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                       <div style={{ fontSize: 11, color: C.warm, letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 700, marginBottom: 12 }}>{CAT_L[p.cat] || p.cat}</div>
@@ -1200,7 +2022,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* SERVICES */}
+      {/* ── SERVICIOS ────────────────────────────────────────────────────────── */}
       <section id="servicios" style={{ background: "white", padding: `${sm ? 52 : 80}px ${sm ? 16 : 32}px` }}>
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: sm ? 36 : 52 }}>
@@ -1225,7 +2047,13 @@ export default function App() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ══════════════════════════════════════════════════════════════════════ */}
+      {/*  ← NUEVA SECCIÓN: "Diseña tu proyecto en 5 pasos"                    */}
+      {/*  Se inserta entre SERVICES y CTA, usando el mismo fondo oscuro C.dark */}
+      {/* ══════════════════════════════════════════════════════════════════════ */}
+      <SeccionDiseñaProyecto C={C} sm={sm} onAbrir={() => setWizardOpen(true)} />
+
+      {/* ── CTA VISUALIZADOR ─────────────────────────────────────────────────── */}
       <section style={{ background: C.dark, padding: `${sm ? 52 : 72}px ${sm ? 20 : 32}px`, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "repeat(6,1fr)", opacity: 0.07 }}>
           {Object.keys(TX).slice(0, 6).map((k, i) => <div key={i} style={{ backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(TX[k])}")`, backgroundSize: "cover" }} />)}
@@ -1240,7 +2068,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* CONTACT */}
+      {/* ── CONTACTO ─────────────────────────────────────────────────────────── */}
       <section id="contacto" style={{ background: C.bg, padding: `${sm ? 52 : 80}px ${sm ? 16 : 32}px` }}>
         <div style={{ maxWidth: 1400, width: "100%", margin: "0 auto", display: "grid", gridTemplateColumns: md ? "1fr" : "1fr 1fr", gap: md ? 40 : 64, alignItems: "start" }}>
           <div>
@@ -1291,7 +2119,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* FOOTER */}
+      {/* ── FOOTER ───────────────────────────────────────────────────────────── */}
       <footer style={{ background: C.dark, padding: `${sm ? 20 : 28}px ${sm ? 16 : 32}px`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
           <div style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: 15, color: "white", fontWeight: 600, marginBottom: 3 }}>{E("brandName", "Nombre marca", <span>{content.brandName}</span>)} <span style={{ color: "#C4B49A" }}>{E("brandNum", "Número", <span>{content.brandNum}</span>)}</span></div>
@@ -1300,7 +2128,7 @@ export default function App() {
         <div style={{ fontSize: 10, color: "rgba(255,255,255,0.22)" }}>© 2025 {content.brandName} {content.brandNum}</div>
       </footer>
 
-      {/* CART DRAWER */}
+      {/* ── CART DRAWER ──────────────────────────────────────────────────────── */}
       {cartOpen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.3)", backdropFilter: "blur(2px)" }} onClick={() => setCartOpen(false)}>
           <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: sm ? "100%" : "min(360px,100vw)", background: "white", boxShadow: "-8px 0 40px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column" }}>
@@ -1344,13 +2172,25 @@ export default function App() {
         </div>
       )}
 
-      {/* MODALES */}
-      {vizOpen && <VisualizerModal prods={prods} onClose={() => setVizOpen(false)} C={C} $$={$$} waNumber={content.waNumber} />}
-      {quoteOpen && <QuotationModal cart={cart} total={total} content={content} $$={$$} onClose={() => setQuoteOpen(false)} />}
+      {/* ── MODALES ──────────────────────────────────────────────────────────── */}
+      {vizOpen      && <VisualizerModal prods={prods} onClose={() => setVizOpen(false)} C={C} $$={$$} waNumber={content.waNumber} />}
+      {quoteOpen    && <QuotationModal cart={cart} total={total} content={content} $$={$$} onClose={() => setQuoteOpen(false)} />}
       {productEditor && <ProductEditor product={productEditor} onSave={saveProds} onDelete={deleteProds} onClose={() => setProductEditor(null)} />}
       {flujoCajaOpen && <FlujoCaja onClose={() => setFlujoCajaOpen(false)} />}
+
+      {/* ← NUEVO: Wizard modal de proyectos */}
+      {wizardOpen && (
+        <WizardModal
+          onClose={() => setWizardOpen(false)}
+          C={C}
+          waNumber={content.waNumber}
+          sm={sm}
+        />
+      )}
+
       {editMode && <EditBar />}
 
+      {/* Login admin */}
       {loginOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(15,12,10,0.85)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(6px)" }} onClick={() => { setLoginOpen(false); setPassInput(""); setPassError(false); }}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 14, width: "100%", maxWidth: 360, padding: 32, boxShadow: "0 32px 80px rgba(0,0,0,0.4)" }}>
