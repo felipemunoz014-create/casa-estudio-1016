@@ -1954,10 +1954,10 @@ export default function App() {
   const DEFAULT_CONTENT = {
     brandName: "Casa-Estudio", brandNum: "1016", brandSub: "Revestimientos · Santa Bárbara",
     promoText: "⭐ Precios de Inauguración — Válidos hasta el 31 de Mayo 2026",
-    heroTag: "Importadora & Comercializadora", heroTitle1: "Revestimientos", heroTitle2: "de alto estándar", heroTitle3: "para tu espacio",
-    heroSubtitle: "Arquitectura, diseño e importación de materiales decorativos. Santa Bárbara — atendemos todo Chile.",
-    heroBtnPrimary: "Ver Catálogo", heroBtnSecondary: "Cotizar", heroImage: heroImg,
-    stat1n: "14+", stat1l: "Productos", stat2n: "Alta densidad", stat2l: "Materiales", stat3n: "Inauguración", stat3l: "Precios 2026", stat4n: "Santa Bárbara", stat4l: "Todo Chile",
+    heroTag: "Importadora & Comercializadora", heroTitle1: "Revestimientos", heroTitle2: "de alto estándar", heroTitle3: "para construir tu cabaña",
+    heroSubtitle: "Importamos materiales decorativos de calidad premium. Diseñamos y construimos cabañas en Santa Bárbara, Biobío.",
+    heroBtnPrimary: "Ver Revestimientos", heroBtnSecondary: "Cotizar", heroImage: heroImg,
+    stat1n: "14+", stat1l: "Productos importados", stat2n: "Santa Bárbara", stat2l: "Despacho local", stat3n: "Inauguración", stat3l: "Precios 2026", stat4n: "Cabañas +", stat4l: "Revestimientos",
     aboutTag: "Quiénes somos", aboutTitle1: "Arquitectura", aboutTitle2: "& Diseño",
     aboutBody1: "Casa-Estudio 1016 es una importadora y comercializadora de materiales decorativos de construcción, con foco en revestimientos de alto estándar.",
     aboutBody2: "Ofrecemos servicio en arquitectura y diseño para proyectos residenciales y comerciales, con productos que combinan durabilidad, estética y precio accesible.",
@@ -1966,7 +1966,7 @@ export default function App() {
     svc1icon: "🏛️", svc1title: "Arquitectura & Diseño", svc1desc: "Asesoría profesional para proyectos residenciales y comerciales.",
     svc2icon: "📦", svc2title: "Importación Directa", svc2desc: "Materiales de alta calidad desde el fabricante, sin intermediarios.",
     svc3icon: "🛠️", svc3title: "Asesoría Técnica", svc3desc: "Te guiamos en la elección correcta según el ambiente y presupuesto.",
-    svc4icon: "🚚", svc4title: "Despacho Nacional", svc4desc: "Enviamos a cualquier región del país.",
+    svc4icon: "🚚", svc4title: "Despacho Local", svc4desc: "Despacho en Santa Bárbara y alrededores.",
     ctaTitle1: "¿Cómo quedaría en", ctaTitle2: "tu espacio?", ctaBody: "Sube una foto y aplica cualquier revestimiento del catálogo con IA.", ctaBtn: "✦ Abrir Visualizador IA",
     contactTitle1: "Hablemos de", contactTitle2: "tu proyecto", contactBody: "Estamos en Santa Bárbara. Visítanos para una asesoría personalizada sin costo.",
     contactAddr: "Arturo Prat 1016, Santa Bárbara", contactPhone: "+56 9 7868 2990", contactPay: "VISA · Redcompra · MercadoPago", contactWaBtn: "💬 Abrir WhatsApp", waNumber: "56978682990",
@@ -2153,39 +2153,241 @@ export default function App() {
       <div style={{ height: 94 }} />
 
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
-      <section id="inicio" style={{ minHeight: sm ? "85vh" : "92vh", background: "#2A2A2A", position: "relative", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: `0 0 ${sm ? 52 : 80}px` }}>
+      <section id="inicio" style={{
+        minHeight: sm ? "100vh" : "95vh",
+        background: "#1A1A1A",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        overflow: "hidden",
+      }}>
+        {/* Imagen de fondo */}
         <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-          {content.heroImage && <img src={content.heroImage} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 }} />}
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(40,40,40,0.05) 0%,rgba(40,40,40,0.45) 50%,rgba(30,30,30,0.82) 100%)" }} />
+          {content.heroImage && (
+            <img
+              src={content.heroImage}
+              style={{
+                width: "100%", height: "100%", objectFit: "cover",
+                objectPosition: "center",
+                opacity: 0.55,
+              }}
+            />
+          )}
+          {/* Degradado: oscuro izquierda → transparente derecha */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: sm
+              ? "linear-gradient(to bottom, rgba(20,20,20,0.3) 0%, rgba(20,20,20,0.75) 45%, rgba(15,15,15,0.92) 100%)"
+              : "linear-gradient(105deg, rgba(15,15,15,0.92) 0%, rgba(20,20,20,0.80) 38%, rgba(20,20,20,0.30) 65%, rgba(20,20,20,0.05) 100%)",
+          }} />
+          {/* Glow sutil coral en esquina */}
+          <div style={{
+            position: "absolute", bottom: "-10%", left: "-5%",
+            width: 480, height: 480, borderRadius: "50%",
+            background: "rgba(244,128,109,0.08)", filter: "blur(80px)",
+            pointerEvents: "none",
+          }} />
         </div>
-        {editMode && <label style={{ position: "absolute", top: 16, right: 16, zIndex: 10, background: "#F5A623", color: "white", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>📷 {content.heroImage ? "Cambiar fondo" : "Agregar imagen"}<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => set("heroImage", ev.target.result); r.readAsDataURL(f); }} /></label>}
-        {editMode && content.heroImage && <button onClick={() => set("heroImage", null)} style={{ position: "absolute", top: 16, right: sm ? 16 : 220, zIndex: 10, background: "#FEE2E2", color: "#C45A5A", border: "none", padding: "8px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>🗑 Quitar imagen</button>}
-        <div style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "0 auto", padding: `0 ${sm ? 20 : 32}px`, animation: "fadeUp .8s ease both" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(244,128,109,0.15)", border: "1px solid rgba(244,128,109,0.35)", borderRadius: 20, padding: "5px 14px", marginBottom: sm ? 20 : 28 }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#F4806D" }} />
-            <span style={{ fontSize: 10, color: "#F4806D", letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>{E("heroTag", "Etiqueta hero", <span>{content.heroTag}</span>)}</span>
+ 
+        {/* Botón editar imagen (solo modo admin) */}
+        {editMode && (
+          <label style={{
+            position: "absolute", top: 16, right: 16, zIndex: 10,
+            background: "#F5A623", color: "white", padding: "8px 16px",
+            borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer",
+          }}>
+            📷 {content.heroImage ? "Cambiar fondo" : "Agregar imagen"}
+            <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => {
+              const f = e.target.files[0]; if (!f) return;
+              const r = new FileReader(); r.onload = (ev) => set("heroImage", ev.target.result); r.readAsDataURL(f);
+            }} />
+          </label>
+        )}
+        {editMode && content.heroImage && (
+          <button onClick={() => set("heroImage", null)} style={{
+            position: "absolute", top: 16, right: sm ? 16 : 220, zIndex: 10,
+            background: "#FEE2E2", color: "#C45A5A", border: "none",
+            padding: "8px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+            cursor: "pointer", fontFamily: "inherit",
+          }}>🗑 Quitar imagen</button>
+        )}
+ 
+        {/* ── CONTENIDO PRINCIPAL ── */}
+        <div style={{
+          position: "relative", zIndex: 2,
+          maxWidth: 1400, width: "100%", margin: "0 auto",
+          padding: sm ? "80px 20px 60px" : "0 64px",
+          display: "flex", flexDirection: "column",
+          alignItems: sm ? "center" : "flex-start",
+          textAlign: sm ? "center" : "left",
+          animation: "fadeUp .9s ease both",
+        }}>
+ 
+          {/* Eyebrow tag */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 10,
+            background: "rgba(244,128,109,0.12)",
+            border: "1px solid rgba(244,128,109,0.35)",
+            borderRadius: 30, padding: "6px 18px", marginBottom: sm ? 20 : 28,
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#F4806D", flexShrink: 0 }} />
+            <span style={{
+              fontSize: 10, color: "#F4806D",
+              letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 700,
+              fontFamily: "'HWYGothic', sans-serif",
+            }}>
+              {E("heroTag", "Etiqueta hero", <span>Arquitectura · Cabañas · Revestimientos</span>)}
+            </span>
           </div>
-          <h1 style={{ fontFamily: "'HWYGWide',sans-serif", fontSize: sm ? "clamp(32px,9vw,48px)" : "clamp(40px,6vw,76px)", fontWeight: 400, color: "white", lineHeight: 1.1, marginBottom: sm ? 16 : 20, maxWidth: 700 }}>
-            {E("heroTitle1", "Título línea 1", <span>{content.heroTitle1}</span>)}<br />
-            <em style={{ color: "#F4806D", fontStyle: "italic" }}>{E("heroTitle2", "Título línea 2", <span>{content.heroTitle2}</span>)}</em><br />
-            {E("heroTitle3", "Título línea 3", <span>{content.heroTitle3}</span>)}
+ 
+          {/* Título principal */}
+          <h1 style={{
+            fontFamily: "'HWYGWide', sans-serif",
+            fontSize: sm ? "clamp(28px,8.5vw,42px)" : "clamp(38px,4.5vw,68px)",
+            fontWeight: 400, color: "white", lineHeight: 1.08,
+            marginBottom: sm ? 18 : 24,
+            maxWidth: sm ? "100%" : 680,
+            letterSpacing: "-0.5px",
+          }}>
+            {E("heroTitle1", "Título línea 1", <span>Revestimientos premium</span>)}{" "}
+            <em style={{ color: "#F4806D", fontStyle: "italic" }}>
+              {E("heroTitle2", "Título línea 2", <span>transformar tu espacio</span>)}
+            </em>
+            <br />
+            {E("heroTitle3", "Título línea 3", <span>Diseño a medida</span>)}
           </h1>
-          <p style={{ fontSize: sm ? 13 : 15, color: "rgba(255,255,255,0.5)", maxWidth: 460, lineHeight: 1.8, marginBottom: sm ? 28 : 36, fontWeight: 300 }}>{E("heroSubtitle", "Subtítulo hero", <span>{content.heroSubtitle}</span>, true)}</p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <button onClick={() => scrollTo("catalogo")} style={{ background: "white", color: C.text, border: "none", borderRadius: 8, padding: sm ? "13px 22px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{E("heroBtnPrimary", "Botón primario", <span>{content.heroBtnPrimary}</span>)}</button>
-            <button onClick={() => scrollTo("contacto")} style={{ background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 8, padding: sm ? "13px 22px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>{E("heroBtnSecondary", "Botón secundario", <span>{content.heroBtnSecondary}</span>)}</button>
-            {/* ← NUEVO: botón hero */}
-            <button onClick={() => setWizardOpen(true)} style={{ background: C.warm, color: "white", border: "none", borderRadius: 8, padding: sm ? "13px 22px" : "15px 32px", fontSize: sm ? 13 : 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>+ Diseña tu proyecto</button>
+ 
+          {/* Subtítulo */}
+          <p style={{
+            fontSize: sm ? 13 : 16,
+            color: "rgba(255,255,255,0.52)",
+            maxWidth: sm ? "100%" : 520,
+            lineHeight: 1.85,
+            marginBottom: sm ? 32 : 44,
+            fontWeight: 300,
+            fontFamily: "'HWYGothic', sans-serif",
+          }}>
+            {E("heroSubtitle", "Subtítulo hero",
+              <span>Creamos proyectos de cabañas, interiores y revestimientos decorativos para que puedas visualizar, cotizar y transformar tu espacio con mayor seguridad.</span>,
+              true
+            )}
+          </p>
+ 
+          {/* Botones CTA */}
+          <div style={{
+            display: "flex",
+            gap: sm ? 10 : 14,
+            flexDirection: sm ? "column" : "row",
+            width: sm ? "100%" : "auto",
+            alignItems: sm ? "stretch" : "center",
+          }}>
+            {/* Botón principal coral */}
+            <button
+              onClick={() => setWizardOpen(true)}
+              style={{
+                background: "#F4806D",
+                color: "white", border: "none",
+                borderRadius: 10,
+                padding: sm ? "15px 24px" : "17px 36px",
+                fontSize: sm ? 14 : 15, fontWeight: 700,
+                cursor: "pointer", fontFamily: "'HWYGothic', sans-serif",
+                display: "inline-flex", alignItems: "center",
+                justifyContent: "center", gap: 10,
+                boxShadow: "0 8px 32px rgba(244,128,109,0.35)",
+                transition: "all 0.2s", whiteSpace: "nowrap",
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = "#e8604a"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 12px 40px rgba(244,128,109,0.45)"; }}
+              onMouseOut={e  => { e.currentTarget.style.background = "#F4806D"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(244,128,109,0.35)"; }}
+            >
+              <span style={{ fontSize: 16 }}>+</span>
+              {E("heroBtnPrimary", "Botón primario", <span>Quiero diseñar mi proyecto</span>)}
+            </button>
+ 
+            {/* Botón secundario blanco */}
+            <button
+              onClick={() => scrollTo("catalogo")}
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                color: "white",
+                border: "1.5px solid rgba(255,255,255,0.25)",
+                borderRadius: 10,
+                padding: sm ? "15px 24px" : "17px 36px",
+                fontSize: sm ? 14 : 15, fontWeight: 500,
+                cursor: "pointer", fontFamily: "'HWYGothic', sans-serif",
+                display: "inline-flex", alignItems: "center",
+                justifyContent: "center", gap: 8,
+                transition: "all 0.2s", whiteSpace: "nowrap",
+                backdropFilter: "blur(4px)",
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.5)"; }}
+              onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; }}
+            >
+              {E("heroBtnSecondary", "Botón secundario", <span>Ver revestimientos</span>)}
+            </button>
           </div>
-        </div>
-        {!sm && (
-          <div style={{ position: "relative", maxWidth: 1400, width: "100%", margin: "52px auto 0", padding: "0 32px", display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 36 }}>
-            {[["stat1n", "stat1l"], ["stat2n", "stat2l"], ["stat3n", "stat3l"], ["stat4n", "stat4l"]].map(([nk, lk], i) => (
-              <div key={i} style={{ paddingRight: 24, borderRight: i < 3 ? "1px solid rgba(255,255,255,0.12)" : "none", paddingLeft: i > 0 ? 24 : 0 }}>
-                <div style={{ fontFamily: "'HWYGothic',sans-serif", fontSize: 20, fontWeight: 800, color: "white", marginBottom: 3 }}>{E(nk, `Stat ${i + 1}`, <span>{content[nk]}</span>)}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{E(lk, `Stat ${i + 1} label`, <span>{content[lk]}</span>)}</div>
+ 
+          {/* Badge de confianza */}
+          {!sm && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 8,
+              marginTop: 28,
+            }}>
+              <div style={{ display: "flex", gap: -4 }}>
+                {["🏕️","🧱","✦"].map((e, i) => (
+                  <div key={i} style={{
+                    width: 28, height: 28, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.1)",
+                    border: "1.5px solid rgba(255,255,255,0.2)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 12, marginLeft: i > 0 ? -8 : 0,
+                  }}>{e}</div>
+                ))}
               </div>
-            ))}
+              <span style={{
+                fontSize: 11, color: "rgba(255,255,255,0.35)",
+                fontFamily: "'HWYGothic', sans-serif",
+              }}>
+                Sin compromiso · Respuesta en 24–48 hrs
+              </span>
+            </div>
+          )}
+        </div>
+ 
+        {/* ── STATS INFERIORES ── */}
+        {!sm && (
+          <div style={{
+            position: "relative", zIndex: 2,
+            maxWidth: 1400, width: "100%", margin: "0 auto",
+            padding: "0 64px", paddingBottom: 52,
+            marginTop: 48,
+          }}>
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(4,1fr)",
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+              paddingTop: 32,
+            }}>
+              {[
+                { n: "Diseño", l: "Personalizado" },
+                { n: "Santa Bárbara", l: "Biobío" },
+                { n: "Visualización", l: "3D incluida" },
+                { n: "Cabañas +", l: "Interiores" },
+              ].map((s, i) => (
+                <div key={i} style={{
+                  paddingRight: 24, paddingLeft: i > 0 ? 24 : 0,
+                  borderRight: i < 3 ? "1px solid rgba(255,255,255,0.1)" : "none",
+                }}>
+                  <div style={{
+                    fontFamily: "'HWYGWide', sans-serif",
+                    fontSize: 18, fontWeight: 700, color: "white", marginBottom: 4,
+                  }}>{s.n}</div>
+                  <div style={{
+                    fontSize: 11, color: "rgba(255,255,255,0.4)",
+                    fontFamily: "'HWYGothic', sans-serif",
+                  }}>{s.l}</div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </section>
