@@ -2478,7 +2478,7 @@ borderRadius: 12,
                     <div style={{ borderTop: "1px solid #E8E0D4", padding: "16px 20px", background: "#FDF8F3" }}>
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                         <a href={`https://wa.me/${content.waNumber}?text=${buildWhatsAppMessage(p)}`} target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 160, display: "block", textAlign: "center", background: "#25D366", color: "white", padding: "11px 8px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none" }}>💬 WhatsApp</a>
-                        <button onClick={() => setVizOpen(true)} style={{ flex: 1, minWidth: 160, background: C.dark, color: "white", border: "none", borderRadius: 10, padding: "11px 8px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>👁 Visualizar</button>
+                        <button onClick={() => navigate(`/producto/${slugify(p.name)}`)} style={{ flex: 1, minWidth: 160, background: C.dark, color: "white", border: "none", borderRadius: 10, padding: "11px 8px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>👁 Ver ficha</button>
                       </div>
                     </div>
                   )}
