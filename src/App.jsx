@@ -8,6 +8,8 @@
 import QuotationModal from "./QuotationModal";
 import FlujoCaja from "./FlujoCaja";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { slugify } from "./ProductPage.jsx";
 import { createPortal } from "react-dom";
 import heroImg from "./assets/Hero1.png";
 import about1 from "./assets/Inicio1.jpeg";
@@ -1916,7 +1918,7 @@ function VisualizerModal({ prods, onClose, C, $$, waNumber }) {
 // ─── APP PRINCIPAL ─────────────────────────────────────────────────────────────
 export default function App() {
   const w = useW();
-  const sm = w < 640;
+  const sm = w < 640;const navigate = useNavigate();
   const md = w < 900;
 
   const ADMIN_PASS = "Casaestudio1016%CMCF";
@@ -2364,29 +2366,37 @@ export default function App() {
           }}>
             <div style={{
               display: "grid", gridTemplateColumns: "repeat(4,1fr)",
-              borderTop: "1px solid rgba(255,255,255,0.1)",
-              paddingTop: 32,
+              borderTop: "1px solid rgba(255,255,255,0.18)",
+paddingTop: 24,
+paddingBottom: 24,
+paddingLeft: 28,
+paddingRight: 28,
+background: "rgba(0,0,0,0.35)",
+backdropFilter: "blur(8px)",
+borderRadius: 12,
             }}>
               {[
-                { n: "Diseño", l: "Personalizado" },
-                { n: "Santa Bárbara", l: "Biobío" },
-                { n: "Visualización", l: "3D incluida" },
-                { n: "Cabañas +", l: "Interiores" },
-              ].map((s, i) => (
-                <div key={i} style={{
-                  paddingRight: 24, paddingLeft: i > 0 ? 24 : 0,
-                  borderRight: i < 3 ? "1px solid rgba(255,255,255,0.1)" : "none",
-                }}>
-                  <div style={{
-                    fontFamily: "'HWYGWide', sans-serif",
-                    fontSize: 18, fontWeight: 700, color: "white", marginBottom: 4,
-                  }}>{s.n}</div>
-                  <div style={{
-                    fontSize: 11, color: "rgba(255,255,255,0.4)",
-                    fontFamily: "'HWYGothic', sans-serif",
-                  }}>{s.l}</div>
-                </div>
-              ))}
+  { n: "Diseño", l: "Personalizado" },
+  { n: "Santa Bárbara", l: "Biobío" },
+  { n: "Visualización", l: "3D incluida" },
+  { n: "Cabañas +", l: "Interiores" },
+].map((s, i) => (
+  <div key={i} style={{
+    paddingRight: 24, paddingLeft: i > 0 ? 24 : 0,
+    borderRight: i < 3 ? "1px solid rgba(255,255,255,0.18)" : "none",
+  }}>
+    <div style={{
+      fontFamily: "'HWYGWide', sans-serif",
+      fontSize: 20, fontWeight: 700, color: "white", marginBottom: 5,
+      textShadow: "0 1px 8px rgba(0,0,0,0.6)",
+    }}>{s.n}</div>
+    <div style={{
+      fontSize: 12, color: "rgba(255,255,255,0.72)",
+      fontFamily: "'HWYGothic', sans-serif",
+      textShadow: "0 1px 6px rgba(0,0,0,0.5)",
+    }}>{s.l}</div>
+  </div>
+))}
             </div>
           </div>
         )}
