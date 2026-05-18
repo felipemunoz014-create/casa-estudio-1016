@@ -2414,15 +2414,57 @@ borderRadius: 12,
             <p style={{ fontSize: "clamp(16px,1.2vw,22px)", color: C.mid, lineHeight: 1.9, fontWeight: 300 }}>{E("aboutBody2", "Párrafo 2", <span>{content.aboutBody2}</span>, true)}</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {["aboutImg1", "aboutImg2", "aboutImg3", "aboutImg4"].map((key, i) => (
-              <div key={i} style={{ borderRadius: 10, overflow: "hidden", aspectRatio: "1", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
-                {editMode ? (
-                  <ImgUpload onImage={(v) => set(key, v)} style={{ width: "100%", height: "100%", borderRadius: 10 }}>
-                    {content[key] ? <img src={content[key]} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#F0EBE4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, minHeight: 100 }}>📷</div>}
-                  </ImgUpload>
-                ) : content[key] ? <img src={content[key]} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <Thumb tk={["marble_gray", "wood_roble", "marble_black", "ceiling_pino"][i]} w={200} h={200} />}
-              </div>
-            ))}
+            {[
+  { key: "aboutImg1", label: "Cabañas", icon: "🏕️", action: () => setWizardOpen(true) },
+  { key: "aboutImg2", label: "Muros interiores", icon: "🧱", action: () => { setFilterCat("muro"); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }},
+  { key: "aboutImg3", label: "Revestimientos baño", icon: "🚿", action: () => { setFilterCat("muro"); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }},
+  { key: "aboutImg4", label: "Fachadas exterior", icon: "🏠", action: () => { setFilterCat("exterior"); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }},
+].map(({ key, label, icon, action }, i) => (
+  <div
+    key={i}
+    onClick={!editMode ? action : undefined}
+    style={{
+      borderRadius: 10, overflow: "hidden", aspectRatio: "1",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+      cursor: editMode ? "default" : "pointer",
+      position: "relative",
+    }}
+    onMouseEnter={e => { if (!editMode) e.currentTarget.querySelector(".about-overlay").style.opacity = "1"; }}
+    onMouseLeave={e => { if (!editMode) e.currentTarget.querySelector(".about-overlay").style.opacity = "0"; }}
+  >
+    {editMode ? (
+      <ImgUpload onImage={(v) => set(key, v)} style={{ width: "100%", height: "100%", borderRadius: 10 }}>
+        {content[key] ? <img src={content[key]} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: "100%", background: "#F0EBE4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, minHeight: 100 }}>📷</div>}
+      </ImgUpload>
+    ) : content[key] ? (
+      <img src={content[key]} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease" }} />
+    ) : (
+      <Thumb tk={["marble_gray", "wood_roble", "marble_black", "ceiling_pino"][i]} w={200} h={200} />
+    )}
+    {/* Overlay con label */}
+    {!editMode && (
+      <div className="about-overlay" style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(to top, rgba(20,20,20,0.75) 0%, rgba(20,20,20,0.1) 60%)",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "flex-end",
+        padding: "16px 12px",
+        opacity: 0, transition: "opacity 0.3s ease",
+      }}>
+        <span style={{ fontSize: 22, marginBottom: 6 }}>{icon}</span>
+        <span style={{
+          fontSize: 12, fontWeight: 700, color: "white",
+          textAlign: "center", fontFamily: "'HWYGWide', sans-serif",
+          textTransform: "uppercase", letterSpacing: 1,
+        }}>{label}</span>
+        <span style={{
+          fontSize: 10, color: "rgba(255,255,255,0.7)",
+          marginTop: 4, fontFamily: "'HWYGothic', sans-serif",
+        }}>Ver más →</span>
+      </div>
+    )}
+  </div>
+))}
           </div>
         </div>
       </section>
