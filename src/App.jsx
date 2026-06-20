@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { slugify } from "./ProductPage.jsx";
 import { createPortal } from "react-dom";
 import heroImg from "./assets/Hero1.png";
+import heroVideo from "./assets/HeroVideo.mp4";
 import about1 from "./assets/Inicio1.jpeg";
 import about2 from "./assets/Inicio2.jpeg";
 import about3 from "./assets/Inicio3.jpeg";
@@ -1958,7 +1959,10 @@ export default function App() {
     promoText: "⭐ NO COMPRES A CIEGAS · VISUALIZA TU PROYECTO ANTES DE DECIDIR",
     heroTag: "Importadora & Comercializadora", heroTitle1: "Revestimientos", heroTitle2: "de alto estándar", heroTitle3: "para construir tu cabaña",
     heroSubtitle: "Importamos materiales decorativos de calidad premium. Diseñamos y construimos cabañas en Santa Bárbara, Biobío.",
-    heroBtnPrimary: "Ver Revestimientos", heroBtnSecondary: "Cotizar", heroImage: heroImg,
+    heroBtnPrimary: "Ver Revestimientos",
+heroBtnSecondary: "Cotizar",
+heroImage: heroImg,
+heroVideo: heroVideo,
     stat1n: "14+", stat1l: "Productos importados", stat2n: "Santa Bárbara", stat2l: "Despacho local", stat3n: "Inauguración", stat3l: "Precios 2026", stat4n: "Cabañas +", stat4l: "Revestimientos",
     aboutTag: "Quiénes somos", aboutTitle1: "Arquitectura", aboutTitle2: "& Diseño",
     aboutBody1: "Casa-Estudio 1016 es una importadora y comercializadora de materiales decorativos de construcción, con foco en revestimientos de alto estándar.",
@@ -2156,7 +2160,7 @@ export default function App() {
 
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section id="inicio" style={{
-        minHeight: sm ? "100vh" : "95vh",
+        minHeight: sm ? "calc(100svh - 94px)" : "clamp(620px, 85vh, 900px)",
         background: "#1A1A1A",
         position: "relative",
         display: "flex",
@@ -2164,34 +2168,74 @@ export default function App() {
         justifyContent: "center",
         overflow: "hidden",
       }}>
-        {/* Imagen de fondo */}
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-          {content.heroImage && (
-            <img
-              src={content.heroImage}
+        {/* Video / Imagen de fondo */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          overflow: "hidden",
+          zIndex: 0,
+        }}>
+          {content.heroVideo ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={content.heroImage}
               style={{
-                width: "100%", height: "100%", objectFit: "cover",
-                objectPosition: "center",
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: sm ? "center center" : "center center",
                 opacity: 0.55,
               }}
-            />
+            >
+              <source src={content.heroVideo} type="video/mp4" />
+            </video>
+          ) : (
+            content.heroImage && (
+              <img
+                src={content.heroImage}
+                alt=""
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  objectPosition: "center center",
+                  opacity: 0.55,
+                }}
+              />
+            )
           )}
+
           {/* Degradado: oscuro izquierda → transparente derecha */}
           <div style={{
-            position: "absolute", inset: 0,
+            position: "absolute",
+            inset: 0,
             background: sm
-              ? "linear-gradient(to bottom, rgba(20,20,20,0.3) 0%, rgba(20,20,20,0.75) 45%, rgba(15,15,15,0.92) 100%)"
+              ? "linear-gradient(to bottom, rgba(20,20,20,0.35) 0%, rgba(20,20,20,0.78) 48%, rgba(15,15,15,0.94) 100%)"
               : "linear-gradient(105deg, rgba(15,15,15,0.92) 0%, rgba(20,20,20,0.80) 38%, rgba(20,20,20,0.30) 65%, rgba(20,20,20,0.05) 100%)",
           }} />
+
           {/* Glow sutil coral en esquina */}
           <div style={{
-            position: "absolute", bottom: "-10%", left: "-5%",
-            width: 480, height: 480, borderRadius: "50%",
-            background: "rgba(244,128,109,0.08)", filter: "blur(80px)",
+            position: "absolute",
+            bottom: "-10%",
+            left: "-5%",
+            width: sm ? 320 : 480,
+            height: sm ? 320 : 480,
+            borderRadius: "50%",
+            background: "rgba(244,128,109,0.08)",
+            filter: "blur(80px)",
             pointerEvents: "none",
           }} />
         </div>
- 
+
         {/* Botón editar imagen (solo modo admin) */}
         {editMode && (
           <label style={{
