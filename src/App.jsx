@@ -1955,7 +1955,7 @@ export default function App() {
 
   const DEFAULT_CONTENT = {
     brandName: "Casa-Estudio", brandNum: "1016", brandSub: "Revestimientos · Santa Bárbara",
-    promoText: "⭐ Precios de Inauguración — Válidos hasta el 31 de Mayo 2026",
+    promoText: "⭐ NO COMPRES A CIEGAS · VISUALIZA TU PROYECTO ANTES DE DECIDIR",
     heroTag: "Importadora & Comercializadora", heroTitle1: "Revestimientos", heroTitle2: "de alto estándar", heroTitle3: "para construir tu cabaña",
     heroSubtitle: "Importamos materiales decorativos de calidad premium. Diseñamos y construimos cabañas en Santa Bárbara, Biobío.",
     heroBtnPrimary: "Ver Revestimientos", heroBtnSecondary: "Cotizar", heroImage: heroImg,
