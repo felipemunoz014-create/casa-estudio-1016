@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 
+const DARK   = "#2A3528";
+const ACCENT = "#4A6741";
+const BORDER = "#E0D8D0";
+const MUTED  = "#8A7868";
+
 // ─── PREGUNTAS ────────────────────────────────────────────────────────────────
 const PREGUNTAS = [
   {
@@ -8,10 +13,10 @@ const PREGUNTAS = [
     titulo: "¿Para qué usarás tu cabaña?",
     subtitulo: "Elige la opción que mejor te describe",
     opciones: [
-      { id: "vivir",    emoji: "🏡", label: "Para vivir",           sub: "Vivienda principal" },
-      { id: "arrendar", emoji: "💰", label: "Para arrendar",        sub: "Negocio o inversión" },
-      { id: "vacacion", emoji: "🏝️", label: "Para vacacionar",      sub: "Casa de campo / playa" },
-      { id: "mixto",    emoji: "🔀", label: "Uso mixto",            sub: "Vivir y arrendar" },
+      { id: "vivir",    label: "Para vivir",      sub: "Vivienda principal" },
+      { id: "arrendar", label: "Para arrendar",   sub: "Negocio o inversión" },
+      { id: "vacacion", label: "Para vacacionar", sub: "Casa de campo o playa" },
+      { id: "mixto",    label: "Uso mixto",       sub: "Vivir y arrendar" },
     ],
   },
   {
@@ -19,10 +24,10 @@ const PREGUNTAS = [
     titulo: "¿Cuántos dormitorios necesitas?",
     subtitulo: "Puedes ajustarlo más adelante",
     opciones: [
-      { id: "d1", emoji: "🛏️", label: "1 dormitorio",  sub: "Perfecto para pareja" },
-      { id: "d2", emoji: "🛏️", label: "2 dormitorios", sub: "Ideal para familia pequeña" },
-      { id: "d3", emoji: "🛏️", label: "3 dormitorios", sub: "Para familia grande" },
-      { id: "d4", emoji: "🛏️", label: "4 o más",       sub: "Proyecto amplio" },
+      { id: "d1", label: "1 dormitorio",  sub: "Ideal para pareja" },
+      { id: "d2", label: "2 dormitorios", sub: "Familia pequeña" },
+      { id: "d3", label: "3 dormitorios", sub: "Familia grande" },
+      { id: "d4", label: "4 o más",       sub: "Proyecto amplio" },
     ],
   },
   {
@@ -30,20 +35,21 @@ const PREGUNTAS = [
     titulo: "¿Ya tienes terreno?",
     subtitulo: "Esto nos ayuda a planificar contigo",
     opciones: [
-      { id: "si",       emoji: "✅", label: "Sí, ya tengo",       sub: "Listo para construir" },
-      { id: "buscando", emoji: "🔍", label: "Estoy buscando",     sub: "Aún no lo defino" },
-      { id: "no",       emoji: "❌", label: "Todavía no",         sub: "Puedo ayudarte a encontrar" },
+      { id: "si",       label: "Sí, ya tengo",    sub: "Listo para construir" },
+      { id: "buscando", label: "Estoy buscando",  sub: "Aún no lo defino" },
+      { id: "no",       label: "Todavía no",      sub: "Quiero orientación" },
     ],
   },
   {
     id: "presupuesto",
     titulo: "¿Cuál es tu presupuesto aproximado?",
-    subtitulo: "Sin compromiso, solo para orientarte mejor",
+    subtitulo: "Sin compromiso — solo para orientarte con la solución más adecuada",
+    tipo: "presupuesto",
     opciones: [
-      { id: "bajo",      emoji: "💚", label: "Hasta $20M",    sub: "Solución económica" },
-      { id: "medio",     emoji: "💛", label: "$20M – $60M",   sub: "Proyecto estándar" },
-      { id: "alto",      emoji: "🟠", label: "Más de $60M",   sub: "Proyecto premium" },
-      { id: "no_sé",     emoji: "❓", label: "No lo sé aún",  sub: "Quiero orientación" },
+      { id: "bajo",  rango: "Hasta $20M",  tier: "Esencial",   sub: "Construcción funcional y bien terminada" },
+      { id: "medio", rango: "$20M – $60M", tier: "Estándar",   sub: "Mayor confort, materiales de calidad" },
+      { id: "alto",  rango: "Más de $60M", tier: "Premium",    sub: "Alto estándar, diseño personalizado" },
+      { id: "nd",    rango: "A definir",   tier: "Orientarme", sub: "Quiero que me recomienden según mi proyecto" },
     ],
   },
   {
@@ -51,10 +57,10 @@ const PREGUNTAS = [
     titulo: "¿Qué estilo te gusta más?",
     subtitulo: "Solo una preferencia general",
     opciones: [
-      { id: "natural",   emoji: "🌲", label: "Natural / Bosque", sub: "Madera, tonos tierra" },
-      { id: "moderno",   emoji: "◻️", label: "Moderno",          sub: "Líneas limpias, minimalista" },
-      { id: "rustico",   emoji: "🪵", label: "Rústico",          sub: "Clásico y acogedor" },
-      { id: "sinpref",   emoji: "😊", label: "Sin preferencia",  sub: "Me lo recomiendas tú" },
+      { id: "natural",  label: "Natural",          sub: "Madera, tonos tierra" },
+      { id: "moderno",  label: "Moderno",           sub: "Líneas limpias, minimalista" },
+      { id: "rustico",  label: "Rústico",           sub: "Clásico y acogedor" },
+      { id: "sinpref",  label: "Sin preferencia",   sub: "Me lo recomiendas tú" },
     ],
   },
   {
@@ -62,25 +68,26 @@ const PREGUNTAS = [
     titulo: "¿Cuándo quieres empezar?",
     subtitulo: "Para coordinar contigo",
     opciones: [
-      { id: "ahora",    emoji: "⚡", label: "Lo antes posible", sub: "Estoy listo/a" },
-      { id: "3meses",   emoji: "📅", label: "En 3-6 meses",     sub: "Planificando" },
-      { id: "6meses",   emoji: "🗓️", label: "En más de 6 meses",sub: "Tomándome mi tiempo" },
-      { id: "explorando",emoji: "👀", label: "Solo explorando", sub: "Quiero información" },
+      { id: "ahora",      label: "Lo antes posible",    sub: "Estoy listo/a" },
+      { id: "3meses",     label: "En 3 a 6 meses",      sub: "Planificando" },
+      { id: "6meses",     label: "En más de 6 meses",   sub: "Con tiempo" },
+      { id: "explorando", label: "Solo explorando",      sub: "Quiero información" },
     ],
   },
 ];
 
-// ─── LABELS PARA EL RESUMEN ───────────────────────────────────────────────────
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
 function getLabel(pregId, opcId) {
   const preg = PREGUNTAS.find(p => p.id === pregId);
   if (!preg) return opcId;
-  return preg.opciones.find(o => o.id === opcId)?.label ?? opcId;
+  const opc = preg.opciones.find(o => o.id === opcId);
+  if (!opc) return opcId;
+  return opc.label ?? opc.rango ?? opcId;
 }
 
-// ─── TARJETA DE OPCIÓN ────────────────────────────────────────────────────────
+// ─── TARJETA ESTÁNDAR ────────────────────────────────────────────────────────
 function OpcionCard({ opcion, selected, onClick, sm }) {
   const [hover, setHover] = useState(false);
-  const active = selected || hover;
   return (
     <button
       type="button"
@@ -88,185 +95,244 @@ function OpcionCard({ opcion, selected, onClick, sm }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "center", gap: 8,
-        padding: sm ? "18px 12px" : "22px 16px",
-        border: `2px solid ${selected ? "#4A6741" : hover ? "#C8B89A" : "#E8E0D4"}`,
-        borderRadius: 14,
-        background: selected ? "#4A6741" : hover ? "#FDF8F0" : "white",
-        cursor: "pointer",
-        transition: "all 0.15s ease",
-        transform: active && !selected ? "translateY(-2px)" : "none",
+        display: "flex", flexDirection: "column",
+        alignItems: "flex-start", justifyContent: "center",
+        gap: 5, padding: sm ? "16px 14px" : "20px 18px",
+        border: `1.5px solid ${selected ? ACCENT : hover ? "#B8A88A" : BORDER}`,
+        borderRadius: 10,
+        background: selected ? ACCENT : hover ? "#FDFAF6" : "white",
+        cursor: "pointer", transition: "all 0.15s ease",
         boxShadow: selected
-          ? "0 6px 24px rgba(74,103,65,0.25)"
-          : hover ? "0 4px 16px rgba(0,0,0,0.08)" : "0 1px 4px rgba(0,0,0,0.04)",
-        position: "relative",
-        overflow: "hidden",
+          ? "0 4px 20px rgba(74,103,65,0.2)"
+          : hover ? "0 3px 12px rgba(0,0,0,0.07)" : "0 1px 3px rgba(0,0,0,0.04)",
+        position: "relative", textAlign: "left",
       }}
     >
       {selected && (
         <div style={{
-          position: "absolute", top: 8, right: 8,
-          width: 20, height: 20, borderRadius: "50%",
-          background: "rgba(255,255,255,0.3)",
+          position: "absolute", top: 9, right: 9,
+          width: 18, height: 18, borderRadius: "50%",
+          background: "rgba(255,255,255,0.25)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 11, color: "white", fontWeight: 800,
+          fontSize: 10, color: "white", fontWeight: 800,
         }}>✓</div>
       )}
-      <span style={{ fontSize: sm ? 30 : 36, lineHeight: 1, filter: "saturate(1.2)" }}>
-        {opcion.emoji}
-      </span>
-      <div style={{ textAlign: "center" }}>
-        <div style={{
-          fontSize: sm ? 13 : 14, fontWeight: 700, lineHeight: 1.2,
-          color: selected ? "white" : "#2A3528",
-          fontFamily: "'HWYGothic', sans-serif",
-          marginBottom: 3,
-        }}>
-          {opcion.label}
-        </div>
-        <div style={{
-          fontSize: sm ? 10 : 11, color: selected ? "rgba(255,255,255,0.75)" : "#9A8A7A",
-          fontFamily: "'HWYGothic', sans-serif", lineHeight: 1.3,
-        }}>
-          {opcion.sub}
-        </div>
+      <div style={{
+        fontSize: sm ? 13 : 14, fontWeight: 700,
+        color: selected ? "white" : DARK,
+        fontFamily: "'HWYGothic', sans-serif", lineHeight: 1.2,
+      }}>
+        {opcion.label}
+      </div>
+      <div style={{
+        fontSize: sm ? 10 : 11,
+        color: selected ? "rgba(255,255,255,0.65)" : MUTED,
+        fontFamily: "'HWYGothic', sans-serif", lineHeight: 1.3,
+      }}>
+        {opcion.sub}
       </div>
     </button>
   );
 }
 
-// ─── PANTALLA DE PREGUNTA ─────────────────────────────────────────────────────
+// ─── TARJETA PRESUPUESTO ─────────────────────────────────────────────────────
+function PresupuestoCard({ opcion, selected, onClick, sm }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: "flex", flexDirection: "column",
+        alignItems: "flex-start", justifyContent: "space-between",
+        padding: sm ? "16px 14px" : "20px 18px",
+        border: `1.5px solid ${selected ? DARK : hover ? "#B8A88A" : BORDER}`,
+        borderRadius: 10,
+        background: selected ? DARK : hover ? "#FDFAF6" : "white",
+        cursor: "pointer", transition: "all 0.15s ease",
+        boxShadow: selected
+          ? "0 4px 20px rgba(42,53,40,0.18)"
+          : hover ? "0 3px 12px rgba(0,0,0,0.07)" : "0 1px 3px rgba(0,0,0,0.04)",
+        textAlign: "left", minHeight: sm ? 88 : 105, position: "relative",
+      }}
+    >
+      {selected && (
+        <div style={{
+          position: "absolute", top: 9, right: 9,
+          width: 18, height: 18, borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 10, color: "white", fontWeight: 800,
+        }}>✓</div>
+      )}
+      <div style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase",
+        color: selected ? "rgba(255,255,255,0.45)" : "#A89878",
+        fontFamily: "'HWYGothic', sans-serif", marginBottom: 5,
+      }}>
+        {opcion.tier}
+      </div>
+      <div style={{
+        fontSize: sm ? 17 : 19, fontWeight: 800, lineHeight: 1.1,
+        color: selected ? "white" : DARK,
+        fontFamily: "'HWYGWide', sans-serif", marginBottom: 7,
+      }}>
+        {opcion.rango}
+      </div>
+      <div style={{
+        fontSize: sm ? 10 : 11, lineHeight: 1.5,
+        color: selected ? "rgba(255,255,255,0.55)" : MUTED,
+        fontFamily: "'HWYGothic', sans-serif",
+      }}>
+        {opcion.sub}
+      </div>
+    </button>
+  );
+}
+
+// ─── ENCABEZADO DE PREGUNTA ───────────────────────────────────────────────────
+function PreguntaHeader({ titulo, subtitulo, sm }) {
+  return (
+    <div style={{ textAlign: "center", marginBottom: sm ? 24 : 32, maxWidth: 460 }}>
+      <h2 style={{
+        fontFamily: "'HWYGWide', sans-serif",
+        fontSize: sm ? "clamp(18px,5vw,22px)" : "clamp(20px,2.5vw,26px)",
+        fontWeight: 600, color: DARK, lineHeight: 1.25, marginBottom: 8,
+      }}>
+        {titulo}
+      </h2>
+      <p style={{ fontSize: sm ? 12 : 13, color: MUTED, fontFamily: "'HWYGothic', sans-serif" }}>
+        {subtitulo}
+      </p>
+    </div>
+  );
+}
+
+// ─── PANTALLA DE PREGUNTA ────────────────────────────────────────────────────
 function PantallaPregunta({ pregunta, valor, onSelect, sm }) {
+  const esPresupuesto = pregunta.tipo === "presupuesto";
   const cols = pregunta.opciones.length === 3 ? 3 : 2;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: sm ? "8px 0 24px" : "16px 0 32px" }}>
-      <div style={{ textAlign: "center", marginBottom: sm ? 24 : 32, maxWidth: 420 }}>
-        <h2 style={{
-          fontFamily: "'HWYGWide', sans-serif",
-          fontSize: sm ? "clamp(18px,5vw,22px)" : "clamp(20px,2.5vw,26px)",
-          fontWeight: 600, color: "#2A3528", lineHeight: 1.25, marginBottom: 8,
-        }}>
-          {pregunta.titulo}
-        </h2>
-        <p style={{
-          fontSize: sm ? 12 : 13, color: "#8A7868",
-          fontFamily: "'HWYGothic', sans-serif",
-        }}>
-          {pregunta.subtitulo}
-        </p>
-      </div>
+      <PreguntaHeader titulo={pregunta.titulo} subtitulo={pregunta.subtitulo} sm={sm} />
+
       <div style={{
         display: "grid",
         gridTemplateColumns: sm
           ? (cols === 3 ? "repeat(3, 1fr)" : "repeat(2, 1fr)")
           : `repeat(${cols}, 1fr)`,
-        gap: sm ? 10 : 14,
+        gap: sm ? 9 : 12,
         width: "100%",
-        maxWidth: cols === 3 ? 480 : 440,
+        maxWidth: esPresupuesto ? 480 : cols === 3 ? 460 : 420,
       }}>
-        {pregunta.opciones.map(op => (
-          <OpcionCard
-            key={op.id}
-            opcion={op}
-            selected={valor === op.id}
-            onClick={() => onSelect(op.id)}
-            sm={sm}
-          />
-        ))}
+        {pregunta.opciones.map(op =>
+          esPresupuesto
+            ? <PresupuestoCard key={op.id} opcion={op} selected={valor === op.id} onClick={() => onSelect(op.id)} sm={sm} />
+            : <OpcionCard      key={op.id} opcion={op} selected={valor === op.id} onClick={() => onSelect(op.id)} sm={sm} />
+        )}
       </div>
+
+      {esPresupuesto && (
+        <p style={{ marginTop: 16, fontSize: 11, color: "#B0A898", fontFamily: "'HWYGothic', sans-serif", textAlign: "center" }}>
+          Tu información es confidencial y solo se usa para orientarte mejor.
+        </p>
+      )}
     </div>
   );
 }
 
 // ─── PANTALLA FINAL: DATOS DE CONTACTO ───────────────────────────────────────
 function PantallaContacto({ nombre, setNombre, telefono, setTelefono, sm, onEnviar, cargando }) {
+  const listo = nombre.trim() && telefono.trim();
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: sm ? "8px 0 24px" : "16px 0 32px" }}>
       <div style={{ textAlign: "center", marginBottom: sm ? 24 : 32, maxWidth: 420 }}>
-        <div style={{ fontSize: 40, marginBottom: 12 }}>🎉</div>
+        <div style={{
+          width: 48, height: 48, borderRadius: "50%", background: "#EDF2EB",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 16px",
+        }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
         <h2 style={{
           fontFamily: "'HWYGWide', sans-serif",
           fontSize: sm ? "clamp(18px,5vw,22px)" : "clamp(20px,2.5vw,26px)",
-          fontWeight: 600, color: "#2A3528", lineHeight: 1.25, marginBottom: 8,
+          fontWeight: 600, color: DARK, lineHeight: 1.25, marginBottom: 8,
         }}>
-          ¡Ya casi está!
+          Un último paso
         </h2>
-        <p style={{ fontSize: sm ? 12 : 13, color: "#8A7868", fontFamily: "'HWYGothic', sans-serif" }}>
-          Déjanos tu nombre y WhatsApp para enviarte la orientación de tu cabaña.
+        <p style={{ fontSize: sm ? 12 : 13, color: MUTED, fontFamily: "'HWYGothic', sans-serif" }}>
+          Déjanos tu nombre y número de WhatsApp para enviarte la orientación de tu proyecto.
         </p>
       </div>
 
       <div style={{ width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 14 }}>
         <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#8A7868", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 7, fontFamily: "'HWYGothic', sans-serif" }}>
-            Tu nombre
+          <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: 1, marginBottom: 7, fontFamily: "'HWYGothic', sans-serif" }}>
+            Nombre
           </label>
           <input
-            type="text"
-            value={nombre}
-            onChange={e => setNombre(e.target.value)}
-            placeholder="¿Cómo te llamas?"
-            autoFocus
+            type="text" value={nombre} onChange={e => setNombre(e.target.value)}
+            placeholder="Tu nombre" autoFocus
             style={{
-              width: "100%", padding: "14px 16px",
-              border: "2px solid #E0D8D0", borderRadius: 10,
-              fontSize: 16, fontFamily: "'HWYGothic', sans-serif",
-              color: "#2A3528", outline: "none",
-              transition: "border-color 0.15s",
+              width: "100%", padding: "13px 14px",
+              border: `1.5px solid ${BORDER}`, borderRadius: 9,
+              fontSize: 15, fontFamily: "'HWYGothic', sans-serif",
+              color: DARK, outline: "none", transition: "border-color 0.15s",
               boxSizing: "border-box",
             }}
-            onFocus={e => { e.target.style.borderColor = "#4A6741"; }}
-            onBlur={e => { e.target.style.borderColor = "#E0D8D0"; }}
+            onFocus={e => { e.target.style.borderColor = ACCENT; }}
+            onBlur={e  => { e.target.style.borderColor = BORDER; }}
           />
         </div>
 
         <div>
-          <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#8A7868", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 7, fontFamily: "'HWYGothic', sans-serif" }}>
-            Tu WhatsApp
+          <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: 1, marginBottom: 7, fontFamily: "'HWYGothic', sans-serif" }}>
+            WhatsApp
           </label>
-          <div style={{ position: "relative" }}>
-            <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 18, pointerEvents: "none" }}>📱</span>
-            <input
-              type="tel"
-              value={telefono}
-              onChange={e => setTelefono(e.target.value.replace(/[^0-9+\s()-]/g, ""))}
-              placeholder="+56 9 XXXX XXXX"
-              style={{
-                width: "100%", padding: "14px 16px 14px 44px",
-                border: "2px solid #E0D8D0", borderRadius: 10,
-                fontSize: 16, fontFamily: "'HWYGothic', sans-serif",
-                color: "#2A3528", outline: "none",
-                transition: "border-color 0.15s",
-                boxSizing: "border-box",
-              }}
-              onFocus={e => { e.target.style.borderColor = "#4A6741"; }}
-              onBlur={e => { e.target.style.borderColor = "#E0D8D0"; }}
-            />
-          </div>
+          <input
+            type="tel" value={telefono}
+            onChange={e => setTelefono(e.target.value.replace(/[^0-9+\s()-]/g, ""))}
+            placeholder="+56 9 XXXX XXXX"
+            style={{
+              width: "100%", padding: "13px 14px",
+              border: `1.5px solid ${BORDER}`, borderRadius: 9,
+              fontSize: 15, fontFamily: "'HWYGothic', sans-serif",
+              color: DARK, outline: "none", transition: "border-color 0.15s",
+              boxSizing: "border-box",
+            }}
+            onFocus={e => { e.target.style.borderColor = ACCENT; }}
+            onBlur={e  => { e.target.style.borderColor = BORDER; }}
+          />
         </div>
 
-        <div style={{ background: "#F5F8F4", border: "1px solid #D8E8D4", borderRadius: 10, padding: "12px 14px", fontSize: 11, color: "#5A7058", fontFamily: "'HWYGothic', sans-serif", lineHeight: 1.6 }}>
-          🔒 Tu información es privada. Te contactaremos solo para tu cotización, sin spam.
+        <div style={{
+          background: "#F7F5F2", border: `1px solid ${BORDER}`,
+          borderRadius: 9, padding: "11px 14px",
+          fontSize: 11, color: MUTED, fontFamily: "'HWYGothic', sans-serif", lineHeight: 1.6,
+        }}>
+          Tu información es privada. Te contactaremos solo para tu cotización.
         </div>
 
         <button
-          type="button"
-          onClick={onEnviar}
-          disabled={!nombre.trim() || !telefono.trim() || cargando}
+          type="button" onClick={onEnviar}
+          disabled={!listo || cargando}
           style={{
-            padding: "16px", borderRadius: 10, border: "none",
-            background: (!nombre.trim() || !telefono.trim()) ? "#C0C0C0" : "#25D366",
-            color: "white", fontSize: 15, fontWeight: 700,
-            cursor: (!nombre.trim() || !telefono.trim()) ? "not-allowed" : "pointer",
+            padding: "15px", borderRadius: 9, border: "none",
+            background: listo ? DARK : "#C8C4BC",
+            color: "white", fontSize: 14, fontWeight: 700,
+            cursor: listo ? "pointer" : "not-allowed",
             fontFamily: "'HWYGothic', sans-serif",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-            transition: "all 0.2s",
-            boxShadow: (!nombre.trim() || !telefono.trim()) ? "none" : "0 4px 16px rgba(37,211,102,0.35)",
+            transition: "all 0.2s", letterSpacing: 0.3,
+            boxShadow: listo ? "0 4px 16px rgba(42,53,40,0.25)" : "none",
           }}
         >
-          <span style={{ fontSize: 20 }}>💬</span>
-          {cargando ? "Enviando..." : "Recibir orientación por WhatsApp"}
+          {cargando ? "Enviando..." : "Enviar por WhatsApp"}
         </button>
       </div>
     </div>
@@ -274,48 +340,37 @@ function PantallaContacto({ nombre, setNombre, telefono, setTelefono, sm, onEnvi
 }
 
 // ─── BARRA DE PROGRESO ────────────────────────────────────────────────────────
-function BarraProgreso({ paso, total, C }) {
+function BarraProgreso({ paso, total }) {
   return (
     <div style={{ marginBottom: 28 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <span style={{ fontSize: 11, color: "#8A7868", fontFamily: "'HWYGothic', sans-serif", fontWeight: 600 }}>
-          Pregunta {paso} de {total}
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 11, color: MUTED, fontFamily: "'HWYGothic', sans-serif", fontWeight: 600 }}>
+          Paso {paso} de {total}
         </span>
-        <span style={{ fontSize: 11, color: "#8A7868", fontFamily: "'HWYGothic', sans-serif" }}>
-          {Math.round(((paso - 1) / total) * 100)}% completado
+        <span style={{ fontSize: 11, color: MUTED, fontFamily: "'HWYGothic', sans-serif" }}>
+          {Math.round(((paso - 1) / total) * 100)}%
         </span>
       </div>
-      <div style={{ height: 6, background: "#EDE8E0", borderRadius: 6, overflow: "hidden" }}>
+      <div style={{ height: 3, background: "#EDE8E0", borderRadius: 3, overflow: "hidden" }}>
         <div style={{
           height: "100%",
           width: `${((paso - 1) / total) * 100}%`,
-          background: `linear-gradient(90deg, #4A6741, #6B9A5E)`,
-          borderRadius: 6,
-          transition: "width 0.4s ease",
+          background: ACCENT,
+          borderRadius: 3, transition: "width 0.4s ease",
         }} />
-      </div>
-      <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 10 }}>
-        {Array.from({ length: total }).map((_, i) => (
-          <div key={i} style={{
-            width: i === paso - 1 ? 20 : 7,
-            height: 7, borderRadius: 4,
-            background: i < paso - 1 ? "#4A6741" : i === paso - 1 ? "#6B9A5E" : "#DDD8D0",
-            transition: "all 0.3s ease",
-          }} />
-        ))}
       </div>
     </div>
   );
 }
 
-// ─── WIZARD SIMPLE (modal principal) ─────────────────────────────────────────
+// ─── WIZARD SIMPLE ────────────────────────────────────────────────────────────
 export function WizardSimple({ onClose, C, waNumber, sm }) {
-  const TOTAL = PREGUNTAS.length + 1; // preguntas + pantalla de contacto
-  const [paso, setPaso]         = useState(1);
-  const [respuestas, setResp]   = useState({});
-  const [nombre, setNombre]     = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [cargando, setCargando] = useState(false);
+  const TOTAL = PREGUNTAS.length + 1;
+  const [paso, setPaso]           = useState(1);
+  const [respuestas, setResp]     = useState({});
+  const [nombre, setNombre]       = useState("");
+  const [telefono, setTelefono]   = useState("");
+  const [cargando, setCargando]   = useState(false);
   const [avanzando, setAvanzando] = useState(false);
 
   useEffect(() => {
@@ -325,88 +380,88 @@ export function WizardSimple({ onClose, C, waNumber, sm }) {
 
   const seleccionar = (pregId, opcId) => {
     setResp(r => ({ ...r, [pregId]: opcId }));
-    // Auto-avanzar con pequeño delay para feedback visual
     if (!avanzando) {
       setAvanzando(true);
-      setTimeout(() => {
-        setPaso(p => Math.min(p + 1, TOTAL));
-        setAvanzando(false);
-      }, 350);
+      setTimeout(() => { setPaso(p => Math.min(p + 1, TOTAL)); setAvanzando(false); }, 350);
     }
   };
 
-  const anterior = () => setPaso(p => Math.max(1, p - 1));
-
   const buildMensajeWA = () => {
-    const lineas = PREGUNTAS.map(p => {
-      const val = respuestas[p.id];
-      const label = val ? getLabel(p.id, val) : "No respondida";
-      return `• ${p.titulo.replace("¿", "").replace("?", "")}: *${label}*`;
-    });
-    return encodeURIComponent(
-      `¡Hola! Soy *${nombre}* y completé el configurador de cabañas en Casa-Estudio 1016.\n\n` +
-      `Mis respuestas:\n${lineas.join("\n")}\n\n` +
-      `Mi WhatsApp: ${telefono}\n\n` +
-      `Quedo atento/a a su orientación. ¡Gracias! 🏕️`
-    );
+    const r = respuestas;
+    const msg =
+`Hola, Casa-Estudio 1016.
+
+Soy *${nombre}* y completé el configurador de cabañas en su sitio web. Me gustaría recibir una orientación y cotización para mi proyecto.
+
+━━━━━━━━━━━━━━━━━━━━
+*RESUMEN DE MI PROYECTO*
+━━━━━━━━━━━━━━━━━━━━
+
+*Uso de la cabaña:* ${getLabel("uso", r.uso) || "—"}
+*Dormitorios:* ${getLabel("dormitorios", r.dormitorios) || "—"}
+*Terreno:* ${getLabel("terreno", r.terreno) || "—"}
+*Presupuesto estimado:* ${getLabel("presupuesto", r.presupuesto) || "—"}
+*Estilo preferido:* ${getLabel("estilo", r.estilo) || "—"}
+*Cuándo quiero empezar:* ${getLabel("plazo", r.plazo) || "—"}
+
+━━━━━━━━━━━━━━━━━━━━
+
+*WhatsApp:* ${telefono}
+
+Quedo a la espera de su orientación. Muchas gracias.`;
+    return encodeURIComponent(msg);
   };
 
   const enviar = () => {
     if (!nombre.trim() || !telefono.trim()) return;
     setCargando(true);
-    const url = `https://wa.me/${waNumber}?text=${buildMensajeWA()}`;
-    window.open(url, "_blank");
+    window.open(`https://wa.me/${waNumber}?text=${buildMensajeWA()}`, "_blank");
     setTimeout(() => { setCargando(false); onClose(); }, 800);
   };
 
   const preguntaActual = paso <= PREGUNTAS.length ? PREGUNTAS[paso - 1] : null;
-  const esContacto = paso === TOTAL;
-  const puedeRetroceder = paso > 1;
+  const esContacto     = paso === TOTAL;
 
-  const contenido = (
+  return createPortal(
     <div
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, zIndex: 2000,
-        background: "rgba(15,12,10,0.85)",
+        background: "rgba(10,10,10,0.75)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: sm ? 0 : 16,
-        backdropFilter: "blur(6px)",
+        padding: sm ? 0 : 16, backdropFilter: "blur(6px)",
       }}
     >
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: "#FAF8F4",
-          width: "100%", maxWidth: 600,
+          background: "#FAFAF8", width: "100%", maxWidth: 580,
           height: sm ? "100%" : "auto",
           maxHeight: sm ? "100%" : "90vh",
-          borderRadius: sm ? 0 : 20,
+          borderRadius: sm ? 0 : 16,
           display: "flex", flexDirection: "column",
-          boxShadow: "0 40px 100px rgba(0,0,0,0.4)",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.35)",
           overflow: "hidden",
         }}
       >
         {/* Header */}
         <div style={{
-          padding: "14px 20px",
-          borderBottom: "1px solid #EDE8E0",
+          padding: "14px 20px", borderBottom: `1px solid ${BORDER}`,
           background: "white",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           flexShrink: 0,
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{
-              width: 32, height: 32, background: "#2A3528",
-              borderRadius: 6, display: "flex", alignItems: "center",
-              justifyContent: "center", fontSize: 10, fontWeight: 800,
-              color: "white", fontFamily: "'HWYGWide', sans-serif",
+              width: 30, height: 30, background: DARK, borderRadius: 5,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 9, fontWeight: 800, color: "white", fontFamily: "'HWYGWide', sans-serif",
             }}>1016</div>
             <div>
-              <div style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: 14, fontWeight: 700, color: "#2A3528" }}>
+              <div style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: 13, fontWeight: 700, color: DARK }}>
                 Diseña tu cabaña
               </div>
-              <div style={{ fontSize: 10, color: "#9A8A7A", letterSpacing: 0.5, fontFamily: "'HWYGothic', sans-serif" }}>
+              <div style={{ fontSize: 10, color: MUTED, letterSpacing: 0.3, fontFamily: "'HWYGothic', sans-serif" }}>
                 Rápido · Sin formularios complicados
               </div>
             </div>
@@ -414,19 +469,18 @@ export function WizardSimple({ onClose, C, waNumber, sm }) {
           <button
             onClick={onClose}
             style={{
-              background: "none", border: "1px solid #E0D8D0",
-              borderRadius: 8, padding: "6px 12px", cursor: "pointer",
-              fontSize: 12, color: "#8A7868", fontFamily: "'HWYGothic', sans-serif",
+              background: "none", border: `1px solid ${BORDER}`, borderRadius: 7,
+              padding: "6px 12px", cursor: "pointer",
+              fontSize: 12, color: MUTED, fontFamily: "'HWYGothic', sans-serif",
             }}
           >
-            × Cerrar
+            Cerrar
           </button>
         </div>
 
         {/* Body */}
         <div style={{ flex: 1, overflowY: "auto", padding: sm ? "20px 16px" : "28px 32px" }}>
-          <BarraProgreso paso={paso} total={TOTAL} C={C} />
-
+          <BarraProgreso paso={paso} total={TOTAL} />
           <div key={paso} style={{ animation: "fadeUp 0.25s ease both" }}>
             {preguntaActual && (
               <PantallaPregunta
@@ -440,37 +494,32 @@ export function WizardSimple({ onClose, C, waNumber, sm }) {
               <PantallaContacto
                 nombre={nombre} setNombre={setNombre}
                 telefono={telefono} setTelefono={setTelefono}
-                sm={sm}
-                onEnviar={enviar}
-                cargando={cargando}
+                sm={sm} onEnviar={enviar} cargando={cargando}
               />
             )}
           </div>
         </div>
 
-        {/* Footer navegación */}
+        {/* Footer */}
         <div style={{
-          padding: "12px 20px",
-          borderTop: "1px solid #EDE8E0",
-          background: "white",
+          padding: "12px 20px", borderTop: `1px solid ${BORDER}`, background: "white",
           display: "flex", alignItems: "center",
-          justifyContent: puedeRetroceder ? "space-between" : "flex-end",
-          flexShrink: 0,
-          gap: 12,
+          justifyContent: paso > 1 ? "space-between" : "flex-end",
+          flexShrink: 0, gap: 12,
         }}>
-          {puedeRetroceder && (
+          {paso > 1 && (
             <button
               type="button"
-              onClick={anterior}
+              onClick={() => setPaso(p => Math.max(1, p - 1))}
               style={{
-                display: "flex", alignItems: "center", gap: 5,
                 padding: "9px 16px", borderRadius: 8,
-                border: "1.5px solid #E0D8D0", background: "white",
-                fontSize: 13, fontWeight: 600, cursor: "pointer",
+                border: `1.5px solid ${BORDER}`, background: "white",
+                fontSize: 12, fontWeight: 600, cursor: "pointer",
                 color: "#6A5A4A", fontFamily: "'HWYGothic', sans-serif",
+                letterSpacing: 0.2,
               }}
             >
-              ← Anterior
+              Anterior
             </button>
           )}
           {!esContacto && (
@@ -479,22 +528,21 @@ export function WizardSimple({ onClose, C, waNumber, sm }) {
               onClick={() => setPaso(p => Math.min(p + 1, TOTAL))}
               disabled={!respuestas[preguntaActual?.id]}
               style={{
-                padding: "9px 20px", borderRadius: 8,
-                border: "none",
-                background: respuestas[preguntaActual?.id] ? "#4A6741" : "#DDD8D0",
+                padding: "9px 20px", borderRadius: 8, border: "none",
+                background: respuestas[preguntaActual?.id] ? ACCENT : "#DDD8D0",
                 color: respuestas[preguntaActual?.id] ? "white" : "#9A8A7A",
-                fontSize: 13, fontWeight: 700, cursor: respuestas[preguntaActual?.id] ? "pointer" : "not-allowed",
-                fontFamily: "'HWYGothic', sans-serif",
+                fontSize: 12, fontWeight: 700,
+                cursor: respuestas[preguntaActual?.id] ? "pointer" : "not-allowed",
+                fontFamily: "'HWYGothic', sans-serif", letterSpacing: 0.3,
                 transition: "all 0.15s",
               }}
             >
-              Siguiente →
+              Siguiente
             </button>
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
-
-  return createPortal(contenido, document.body);
 }

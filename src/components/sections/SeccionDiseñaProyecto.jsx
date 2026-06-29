@@ -2,11 +2,11 @@ import { useState } from "react";
 import { MODELOS_CABANAS } from "../../data/wizardData";
 
 const PASOS_WIZARD = [
-  { n: 1, t: "Tipo de cabaña",           d: "1 piso, 2 pisos, modular, refugio, conjunto…",  e: "🏕️" },
-  { n: 2, t: "Terreno e infraestructura", d: "Agua potable, aguas servidas, superficie.",       e: "💧" },
-  { n: 3, t: "Programa interior",         d: "Dormitorios, baños, living, terraza y más.",      e: "🛏" },
-  { n: 4, t: "Estilo y materiales",       d: "Estética arquitectónica y revestimientos.",        e: "🎨" },
-  { n: 5, t: "Resumen y envío",           d: "Recibe tu propuesta por WhatsApp en 24–48 hrs.",  e: "💬" },
+  { n: 1, t: "Tipo de cabaña",           d: "1 piso, 2 pisos, modular, refugio, conjunto." },
+  { n: 2, t: "Terreno e infraestructura", d: "Agua potable, aguas servidas, superficie." },
+  { n: 3, t: "Programa interior",         d: "Dormitorios, baños, living, terraza y más." },
+  { n: 4, t: "Estilo y materiales",       d: "Estética arquitectónica y revestimientos." },
+  { n: 5, t: "Resumen y envío",           d: "Recibe tu propuesta por WhatsApp en 24–48 hrs." },
 ];
 
 function ModeloCabanaCard({ modelo, C, sm, onCotizar }) {
@@ -29,9 +29,9 @@ function ModeloCabanaCard({ modelo, C, sm, onCotizar }) {
         {modelo.img ? (
           <img src={modelo.img} alt={modelo.nombre} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, background: `linear-gradient(135deg, ${modelo.tagColor}18 0%, ${modelo.tagColor}35 100%)` }}>
-            <span style={{ fontSize: 44 }}>{modelo.emoji}</span>
-            <span style={{ fontSize: 9, color: modelo.tagColor, opacity: 0.6, fontFamily: "'HWYGothic',sans-serif", textTransform: "uppercase", letterSpacing: 2, fontWeight: 700 }}>Foto próximamente</span>
+          <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, background: `linear-gradient(135deg, ${modelo.tagColor}12 0%, ${modelo.tagColor}28 100%)` }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: modelo.tagColor, fontFamily: "'HWYGWide',sans-serif", letterSpacing: 1, textTransform: "uppercase" }}>{modelo.nombre}</div>
+            <div style={{ fontSize: 9, color: modelo.tagColor, opacity: 0.5, fontFamily: "'HWYGothic',sans-serif", textTransform: "uppercase", letterSpacing: 2, fontWeight: 600 }}>Imagen próximamente</div>
           </div>
         )}
         {/* Badge de nivel */}
@@ -115,7 +115,7 @@ export function SeccionDiseñaProyecto({ C, sm, onAbrir }) {
               <button onClick={onAbrir} style={{ background: "white", color: C.dark, border: "none", borderRadius: 8, padding: "16px 36px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'HWYGothic',sans-serif", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", transition: "all 0.2s", boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }}
                 onMouseOver={e => { e.currentTarget.style.background = C.warm; e.currentTarget.style.color = "white"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                 onMouseOut={e  => { e.currentTarget.style.background = "white"; e.currentTarget.style.color = C.dark; e.currentTarget.style.transform = "translateY(0)"; }}>
-                <span style={{ fontSize: 18 }}>+</span> Comenzar diseño
+                Comenzar diseño
               </button>
               <span style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "'HWYGothic',sans-serif", textAlign: sm ? "left" : "right" }}>Sin compromiso · Respuesta en 24–48 hrs</span>
             </div>
@@ -134,7 +134,6 @@ export function SeccionDiseñaProyecto({ C, sm, onAbrir }) {
                 <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderTop: `2px solid ${i === 4 ? C.warm : "rgba(255,255,255,0.15)"}`, borderRadius: 10, padding: "20px 16px", width: "calc(100% - 16px)", textAlign: "center", transition: "all 0.2s" }}
                   onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderTopColor = C.warm; }}
                   onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderTopColor = i === 4 ? C.warm : "rgba(255,255,255,0.15)"; }}>
-                  <div style={{ fontSize: 26, marginBottom: 10, lineHeight: 1 }}>{p.e}</div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 8, fontFamily: "'HWYGWide',sans-serif", lineHeight: 1.3 }}>{p.t}</div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "'HWYGothic',sans-serif", lineHeight: 1.65 }}>{p.d}</div>
                 </div>
@@ -149,7 +148,7 @@ export function SeccionDiseñaProyecto({ C, sm, onAbrir }) {
                 {i < 4 && <div style={{ position: "absolute", left: 18, top: 44, bottom: 0, width: 1, background: "rgba(255,255,255,0.1)" }} />}
                 <div style={{ width: 36, height: 36, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: i === 4 ? C.warm : "rgba(255,255,255,0.08)", border: `1.5px solid ${i === 4 ? C.warm : "rgba(255,255,255,0.2)"}`, fontSize: 13, fontWeight: 800, color: "white", fontFamily: "'HWYGWide',sans-serif", zIndex: 1 }}>{p.n}</div>
                 <div style={{ flex: 1, paddingTop: 4 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><span style={{ fontSize: 16 }}>{p.e}</span><span style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'HWYGWide',sans-serif" }}>{p.t}</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><span style={{ fontSize: 13, fontWeight: 700, color: "white", fontFamily: "'HWYGWide',sans-serif" }}>{p.t}</span></div>
                   <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'HWYGothic',sans-serif", lineHeight: 1.6 }}>{p.d}</p>
                 </div>
               </div>
