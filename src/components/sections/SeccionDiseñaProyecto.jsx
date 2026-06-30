@@ -1,5 +1,280 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { MODELOS_CABANAS } from "../../data/wizardData";
+
+// ─── LIGHTBOX ─────────────────────────────────────────────────────────────────
+function Lightbox({ media, startIdx, onClose }) {
+  const [idx, setIdx] = useState(startIdx);
+  const videoRef = useRef(null);
+  const current = media[idx];
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  useEffect(() => {
+    if (current.type === "video" && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [idx, current.type]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") setIdx(i => (i + 1) % media.length);
+      if (e.key === "ArrowLeft")  setIdx(i => (i - 1 + media.length) % media.length);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [media.length, onClose]);
+
+  const prev = (e) => { e.stopPropagation(); setIdx(i => (i - 1 + media.length) % media.length); };
+  const next = (e) => { e.stopPropagation(); setIdx(i => (i + 1) % media.length); };
+
+  return createPortal(
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 3000,
+        background: "rgba(0,0,0,0.95)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}
+    >
+      {/* Botón cerrar */}
+      <button
+        onClick={onClose}
+        style={{
+          position: "absolute", top: 16, right: 16, zIndex: 10,
+          width: 40, height: 40, borderRadius: "50%",
+          background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)",
+          color: "white", fontSize: 20, cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          transition: "background 0.15s",
+        }}
+        onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; }}
+        onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; }}
+      >✕</button>
+
+      {/* Contador */}
+      <div style={{
+        position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)",
+        fontSize: 12, color: "rgba(255,255,255,0.5)", fontFamily: "'HWYGothic',sans-serif", letterSpacing: 1,
+      }}>
+        {idx + 1} / {media.length}
+      </div>
+
+      {/* Media */}
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: "100%", maxWidth: "92vw", maxHeight: "88vh",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+      >
+        {current.type === "image" ? (
+          <img
+            key={idx}
+            src={current.src}
+            alt={`slide ${idx + 1}`}
+            style={{
+              maxWidth: "100%", maxHeight: "88vh",
+              objectFit: "contain", borderRadius: 6,
+              animation: "fadeIn 0.2s ease",
+              userSelect: "none",
+            }}
+          />
+        ) : (
+          <video
+            key={idx}
+            ref={videoRef}
+            src={current.src}
+            controls
+            autoPlay
+            loop
+            playsInline
+            style={{
+              maxWidth: "100%", maxHeight: "88vh",
+              borderRadius: 6, outline: "none",
+              animation: "fadeIn 0.2s ease",
+            }}
+          />
+        )}
+      </div>
+
+      {/* Flecha izquierda */}
+      {media.length > 1 && (
+        <button
+          onClick={prev}
+          style={{
+            position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)",
+            width: 44, height: 44, borderRadius: "50%",
+            background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+            color: "white", fontSize: 22, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "background 0.15s",
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; }}
+          onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+        >‹</button>
+      )}
+
+      {/* Flecha derecha */}
+      {media.length > 1 && (
+        <button
+          onClick={next}
+          style={{
+            position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)",
+            width: 44, height: 44, borderRadius: "50%",
+            background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+            color: "white", fontSize: 22, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "background 0.15s",
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; }}
+          onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
+        >›</button>
+      )}
+
+      {/* Puntos */}
+      {media.length > 1 && (
+        <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 8 }}>
+          {media.map((_, i) => (
+            <button
+              key={i}
+              onClick={e => { e.stopPropagation(); setIdx(i); }}
+              style={{
+                width: i === idx ? 24 : 8, height: 8, borderRadius: 4, border: "none", cursor: "pointer",
+                background: i === idx ? "white" : "rgba(255,255,255,0.35)",
+                transition: "all 0.25s", padding: 0,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Hint teclado */}
+      <div style={{
+        position: "absolute", bottom: 20, right: 20,
+        fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'HWYGothic',sans-serif",
+      }}>
+        ← → para navegar · Esc para cerrar
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ─── CARRUSEL DE MEDIA ────────────────────────────────────────────────────────
+function MediaCarousel({ media, tagColor, tag, nombre }) {
+  const [idx, setIdx] = useState(0);
+  const [lightbox, setLightbox] = useState(false);
+  const videoRef = useRef(null);
+  const current = media[idx];
+
+  useEffect(() => {
+    if (current.type === "video" && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [idx, current.type]);
+
+  const prev = (e) => { e.stopPropagation(); setIdx(i => (i - 1 + media.length) % media.length); };
+  const next = (e) => { e.stopPropagation(); setIdx(i => (i + 1) % media.length); };
+
+  return (
+    <>
+    {lightbox && <Lightbox media={media} startIdx={idx} onClose={() => setLightbox(false)} />}
+    <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#111" }}>
+      {/* Slide — click abre lightbox */}
+      <div onClick={() => setLightbox(true)} style={{ width: "100%", height: "100%", cursor: "zoom-in" }}>
+      {current.type === "image" ? (
+        <img
+          key={idx}
+          src={current.src}
+          alt={`${nombre} ${idx + 1}`}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", animation: "fadeIn 0.3s ease" }}
+        />
+      ) : (
+        <video
+          key={idx}
+          ref={videoRef}
+          src={current.src}
+          muted
+          loop
+          playsInline
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", animation: "fadeIn 0.3s ease" }}
+        />
+      )}
+      </div>
+
+      {/* Overlay gradiente para flechas */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.18) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.18) 100%)", pointerEvents: "none" }} />
+
+      {/* Flecha izquierda */}
+      <button
+        onClick={prev}
+        style={{
+          position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)",
+          width: 32, height: 32, borderRadius: "50%",
+          background: "rgba(255,255,255,0.9)", border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)", transition: "all 0.15s",
+          fontSize: 14, color: "#2A3528", fontWeight: 700,
+        }}
+        onMouseOver={e => { e.currentTarget.style.background = "white"; e.currentTarget.style.transform = "translateY(-50%) scale(1.08)"; }}
+        onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; e.currentTarget.style.transform = "translateY(-50%) scale(1)"; }}
+      >‹</button>
+
+      {/* Flecha derecha */}
+      <button
+        onClick={next}
+        style={{
+          position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+          width: 32, height: 32, borderRadius: "50%",
+          background: "rgba(255,255,255,0.9)", border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)", transition: "all 0.15s",
+          fontSize: 14, color: "#2A3528", fontWeight: 700,
+        }}
+        onMouseOver={e => { e.currentTarget.style.background = "white"; e.currentTarget.style.transform = "translateY(-50%) scale(1.08)"; }}
+        onMouseOut={e  => { e.currentTarget.style.background = "rgba(255,255,255,0.9)"; e.currentTarget.style.transform = "translateY(-50%) scale(1)"; }}
+      >›</button>
+
+      {/* Badge nivel */}
+      <div style={{ position: "absolute", top: 12, left: 12, background: tagColor, borderRadius: 20, padding: "4px 12px" }}>
+        <span style={{ fontSize: 10, fontWeight: 800, color: "white", fontFamily: "'HWYGothic',sans-serif", letterSpacing: 1, textTransform: "uppercase" }}>{tag}</span>
+      </div>
+
+      {/* Indicador de video */}
+      {current.type === "video" && (
+        <div style={{
+          position: "absolute", top: 12, right: 12,
+          background: "rgba(0,0,0,0.55)", borderRadius: 6, padding: "3px 9px",
+          fontSize: 10, color: "white", fontFamily: "'HWYGothic',sans-serif", fontWeight: 600, letterSpacing: 0.5,
+        }}>
+          VIDEO
+        </div>
+      )}
+
+      {/* Puntos indicadores */}
+      <div style={{ position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6 }}>
+        {media.map((_, i) => (
+          <button
+            key={i}
+            onClick={e => { e.stopPropagation(); setIdx(i); }}
+            style={{
+              width: i === idx ? 20 : 7, height: 7,
+              borderRadius: 4, border: "none", cursor: "pointer",
+              background: i === idx ? "white" : "rgba(255,255,255,0.45)",
+              transition: "all 0.25s", padding: 0,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+    </>
+  );
+}
 
 const PASOS_WIZARD = [
   { n: 1, t: "Tipo de cabaña",           d: "1 piso, 2 pisos, modular, refugio, conjunto." },
@@ -24,20 +299,19 @@ function ModeloCabanaCard({ modelo, C, sm, onCotizar }) {
         display: "flex", flexDirection: "column",
       }}
     >
-      {/* Imagen / placeholder */}
-      <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", position: "relative", flexShrink: 0 }}>
-        {modelo.img ? (
-          <img src={modelo.img} alt={modelo.nombre} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      {/* Carrusel */}
+      <div style={{ flexShrink: 0 }}>
+        {modelo.media?.length ? (
+          <MediaCarousel media={modelo.media} tagColor={modelo.tagColor} tag={modelo.tag} nombre={modelo.nombre} />
         ) : (
-          <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, background: `linear-gradient(135deg, ${modelo.tagColor}12 0%, ${modelo.tagColor}28 100%)` }}>
+          <div style={{ width: "100%", aspectRatio: "16/9", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, background: `linear-gradient(135deg, ${modelo.tagColor}12 0%, ${modelo.tagColor}28 100%)`, position: "relative" }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: modelo.tagColor, fontFamily: "'HWYGWide',sans-serif", letterSpacing: 1, textTransform: "uppercase" }}>{modelo.nombre}</div>
             <div style={{ fontSize: 9, color: modelo.tagColor, opacity: 0.5, fontFamily: "'HWYGothic',sans-serif", textTransform: "uppercase", letterSpacing: 2, fontWeight: 600 }}>Imagen próximamente</div>
+            <div style={{ position: "absolute", top: 12, left: 12, background: modelo.tagColor, borderRadius: 20, padding: "4px 12px" }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: "white", fontFamily: "'HWYGothic',sans-serif", letterSpacing: 1, textTransform: "uppercase" }}>{modelo.tag}</span>
+            </div>
           </div>
         )}
-        {/* Badge de nivel */}
-        <div style={{ position: "absolute", top: 12, left: 12, background: modelo.tagColor, borderRadius: 20, padding: "4px 12px" }}>
-          <span style={{ fontSize: 10, fontWeight: 800, color: "white", fontFamily: "'HWYGothic',sans-serif", letterSpacing: 1, textTransform: "uppercase" }}>{modelo.tag}</span>
-        </div>
       </div>
 
       {/* Contenido */}

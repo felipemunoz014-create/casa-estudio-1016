@@ -1802,7 +1802,7 @@ borderRadius: 12,
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {[
-  { key: "aboutImg1", label: "Cabañas", icon: "🏕️", action: () => setWizardOpen(true) },
+  { key: "aboutImg1", label: "Cabañas", icon: "🏕️", action: () => document.getElementById("diseña-tu-proyecto")?.scrollIntoView({ behavior: "smooth" }) },
   { key: "aboutImg2", label: "Muros interiores", icon: "🧱", action: () => { setFilterCat("muro"); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }},
   { key: "aboutImg3", label: "Revestimientos baño", icon: "🚿", action: () => { setFilterCat("muro"); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }},
   { key: "aboutImg4", label: "Fachadas exterior", icon: "🏠", action: () => { setFilterCat("exterior"); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }},

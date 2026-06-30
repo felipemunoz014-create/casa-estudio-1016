@@ -111,6 +111,16 @@ export const WZ_INIT = {
   mats: { ...WZ_MATS_INIT },
 };
 
+import casaBasica from "../assets/CasaBasica.JPG";
+import inicio1 from "../assets/Inicio1.jpeg";
+import inicio2 from "../assets/Inicio2.jpeg";
+import inicio3 from "../assets/Inicio3.jpeg";
+import inicio5 from "../assets/Inicio5.png";
+import casaTiomoncho from "../assets/CasaTiomoncho.jpg";
+import heroVideo from "../assets/HeroVideo.mp4";
+import modeloAVideo from "../assets/ModeloA.mp4";
+import modeloCVideo from "../assets/ModeloC.mp4";
+
 export const MODELOS_CABANAS = [
   {
     id: 1,
@@ -121,8 +131,10 @@ export const MODELOS_CABANAS = [
     nivel: "Terminaciones esenciales",
     puntos: ["Estructura y envolvente completa", "Revestimientos de entrada", "Funcional y lista para habitar"],
     cta: "Quiero cotizar Modelo A →",
-    img: null,
-    emoji: "🏕️",
+    media: [
+      { type: "image", src: casaBasica },
+      { type: "video", src: modeloAVideo },
+    ],
   },
   {
     id: 2,
@@ -133,8 +145,10 @@ export const MODELOS_CABANAS = [
     nivel: "Terminaciones de mayor calidad",
     puntos: ["Materiales de línea media-alta", "Mejor aislación térmica y acústica", "Diseño más cuidado y personalizable"],
     cta: "Quiero cotizar Modelo B →",
-    img: null,
-    emoji: "🌲",
+    media: [
+      { type: "image", src: inicio1 },
+      { type: "video", src: heroVideo },
+    ],
   },
   {
     id: 3,
@@ -145,8 +159,10 @@ export const MODELOS_CABANAS = [
     nivel: "Alto estándar · Arquitectura de autor",
     puntos: ["Materialidades premium seleccionadas", "Diseño arquitectónico personalizado", "Calidad de construcción superior"],
     cta: "Quiero cotizar Modelo C →",
-    img: null,
-    emoji: "🏔️",
+    media: [
+      { type: "image", src: casaTiomoncho },
+      { type: "video", src: modeloCVideo },
+    ],
   },
 ];
 
