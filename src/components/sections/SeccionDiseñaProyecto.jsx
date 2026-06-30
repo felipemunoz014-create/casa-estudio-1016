@@ -442,7 +442,7 @@ export function SeccionDiseñaProyecto({ C, sm, onAbrir }) {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: sm ? "1fr" : "repeat(3, 1fr)", gap: sm ? 20 : 28 }}>
             {MODELOS_CABANAS.map((m) => (
-              <ModeloCabanaCard key={m.id} modelo={m} C={C} sm={sm} onCotizar={onAbrir} />
+              <ModeloCabanaCard key={m.id} modelo={m} C={C} sm={sm} onCotizar={() => onAbrir(m.nombre)} />
             ))}
           </div>
         </div>

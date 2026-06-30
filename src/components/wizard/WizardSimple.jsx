@@ -364,7 +364,7 @@ function BarraProgreso({ paso, total }) {
 }
 
 // ─── WIZARD SIMPLE ────────────────────────────────────────────────────────────
-export function WizardSimple({ onClose, C, waNumber, sm }) {
+export function WizardSimple({ onClose, C, waNumber, sm, modeloPresel }) {
   const TOTAL = PREGUNTAS.length + 1;
   const [paso, setPaso]           = useState(1);
   const [respuestas, setResp]     = useState({});
@@ -388,6 +388,7 @@ export function WizardSimple({ onClose, C, waNumber, sm }) {
 
   const buildMensajeWA = () => {
     const r = respuestas;
+    const modeloLinea = modeloPresel ? `*Modelo de interés:* ${modeloPresel}\n` : "";
     const msg =
 `Hola, Casa-Estudio 1016.
 
@@ -397,7 +398,7 @@ Soy *${nombre}* y completé el configurador de cabañas en su sitio web. Me gust
 *RESUMEN DE MI PROYECTO*
 ━━━━━━━━━━━━━━━━━━━━
 
-*Uso de la cabaña:* ${getLabel("uso", r.uso) || "—"}
+${modeloLinea}*Uso de la cabaña:* ${getLabel("uso", r.uso) || "—"}
 *Dormitorios:* ${getLabel("dormitorios", r.dormitorios) || "—"}
 *Terreno:* ${getLabel("terreno", r.terreno) || "—"}
 *Presupuesto estimado:* ${getLabel("presupuesto", r.presupuesto) || "—"}
@@ -459,10 +460,10 @@ Quedo a la espera de su orientación. Muchas gracias.`;
             }}>1016</div>
             <div>
               <div style={{ fontFamily: "'HWYGWide', sans-serif", fontSize: 13, fontWeight: 700, color: DARK }}>
-                Diseña tu cabaña
+                {modeloPresel ? `Cotizar ${modeloPresel}` : "Diseña tu cabaña"}
               </div>
               <div style={{ fontSize: 10, color: MUTED, letterSpacing: 0.3, fontFamily: "'HWYGothic', sans-serif" }}>
-                Rápido · Sin formularios complicados
+                {modeloPresel ? "Completa el formulario para recibir orientación" : "Rápido · Sin formularios complicados"}
               </div>
             </div>
           </div>

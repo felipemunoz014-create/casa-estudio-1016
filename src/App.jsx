@@ -1296,6 +1296,8 @@ export default function App() {
 
   // ← NUEVO: estado del wizard de proyectos
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardModelo, setWizardModelo] = useState(null);
+  const abrirWizard = (modelo = null) => { setWizardModelo(modelo); setWizardOpen(true); };
 
   const DEFAULT_CONTENT = {
     brandName: "Casa-Estudio", brandNum: "1016", brandSub: "Revestimientos · Santa Bárbara",
@@ -1951,7 +1953,7 @@ borderRadius: 12,
       {/*  ← NUEVA SECCIÓN: "Diseña tu proyecto en 5 pasos"                    */}
       {/*  Se inserta entre SERVICES y CTA, usando el mismo fondo oscuro C.dark */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      <SeccionDiseñaProyecto C={C} sm={sm} onAbrir={() => setWizardOpen(true)} />
+      <SeccionDiseñaProyecto C={C} sm={sm} onAbrir={abrirWizard} />
 
       {/* ── CTA VISUALIZADOR ─────────────────────────────────────────────────── */}
       <section style={{ background: C.dark, padding: `${sm ? 52 : 72}px ${sm ? 20 : 32}px`, position: "relative", overflow: "hidden" }}>
@@ -2080,10 +2082,11 @@ borderRadius: 12,
 
       {wizardOpen && (
         <WizardSimple
-          onClose={() => setWizardOpen(false)}
+          onClose={() => { setWizardOpen(false); setWizardModelo(null); }}
           C={C}
           waNumber={content.waNumber}
           sm={sm}
+          modeloPresel={wizardModelo}
         />
       )}
 
