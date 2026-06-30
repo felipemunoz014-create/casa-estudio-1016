@@ -432,7 +432,7 @@ export function SeccionDiseñaProyecto({ C, sm, onAbrir }) {
       </div>
 
       {/* Galería de modelos */}
-      <div style={{ background: "white", padding: sm ? "40px 20px 48px" : "56px 32px 64px" }}>
+      <div id="modelos-cabanas" style={{ background: "white", padding: sm ? "40px 20px 48px" : "56px 32px 64px" }}>
         <div style={{ maxWidth: 1400, margin: "0 auto" }}>
           <div style={{ marginBottom: sm ? 28 : 40 }}>
             <div style={{ fontSize: 10, color: C.warm, letterSpacing: 2.5, textTransform: "uppercase", fontWeight: 700, fontFamily: "'HWYGothic',sans-serif", marginBottom: 10 }}>Modelos disponibles</div>

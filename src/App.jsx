@@ -1465,6 +1465,9 @@ heroVideo: heroVideo,
                   {id === "diseña-tu-proyecto" ? "Diseña tu proyecto" : id.charAt(0).toUpperCase() + id.slice(1)}
                 </button>
               ))}
+              <button onClick={() => document.getElementById("modelos-cabanas")?.scrollIntoView({ behavior: "smooth" })} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 500, color: C.mid, letterSpacing: 0.5 }}>
+                Modelos de cabañas
+              </button>
             </div>
           )}
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -1493,6 +1496,7 @@ heroVideo: heroVideo,
             {["inicio", "catalogo", "servicios", "contacto"].map((id) => (
               <button key={id} onClick={() => scrollTo(id)} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 500, color: C.mid, padding: "8px 0", textAlign: "left", textTransform: "capitalize" }}>{id.charAt(0).toUpperCase() + id.slice(1)}</button>
             ))}
+            <button onClick={() => { document.getElementById("modelos-cabanas")?.scrollIntoView({ behavior: "smooth" }); setMenuOpen(false); }} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 500, color: C.mid, padding: "8px 0", textAlign: "left" }}>Modelos de cabañas</button>
             {/* ← NUEVO: botón en menú móvil */}
             <button onClick={() => { setWizardOpen(true); setMenuOpen(false); }} style={{ background: C.warm, color: "white", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginTop: 4 }}>+ Diseña tu proyecto</button>
             <button onClick={() => { setVizOpen(true); setMenuOpen(false); }} style={{ background: C.dark, color: "white", border: "none", borderRadius: 6, padding: "10px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", marginTop: 4 }}>✦ Visualizador IA</button>
